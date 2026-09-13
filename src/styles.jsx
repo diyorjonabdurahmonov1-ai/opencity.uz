@@ -55,7 +55,8 @@ export function GlobalStyle() {
       }
 
       /* ---- kirish sahifasi: qo'shimcha uchinchi rangli dog' + texnologik nuqtali panjara ---- */
-      .oc-signin-bg { position: relative; isolation: isolate; }
+      /* iOS Safari'da manzil satri balandligi o'zgarganda sakramasligi uchun dvh, qollamasa vh */
+      .oc-signin-bg { position: relative; isolation: isolate; min-height: 100vh; min-height: 100dvh; }
       .oc-signin-bg::before {
         content: ""; position: fixed; z-index: 0; pointer-events: none; border-radius: 50%;
         top: 50%; left: 50%; width: 720px; height: 720px; transform: translate(-50%,-58%);
@@ -136,7 +137,7 @@ export const S = {
   bootWrap: { position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 300 },
   body: { minHeight: "100%" },
 
-  signinWrap: { position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", padding: 20, overflow: "hidden" },
+  signinWrap: { position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 20, overflow: "hidden" },
   signinCard: { position: "relative", zIndex: 1, maxWidth: 440, width: "100%", ...GLASS_SOFT, borderRadius: "64px 64px 24px 24px", padding: "44px 36px 40px", boxShadow: "0 24px 60px rgba(15,42,67,0.16)", border: "1px solid rgba(255,255,255,0.6)" },
   signinFeatureRow: { display: "flex", justifyContent: "center", gap: 22, marginTop: 28 },
   signinFeature: { display: "flex", flexDirection: "column", alignItems: "center", gap: 6, fontSize: 11, color: "#5B6772", fontWeight: 600, maxWidth: 90, textAlign: "center" },
