@@ -16,7 +16,7 @@ import { fetchMyApplication, submitApplication } from "../lib/api/applications";
 import { createNotification, markAllNotificationsRead } from "../lib/api/notifications";
 
 export function CitizenPortal({
-  profile, reports, refreshReports, myOrg, orgs, notifications, refreshNotifications,
+  profile, reports, refreshReports, myOrg, orgs, notifications, refreshNotifications, markOneNotificationRead,
   view, setView, showToast,
 }) {
   const [myApplication, setMyApplication] = useState(null);
@@ -94,7 +94,8 @@ export function CitizenPortal({
             onReadAll={async () => {
               await markAllNotificationsRead(profile.id);
               await refreshNotifications();
-            }} />
+            }}
+            onReadOne={markOneNotificationRead} />
         )}
         {view === "profile" && (
           <ProfileView profile={profile} myApplication={myApplication} myOrg={myOrg} onApply={() => setView("apply-org")} />
@@ -253,7 +254,7 @@ function CompletedWorks({ reports, profile, onReopenVote }) {
   );
 }
 
-function NotificationsView({ notifications, onReadAll }) {
+function NotificationsView({ notifications, onReadAll, onReadOne }) {
   return (
     <div>
       <div style={S.rowHeader}>
@@ -263,13 +264,15 @@ function NotificationsView({ notifications, onReadAll }) {
       {notifications.length === 0 ? <EmptyState icon={Bell} text="Bildirishnomalar yo'q." /> : (
         <div style={S.notifList}>
           {notifications.map((n) => (
-            <div key={n.id} style={{ ...S.notifRow, opacity: n.read ? 0.6 : 1 }}>
+            <div key={n.id} style={{ ...S.notifRow, ...(n.read ? {} : S.notifRowUnread), cursor: n.read ? "default" : "pointer" }}
+              onClick={() => !n.read && onReadOne(n.id)}>
               <div style={{ ...S.notifDot, background: n.type === "success" ? "#2E9A5C" : n.type === "warn" ? "#C98A2B" : "#1E88A8" }} />
               <div style={{ flex: 1 }}>
                 <div style={S.notifTitle}>{n.title}</div>
                 <div style={S.notifMsg}>{n.message}</div>
                 <div style={S.notifTime}>{fmtDate(n.created_at)}</div>
               </div>
+              {!n.read && <span style={S.notifUnreadBadge} />}
             </div>
           ))}
         </div>

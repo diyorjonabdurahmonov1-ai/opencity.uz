@@ -249,7 +249,9 @@ export const S = {
   reopenText: { fontSize: 13, color: "#4B5B68", lineHeight: 1.5 },
 
   notifList: { display: "flex", flexDirection: "column", gap: 8 },
-  notifRow: { display: "flex", gap: 10, background: "#fff", border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 12, padding: "12px 14px" },
+  notifRow: { display: "flex", alignItems: "flex-start", gap: 10, background: "#fff", border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 12, padding: "12px 14px" },
+  notifRowUnread: { background: "linear-gradient(90deg, rgba(30,136,168,0.06), rgba(135,89,179,0.04))", borderColor: "#BFE0EA" },
+  notifUnreadBadge: { width: 8, height: 8, borderRadius: "50%", background: "#1E88A8", flexShrink: 0, marginTop: 4 },
   notifDot: { width: 8, height: 8, borderRadius: "50%", marginTop: 5, flexShrink: 0 },
   notifTitle: { fontSize: 13.5, fontWeight: 700, color: "#16202B" },
   notifMsg: { fontSize: 12.5, color: "#4B5B68", margin: "2px 0" },

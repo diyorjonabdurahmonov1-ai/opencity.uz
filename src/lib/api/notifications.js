@@ -21,6 +21,11 @@ export async function markAllNotificationsRead(userId) {
   if (error) throw error;
 }
 
+export async function markNotificationRead(id) {
+  const { error } = await supabase.from("notifications").update({ read: true }).eq("id", id);
+  if (error) throw error;
+}
+
 export function subscribeToNotifications(userId, onInsert) {
   const channel = supabase
     .channel(`notifications-${userId}`)

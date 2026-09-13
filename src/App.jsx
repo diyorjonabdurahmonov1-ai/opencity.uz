@@ -4,7 +4,7 @@ import { useAuth } from "./hooks/useAuth";
 import { fetchMyProfile, updateMyProfile } from "./lib/api/profiles";
 import { fetchReports, subscribeToReports } from "./lib/api/reports";
 import { fetchOrganizations, fetchOrgById } from "./lib/api/organizations";
-import { fetchNotifications, subscribeToNotifications } from "./lib/api/notifications";
+import { fetchNotifications, subscribeToNotifications, markNotificationRead } from "./lib/api/notifications";
 import { nearestLocation } from "./constants";
 import { GlobalStyle, S } from "./styles";
 import { SignInScreen } from "./components/SignInScreen";
@@ -46,6 +46,10 @@ export default function App() {
     if (!user) return;
     setNotifications(await fetchNotifications(user.id));
   }, [user]);
+  const markOneNotificationRead = useCallback(async (id) => {
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+    try { await markNotificationRead(id); } catch { /* keyingi refreshda tuzatiladi */ }
+  }, []);
 
   useEffect(() => {
     if (!user) { setProfile(null); setBooting(false); return; }
@@ -124,6 +128,7 @@ export default function App() {
           <CitizenPortal
             profile={profile} reports={reports} refreshReports={refreshReports}
             myOrg={myOrg} orgs={orgs} notifications={notifications} refreshNotifications={refreshNotifications}
+            markOneNotificationRead={markOneNotificationRead}
             view={view} setView={setView} showToast={showToast}
           />
         )}
