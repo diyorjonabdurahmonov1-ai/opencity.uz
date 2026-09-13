@@ -20,10 +20,20 @@ export function CitizenPortal({
   announcements, view, setView, showToast,
 }) {
   const [myApplication, setMyApplication] = useState(null);
+  const [focusAnnouncement, setFocusAnnouncement] = useState(null);
 
   useEffect(() => {
     fetchMyApplication(profile.id).then(setMyApplication).catch(() => {});
   }, [profile.id]);
+
+  const announcementCenter = (a) => {
+    if (!a) return undefined;
+    if (a.kind === "zone" && a.zoneCenter) return [a.zoneCenter.lat, a.zoneCenter.lng];
+    if (a.kind === "line" && a.lineStart && a.lineEnd) {
+      return [(a.lineStart.lat + a.lineEnd.lat) / 2, (a.lineStart.lng + a.lineEnd.lng) / 2];
+    }
+    return undefined;
+  };
 
   const myReports = reports.filter((r) => r.createdBy === profile.id);
 
@@ -71,10 +81,13 @@ export function CitizenPortal({
           />
         )}
         {view === "map" && (
-          <CityMap reports={reports} title="Butun shahar xaritasi"
+          <CityMap reports={reports} title="Butun shahar xaritasi" center={announcementCenter(focusAnnouncement)}
             profile={profile} myOrg={myOrg} refreshReports={refreshReports} showToast={showToast} announcements={announcements} />
         )}
-        {view === "announcements" && <AnnouncementsList announcements={announcements} />}
+        {view === "announcements" && (
+          <AnnouncementsList announcements={announcements}
+            onSelect={(a) => { setFocusAnnouncement(a); setView("map"); }} />
+        )}
         {view === "my-reports" && (
           <MyReports myReports={myReports} onNew={() => setView("report")}
             onDelete={async (id) => {
@@ -268,17 +281,17 @@ function CompletedWorks({ reports, profile, onReopenVote }) {
   );
 }
 
-function AnnouncementsList({ announcements }) {
+function AnnouncementsList({ announcements, onSelect }) {
   const active = (announcements || []).filter((a) => !a.endsAt || new Date(a.endsAt) > new Date());
   return (
     <div>
       <h2 style={S.pageTitle}>E'lonlar</h2>
-      <p style={S.fine}>Davlat tashkilotlari tomonidan e'lon qilingan ko'cha yopilishi va xizmat uzilishlari.</p>
+      <p style={S.fine}>Davlat tashkilotlari tomonidan e'lon qilingan ko'cha yopilishi va xizmat uzilishlari. Xaritada ko'rish uchun bosing.</p>
       {active.length === 0 ? <EmptyState icon={Megaphone} text="Hozircha faol e'lonlar yo'q." /> : (
         <div style={S.notifList}>
           {active.map((a) => (
-            <div key={a.id} style={S.notifRow}>
-              <div style={{ ...S.notifDot, background: a.kind === "line" ? "#C98A2B" : "#B2402A" }} />
+            <div key={a.id} style={{ ...S.notifRow, cursor: "pointer" }} className="oc-card" onClick={() => onSelect(a)}>
+              <div style={{ ...S.notifDot, background: a.kind === "line" ? "#B2402A" : "#B2402A" }} />
               <div style={{ flex: 1 }}>
                 <div style={S.notifTitle}>
                   {a.kind === "line" ? <Milestone size={13} style={{ verticalAlign: "-2px" }} /> : <CircleDot size={13} style={{ verticalAlign: "-2px" }} />}
@@ -290,6 +303,7 @@ function AnnouncementsList({ announcements }) {
                   {(a.startsAt || a.endsAt) && ` · ${a.startsAt ? fmtDate(a.startsAt) : "?"} — ${a.endsAt ? fmtDate(a.endsAt) : "noma'lum"}`}
                 </div>
               </div>
+              <ChevronRight size={16} color="#9AA7B2" />
             </div>
           ))}
         </div>

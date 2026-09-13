@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { MapContainer, TileLayer, Marker, Polyline, Circle, Popup } from "react-leaflet";
 import L from "leaflet";
 import { MoreHorizontal, ThumbsUp, Flame, X, ChevronLeft, LocateFixed, Loader2, Building2, HandHeart, Trash2 } from "lucide-react";
@@ -20,6 +20,20 @@ const meIcon = L.divIcon({
   html: `<span style="display:flex;width:18px;height:18px;border-radius:50%;background:#1E88A8;border:3px solid #fff;box-shadow:0 0 0 2px rgba(30,136,168,0.5),0 2px 6px rgba(15,42,67,0.35);"></span>`,
   iconSize: [18, 18],
   iconAnchor: [9, 9],
+});
+
+export const closureIcon = L.divIcon({
+  className: "oc-map-pin",
+  html: `<span style="display:flex;width:30px;height:30px;border-radius:50%;background:#B2402A;border:3px solid #fff;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(178,64,42,0.55);font-size:15px;">⛔</span>`,
+  iconSize: [30, 30],
+  iconAnchor: [15, 15],
+});
+
+export const zoneMarkerIcon = L.divIcon({
+  className: "oc-map-pin",
+  html: `<span style="display:flex;width:30px;height:30px;border-radius:50%;background:#B2402A;border:3px solid #fff;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(178,64,42,0.55);font-size:15px;">⚠️</span>`,
+  iconSize: [30, 30],
+  iconAnchor: [15, 15],
 });
 
 export function SideNav({ items, active, onChange }) {
@@ -203,19 +217,30 @@ export function CityMap({ reports, title = "Shahar xaritasi", compact = false, c
           })}
           {announcements.filter((a) => !a.endsAt || new Date(a.endsAt) > new Date()).map((a) => {
             if (a.kind === "line" && a.lineStart && a.lineEnd) {
-              const positions = [a.lineStart, ...(a.detour || []), a.lineEnd].map((p) => [p.lat, p.lng]);
+              const mid = { lat: (a.lineStart.lat + a.lineEnd.lat) / 2, lng: (a.lineStart.lng + a.lineEnd.lng) / 2 };
               return (
-                <Polyline key={a.id} positions={positions} pathOptions={{ color: "#C98A2B", weight: 5, dashArray: "10 8" }}>
-                  <Popup><AnnouncementPopup a={a} /></Popup>
-                </Polyline>
+                <Fragment key={a.id}>
+                  <Polyline positions={[a.lineStart, a.lineEnd].map((p) => [p.lat, p.lng])}
+                    pathOptions={{ color: "#B2402A", weight: 6 }} />
+                  {a.detour?.length > 0 && (
+                    <Polyline positions={[a.lineStart, ...a.detour, a.lineEnd].map((p) => [p.lat, p.lng])}
+                      pathOptions={{ color: "#2E9A5C", weight: 4, dashArray: "10 8" }} />
+                  )}
+                  <Marker position={[mid.lat, mid.lng]} icon={closureIcon}>
+                    <Popup><AnnouncementPopup a={a} /></Popup>
+                  </Marker>
+                </Fragment>
               );
             }
             if (a.kind === "zone" && a.zoneCenter && a.zoneRadius) {
               return (
-                <Circle key={a.id} center={[a.zoneCenter.lat, a.zoneCenter.lng]} radius={a.zoneRadius}
-                  pathOptions={{ color: "#B2402A", fillColor: "#B2402A", fillOpacity: 0.15, weight: 2 }}>
-                  <Popup><AnnouncementPopup a={a} /></Popup>
-                </Circle>
+                <Fragment key={a.id}>
+                  <Circle center={[a.zoneCenter.lat, a.zoneCenter.lng]} radius={a.zoneRadius}
+                    pathOptions={{ color: "#B2402A", fillColor: "#B2402A", fillOpacity: 0.15, weight: 2 }} />
+                  <Marker position={[a.zoneCenter.lat, a.zoneCenter.lng]} icon={zoneMarkerIcon}>
+                    <Popup><AnnouncementPopup a={a} /></Popup>
+                  </Marker>
+                </Fragment>
               );
             }
             return null;

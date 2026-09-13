@@ -195,9 +195,9 @@ function AnnouncementForm({ profile, myOrg, onCreated }) {
   );
 
   const geometryHint = kind === "line"
-    ? (points.length === 0 ? "Ko'chaning YOPILADIGAN qismi boshlanadigan nuqtani xaritada bosing."
+    ? (points.length === 0 ? "Ko'chaning YOPILADIGAN qismi boshlanadigan nuqtani xaritada bosing (qizil chiziq bo'ladi)."
       : points.length === 1 ? "Endi ko'chaning tugash nuqtasini bosing."
-        : "Kerak bo'lsa, aylanib o'tish yo'li uchun oraliq nuqtalarni ham bosib qo'shishingiz mumkin.")
+        : "Yopilgan qism qizil rangda chizildi. Kerak bo'lsa, aylanib o'tish yo'li uchun oraliq nuqtalarni bosib qo'shing — u yashil rangda ko'rinadi.")
     : (zoneCenter ? "Endi pastdagi tayoqcha bilan ta'sirlangan hudud radiusini belgilang." : "Ta'sirlangan hudud markazini xaritada bosing.");
 
   const submit = async () => {
@@ -211,8 +211,8 @@ function AnnouncementForm({ profile, myOrg, onCreated }) {
       };
       if (kind === "line") {
         form.lineStart = points[0];
-        form.lineEnd = points[points.length - 1];
-        form.detour = points.slice(1, -1);
+        form.lineEnd = points[1];
+        form.detour = points.slice(2);
       } else {
         form.zoneCenter = zoneCenter;
         form.zoneRadius = zoneRadius;
@@ -247,10 +247,14 @@ function AnnouncementForm({ profile, myOrg, onCreated }) {
           />
           <LocationClickCatcher onPick={handleMapClick} />
           {kind === "line" && points.map((p, i) => (
-            <Marker key={i} position={[p.lat, p.lng]} icon={pinIcon(i === 0 ? "#2E9A5C" : i === points.length - 1 && points.length > 1 ? "#A33A3A" : "#C98A2B")} />
+            <Marker key={i} position={[p.lat, p.lng]} icon={pinIcon(i === 0 ? "#B2402A" : i === 1 ? "#B2402A" : "#2E9A5C")} />
           ))}
-          {kind === "line" && points.length > 1 && (
-            <Polyline positions={points.map((p) => [p.lat, p.lng])} pathOptions={{ color: "#C98A2B", weight: 5, dashArray: "10 8" }} />
+          {kind === "line" && points.length >= 2 && (
+            <Polyline positions={[points[0], points[1]].map((p) => [p.lat, p.lng])} pathOptions={{ color: "#B2402A", weight: 6 }} />
+          )}
+          {kind === "line" && points.length > 2 && (
+            <Polyline positions={[points[0], ...points.slice(2), points[1]].map((p) => [p.lat, p.lng])}
+              pathOptions={{ color: "#2E9A5C", weight: 4, dashArray: "10 8" }} />
           )}
           {kind === "zone" && zoneCenter && (
             <>
