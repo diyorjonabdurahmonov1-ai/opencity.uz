@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import L from "leaflet";
-import { MoreHorizontal, ThumbsUp, Flame, X, ChevronLeft, LocateFixed, Loader2, Building2, HandHeart } from "lucide-react";
+import { MoreHorizontal, ThumbsUp, Flame, X, ChevronLeft, LocateFixed, Loader2, Building2, HandHeart, Trash2 } from "lucide-react";
 import { CATEGORIES, STATUS, DONE_STATUSES, HOT_VOTES, UZBEKISTAN_CENTER, fmtDate } from "../constants";
 import { S } from "../styles";
-import { claimReport, toggleVote } from "../lib/api/reports";
+import { claimReport, toggleVote, deleteReport } from "../lib/api/reports";
 
 export function pinIcon(color, hot = false) {
   return L.divIcon({
@@ -240,6 +240,13 @@ export function CityMap({ reports, title = "Shahar xaritasi", compact = false, c
               }}
               profile={profile}
               onVote={profile ? handleVote : undefined}
+              onDelete={profile && detailReport?.createdBy === profile.id ? async (id) => {
+                await deleteReport(id);
+                await refreshReports?.();
+                showToast?.("Hisobot o'chirildi ✓");
+                setDetailId(null);
+                setOpenId(null);
+              } : undefined}
             />
           </Modal>
         );
@@ -282,7 +289,7 @@ export function Timeline({ events }) {
   );
 }
 
-export function ReportDetail({ report, onBack, canClaim = false, onClaim, profile, onVote }) {
+export function ReportDetail({ report, onBack, canClaim = false, onClaim, profile, onVote, onDelete }) {
   const cat = CATEGORIES.find((c) => c.id === report.category);
   const Icon = cat?.icon || MoreHorizontal;
   const voted = !!profile && report.votes.includes(profile.id);
@@ -290,7 +297,16 @@ export function ReportDetail({ report, onBack, canClaim = false, onClaim, profil
   const [lightbox, setLightbox] = useState(null);
   return (
     <div style={S.detailWrap}>
-      <button style={S.linkBtn} onClick={onBack}><ChevronLeft size={15} /> Orqaga</button>
+      <div style={S.rowHeader}>
+        <button style={{ ...S.linkBtn, marginBottom: 0 }} onClick={onBack}><ChevronLeft size={15} /> Orqaga</button>
+        {onDelete && (
+          <button style={S.dangerBtn} onClick={() => {
+            if (window.confirm("Bu hisobotni butunlay o'chirmoqchimisiz? Bu amalni orqaga qaytarib bo'lmaydi.")) onDelete(report.id);
+          }}>
+            <Trash2 size={14} /> O'chirish
+          </button>
+        )}
+      </div>
       <div style={S.detailHeader}>
         {photos[0] && <img src={photos[0]} style={S.detailImg} alt="" onClick={() => setLightbox(photos[0])} />}
         <div>

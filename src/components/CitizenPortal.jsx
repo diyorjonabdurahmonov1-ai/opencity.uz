@@ -11,7 +11,7 @@ import {
 import { S } from "../styles";
 import { SideNav, StatCard, EmptyState, ReportCard, CityMap, ReportDetail, PartnerFlyer } from "./shared";
 import { ReportWizard } from "./ReportWizard";
-import { toggleVote, addVoteIfMissing, reopenVote } from "../lib/api/reports";
+import { toggleVote, addVoteIfMissing, reopenVote, deleteReport } from "../lib/api/reports";
 import { fetchMyApplication, submitApplication } from "../lib/api/applications";
 import { createNotification, markAllNotificationsRead } from "../lib/api/notifications";
 
@@ -73,7 +73,14 @@ export function CitizenPortal({
           <CityMap reports={reports} title="Butun shahar xaritasi"
             profile={profile} myOrg={myOrg} refreshReports={refreshReports} showToast={showToast} />
         )}
-        {view === "my-reports" && <MyReports myReports={myReports} onNew={() => setView("report")} />}
+        {view === "my-reports" && (
+          <MyReports myReports={myReports} onNew={() => setView("report")}
+            onDelete={async (id) => {
+              await deleteReport(id);
+              await refreshReports();
+              showToast("Hisobot o'chirildi ✓");
+            }} />
+        )}
         {view === "voting" && (
           <VotingBoard reports={reports} profile={profile}
             onVote={async (id, alreadyVoted) => {
@@ -173,10 +180,15 @@ function CitizenHome({ profile, myOrg, orgs, myReports, reports, refreshReports,
   );
 }
 
-function MyReports({ myReports, onNew }) {
+function MyReports({ myReports, onNew, onDelete }) {
   const [openId, setOpenId] = useState(null);
   const open = myReports.find((r) => r.id === openId);
-  if (open) return <ReportDetail report={open} onBack={() => setOpenId(null)} />;
+  if (open) {
+    return (
+      <ReportDetail report={open} onBack={() => setOpenId(null)}
+        onDelete={async (id) => { await onDelete(id); setOpenId(null); }} />
+    );
+  }
   return (
     <div>
       <div style={S.rowHeader}>
