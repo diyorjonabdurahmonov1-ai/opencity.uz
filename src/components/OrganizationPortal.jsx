@@ -168,7 +168,9 @@ function AnnouncementsSection({ profile, myOrg, announcements, refreshAnnounceme
 function AnnouncementForm({ profile, myOrg, onCreated }) {
   const { t } = useTranslation();
   const [kind, setKind] = useState("line");
-  const [points, setPoints] = useState([]);
+  const [closurePoints, setClosurePoints] = useState([]);
+  const [detourPoints, setDetourPoints] = useState([]);
+  const [drawingDetour, setDrawingDetour] = useState(false);
   const [zoneCenter, setZoneCenter] = useState(null);
   const [zoneRadius, setZoneRadius] = useState(300);
   const [title, setTitle] = useState("");
@@ -181,27 +183,38 @@ function AnnouncementForm({ profile, myOrg, onCreated }) {
   const orgDistrict = myOrg.district ? districtsOf(myOrg.region).find((d) => d.name === myOrg.district) : null;
   const mapCenter = orgDistrict ? [orgDistrict.lat, orgDistrict.lng] : UZBEKISTAN_CENTER;
 
+  const resetGeometry = () => {
+    setClosurePoints([]); setDetourPoints([]); setDrawingDetour(false); setZoneCenter(null);
+  };
+
   const changeKind = (next) => {
     setKind(next);
-    setPoints([]);
-    setZoneCenter(null);
+    resetGeometry();
   };
 
   const handleMapClick = (lat, lng) => {
-    if (kind === "line") setPoints((prev) => [...prev, { lat, lng }]);
-    else setZoneCenter({ lat, lng });
+    if (kind === "zone") { setZoneCenter({ lat, lng }); return; }
+    if (drawingDetour) setDetourPoints((prev) => [...prev, { lat, lng }]);
+    else setClosurePoints((prev) => [...prev, { lat, lng }]);
   };
 
-  const resetGeometry = () => { setPoints([]); setZoneCenter(null); };
+  const undoLastPoint = () => {
+    if (drawingDetour) setDetourPoints((prev) => prev.slice(0, -1));
+    else setClosurePoints((prev) => prev.slice(0, -1));
+  };
+
+  const startDetour = () => setDrawingDetour(true);
+  const finishDetour = () => setDrawingDetour(false);
+  const removeDetour = () => { setDetourPoints([]); setDrawingDetour(false); };
 
   const canSubmit = title.trim().length > 0 && (
-    (kind === "line" && points.length >= 2) || (kind === "zone" && !!zoneCenter)
+    (kind === "line" && closurePoints.length >= 2) || (kind === "zone" && !!zoneCenter)
   );
 
   const geometryHint = kind === "line"
-    ? (points.length === 0 ? t("org.announcementForm.hint.lineStart")
-      : points.length === 1 ? t("org.announcementForm.hint.lineEnd")
-        : t("org.announcementForm.hint.lineDetour"))
+    ? (drawingDetour
+      ? (detourPoints.length === 0 ? t("org.announcementForm.hint.detourStart") : t("org.announcementForm.hint.detourContinue"))
+      : (closurePoints.length < 2 ? t("org.announcementForm.hint.closureStart") : t("org.announcementForm.hint.closureContinue")))
     : (zoneCenter ? t("org.announcementForm.hint.zoneRadius") : t("org.announcementForm.hint.zoneCenter"));
 
   const submit = async () => {
@@ -214,15 +227,14 @@ function AnnouncementForm({ profile, myOrg, onCreated }) {
         startsAt: startsAt || null, endsAt: endsAt || null,
       };
       if (kind === "line") {
-        form.lineStart = points[0];
-        form.lineEnd = points[1];
-        form.detour = points.slice(2);
+        form.linePoints = closurePoints;
+        form.detourPoints = detourPoints;
       } else {
         form.zoneCenter = zoneCenter;
         form.zoneRadius = zoneRadius;
       }
       await createAnnouncement(myOrg.id, profile.id, form);
-      setPoints([]); setZoneCenter(null); setTitle(""); setDescription(""); setStartsAt(""); setEndsAt("");
+      resetGeometry(); setTitle(""); setDescription(""); setStartsAt(""); setEndsAt("");
       onCreated();
     } catch (e) {
       setError(e.message || t("org.announcementForm.errorGeneric"));
@@ -250,14 +262,17 @@ function AnnouncementForm({ profile, myOrg, onCreated }) {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           <LocationClickCatcher onPick={handleMapClick} />
-          {kind === "line" && points.map((p, i) => (
-            <Marker key={i} position={[p.lat, p.lng]} icon={pinIcon(i === 0 ? "#B2402A" : i === 1 ? "#B2402A" : "#2E9A5C")} />
+          {kind === "line" && closurePoints.map((p, i) => (
+            <Marker key={`c${i}`} position={[p.lat, p.lng]} icon={pinIcon("#B2402A")} />
           ))}
-          {kind === "line" && points.length >= 2 && (
-            <Polyline positions={[points[0], points[1]].map((p) => [p.lat, p.lng])} pathOptions={{ color: "#B2402A", weight: 6 }} />
+          {kind === "line" && closurePoints.length >= 2 && (
+            <Polyline positions={closurePoints.map((p) => [p.lat, p.lng])} pathOptions={{ color: "#B2402A", weight: 6 }} />
           )}
-          {kind === "line" && points.length > 2 && (
-            <Polyline positions={[points[0], ...points.slice(2), points[1]].map((p) => [p.lat, p.lng])}
+          {kind === "line" && detourPoints.map((p, i) => (
+            <Marker key={`d${i}`} position={[p.lat, p.lng]} icon={pinIcon("#2E9A5C")} />
+          ))}
+          {kind === "line" && detourPoints.length >= 1 && closurePoints.length >= 2 && (
+            <Polyline positions={[closurePoints[0], ...detourPoints, closurePoints[closurePoints.length - 1]].map((p) => [p.lat, p.lng])}
               pathOptions={{ color: "#2E9A5C", weight: 4, dashArray: "10 8" }} />
           )}
           {kind === "zone" && zoneCenter && (
@@ -268,14 +283,32 @@ function AnnouncementForm({ profile, myOrg, onCreated }) {
           )}
         </MapContainer>
       </div>
-      {(points.length > 0 || zoneCenter) && (
-        <button style={{ ...S.secondaryBtn, marginTop: 8 }} onClick={resetGeometry}><RotateCcw size={14} /> {t("org.announcementForm.resetGeometry")}</button>
+
+      {kind === "line" && (
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
+          {(drawingDetour ? detourPoints.length > 0 : closurePoints.length > 0) && (
+            <button style={S.secondaryBtn} onClick={undoLastPoint}><RotateCcw size={14} /> {t("org.announcementForm.undoPoint")}</button>
+          )}
+          {(closurePoints.length > 0 || detourPoints.length > 0) && (
+            <button style={S.secondaryBtn} onClick={resetGeometry}>{t("org.announcementForm.resetGeometry")}</button>
+          )}
+          {closurePoints.length >= 2 && !drawingDetour && detourPoints.length === 0 && (
+            <button style={S.secondaryBtn} onClick={startDetour}>{t("org.announcementForm.addDetourButton")}</button>
+          )}
+          {drawingDetour && detourPoints.length >= 1 && (
+            <button style={S.primaryBtn} onClick={finishDetour}>{t("org.announcementForm.finishDetourButton")}</button>
+          )}
+          {!drawingDetour && detourPoints.length > 0 && (
+            <button style={S.secondaryBtn} onClick={removeDetour}>{t("org.announcementForm.removeDetourButton")}</button>
+          )}
+        </div>
       )}
 
       {kind === "zone" && zoneCenter && (
         <div style={S.field}>
           <label style={S.label}>{t("org.announcementForm.radiusLabel", { radius: zoneRadius })}</label>
           <input type="range" min={50} max={3000} step={50} value={zoneRadius} onChange={(e) => setZoneRadius(Number(e.target.value))} style={{ width: "100%" }} />
+          <button style={{ ...S.secondaryBtn, marginTop: 8 }} onClick={resetGeometry}>{t("org.announcementForm.resetGeometry")}</button>
         </div>
       )}
 

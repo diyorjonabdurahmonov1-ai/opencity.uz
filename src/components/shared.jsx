@@ -221,14 +221,14 @@ export function CityMap({ reports, title, compact = false, center, profile, myOr
             );
           })}
           {announcements.filter((a) => !a.endsAt || new Date(a.endsAt) > new Date()).map((a) => {
-            if (a.kind === "line" && a.lineStart && a.lineEnd) {
-              const mid = { lat: (a.lineStart.lat + a.lineEnd.lat) / 2, lng: (a.lineStart.lng + a.lineEnd.lng) / 2 };
+            if (a.kind === "line" && a.linePoints?.length >= 2) {
+              const mid = a.linePoints[Math.floor((a.linePoints.length - 1) / 2)];
               return (
                 <Fragment key={a.id}>
-                  <Polyline positions={[a.lineStart, a.lineEnd].map((p) => [p.lat, p.lng])}
+                  <Polyline positions={a.linePoints.map((p) => [p.lat, p.lng])}
                     pathOptions={{ color: "#B2402A", weight: 6 }} />
-                  {a.detour?.length > 0 && (
-                    <Polyline positions={[a.lineStart, ...a.detour, a.lineEnd].map((p) => [p.lat, p.lng])}
+                  {a.detourPoints?.length > 0 && (
+                    <Polyline positions={[a.linePoints[0], ...a.detourPoints, a.linePoints[a.linePoints.length - 1]].map((p) => [p.lat, p.lng])}
                       pathOptions={{ color: "#2E9A5C", weight: 4, dashArray: "10 8" }} />
                   )}
                   <Marker position={[mid.lat, mid.lng]} icon={closureIcon}>

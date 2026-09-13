@@ -32,8 +32,9 @@ export function CitizenPortal({
   const announcementCenter = (a) => {
     if (!a) return undefined;
     if (a.kind === "zone" && a.zoneCenter) return [a.zoneCenter.lat, a.zoneCenter.lng];
-    if (a.kind === "line" && a.lineStart && a.lineEnd) {
-      return [(a.lineStart.lat + a.lineEnd.lat) / 2, (a.lineStart.lng + a.lineEnd.lng) / 2];
+    if (a.kind === "line" && a.linePoints?.length >= 2) {
+      const mid = a.linePoints[Math.floor((a.linePoints.length - 1) / 2)];
+      return [mid.lat, mid.lng];
     }
     return undefined;
   };
