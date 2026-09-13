@@ -2,7 +2,7 @@
 import {
   Home, Map as MapIcon, ListChecks, ThumbsUp, CheckCircle2, Bell, User, Plus,
   Building2, ChevronRight, FileWarning, RotateCcw, Clock, XCircle, ArrowRight,
-  MoreHorizontal, Flame, X, ChevronLeft,
+  MoreHorizontal, Flame, X, ChevronLeft, Megaphone, Milestone, CircleDot,
 } from "lucide-react";
 import {
   CATEGORIES, STATUS, DONE_STATUSES, ORG_TYPES, REGION_NAMES, districtsOf,
@@ -17,7 +17,7 @@ import { createNotification, markAllNotificationsRead } from "../lib/api/notific
 
 export function CitizenPortal({
   profile, reports, refreshReports, myOrg, orgs, notifications, refreshNotifications, markOneNotificationRead,
-  view, setView, showToast,
+  announcements, view, setView, showToast,
 }) {
   const [myApplication, setMyApplication] = useState(null);
 
@@ -32,6 +32,7 @@ export function CitizenPortal({
     { id: "map", label: "Butun shahar xaritasi", icon: MapIcon },
     { id: "my-reports", label: "Mening hisobotlarim", icon: ListChecks },
     { id: "voting", label: "Ovoz berish", icon: ThumbsUp },
+    { id: "announcements", label: "E'lonlar", icon: Megaphone },
     { id: "completed", label: "Tugatilgan ishlar", icon: CheckCircle2 },
     { id: "notifications", label: "Bildirishnomalar", icon: Bell },
     { id: "profile", label: "Profil", icon: User },
@@ -44,7 +45,7 @@ export function CitizenPortal({
       <div key={view} className="oc-view-fade">
         {view === "home" && (
           <CitizenHome profile={profile} myOrg={myOrg} orgs={orgs} myReports={myReports} reports={reports} refreshReports={refreshReports}
-            showToast={showToast} setView={setView} myApplication={myApplication} />
+            announcements={announcements} showToast={showToast} setView={setView} myApplication={myApplication} />
         )}
         {view === "report" && (
           <ReportWizard
@@ -71,8 +72,9 @@ export function CitizenPortal({
         )}
         {view === "map" && (
           <CityMap reports={reports} title="Butun shahar xaritasi"
-            profile={profile} myOrg={myOrg} refreshReports={refreshReports} showToast={showToast} />
+            profile={profile} myOrg={myOrg} refreshReports={refreshReports} showToast={showToast} announcements={announcements} />
         )}
+        {view === "announcements" && <AnnouncementsList announcements={announcements} />}
         {view === "my-reports" && (
           <MyReports myReports={myReports} onNew={() => setView("report")}
             onDelete={async (id) => {
@@ -123,7 +125,7 @@ export function CitizenPortal({
   );
 }
 
-function CitizenHome({ profile, myOrg, orgs, myReports, reports, refreshReports, showToast, setView, myApplication }) {
+function CitizenHome({ profile, myOrg, orgs, myReports, reports, refreshReports, announcements, showToast, setView, myApplication }) {
   const district = profile.detected_district;
   const region = profile.detected_region;
   const localReports = district
@@ -149,7 +151,7 @@ function CitizenHome({ profile, myOrg, orgs, myReports, reports, refreshReports,
 
       <CityMap reports={localReports} compact title={null}
         center={profile.home_lat != null ? [profile.home_lat, profile.home_lng] : undefined}
-        profile={profile} myOrg={myOrg} refreshReports={refreshReports} showToast={showToast} />
+        profile={profile} myOrg={myOrg} refreshReports={refreshReports} showToast={showToast} announcements={announcements} />
 
       <PartnerFlyer orgs={orgs} />
 
@@ -261,6 +263,36 @@ function CompletedWorks({ reports, profile, onReopenVote }) {
       <p style={S.fine}>Bu yerda hal qilingan muammolarni ko'rishingiz mumkin. Agar biror ish noto'g'ri yopilgan bo'lsa, uni belgilab qayta ochilishiga ovoz bera olasiz.</p>
       {done.length === 0 ? <EmptyState icon={CheckCircle2} text="Hali tugatilgan ishlar yo'q." /> : (
         <div style={S.reportGrid}>{done.map((r) => <ReportCard key={r.id} report={r} onClick={() => setOpenId(r.id)} />)}</div>
+      )}
+    </div>
+  );
+}
+
+function AnnouncementsList({ announcements }) {
+  const active = (announcements || []).filter((a) => !a.endsAt || new Date(a.endsAt) > new Date());
+  return (
+    <div>
+      <h2 style={S.pageTitle}>E'lonlar</h2>
+      <p style={S.fine}>Davlat tashkilotlari tomonidan e'lon qilingan ko'cha yopilishi va xizmat uzilishlari.</p>
+      {active.length === 0 ? <EmptyState icon={Megaphone} text="Hozircha faol e'lonlar yo'q." /> : (
+        <div style={S.notifList}>
+          {active.map((a) => (
+            <div key={a.id} style={S.notifRow}>
+              <div style={{ ...S.notifDot, background: a.kind === "line" ? "#C98A2B" : "#B2402A" }} />
+              <div style={{ flex: 1 }}>
+                <div style={S.notifTitle}>
+                  {a.kind === "line" ? <Milestone size={13} style={{ verticalAlign: "-2px" }} /> : <CircleDot size={13} style={{ verticalAlign: "-2px" }} />}
+                  {" "}{a.title}
+                </div>
+                {a.description && <div style={S.notifMsg}>{a.description}</div>}
+                <div style={S.notifTime}>
+                  {a.orgName}{a.district ? ` · ${a.district}` : ""}
+                  {(a.startsAt || a.endsAt) && ` · ${a.startsAt ? fmtDate(a.startsAt) : "?"} — ${a.endsAt ? fmtDate(a.endsAt) : "noma'lum"}`}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { MapContainer, TileLayer, Marker } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Polyline, Circle, Popup } from "react-leaflet";
 import L from "leaflet";
 import { MoreHorizontal, ThumbsUp, Flame, X, ChevronLeft, LocateFixed, Loader2, Building2, HandHeart, Trash2 } from "lucide-react";
 import { CATEGORIES, STATUS, DONE_STATUSES, HOT_VOTES, UZBEKISTAN_CENTER, fmtDate } from "../constants";
@@ -130,7 +130,7 @@ export function ReportCard({ report, onClick, profile, onVote }) {
   );
 }
 
-export function CityMap({ reports, title = "Shahar xaritasi", compact = false, center, profile, myOrg, refreshReports, showToast }) {
+export function CityMap({ reports, title = "Shahar xaritasi", compact = false, center, profile, myOrg, refreshReports, showToast, announcements = [] }) {
   const [catFilter, setCatFilter] = useState("all");
   const [showDone, setShowDone] = useState(false);
   const [openId, setOpenId] = useState(null);
@@ -201,6 +201,25 @@ export function CityMap({ reports, title = "Shahar xaritasi", compact = false, c
                 eventHandlers={{ click: () => setOpenId(r.id) }} />
             );
           })}
+          {announcements.filter((a) => !a.endsAt || new Date(a.endsAt) > new Date()).map((a) => {
+            if (a.kind === "line" && a.lineStart && a.lineEnd) {
+              const positions = [a.lineStart, ...(a.detour || []), a.lineEnd].map((p) => [p.lat, p.lng]);
+              return (
+                <Polyline key={a.id} positions={positions} pathOptions={{ color: "#C98A2B", weight: 5, dashArray: "10 8" }}>
+                  <Popup><AnnouncementPopup a={a} /></Popup>
+                </Polyline>
+              );
+            }
+            if (a.kind === "zone" && a.zoneCenter && a.zoneRadius) {
+              return (
+                <Circle key={a.id} center={[a.zoneCenter.lat, a.zoneCenter.lng]} radius={a.zoneRadius}
+                  pathOptions={{ color: "#B2402A", fillColor: "#B2402A", fillOpacity: 0.15, weight: 2 }}>
+                  <Popup><AnnouncementPopup a={a} /></Popup>
+                </Circle>
+              );
+            }
+            return null;
+          })}
           {myLocation && <Marker position={myLocation} icon={meIcon} />}
         </MapContainer>
         <button onClick={locateMe} title="Joylashuvimni aniqlash" style={S.locateBtn}>
@@ -251,6 +270,21 @@ export function CityMap({ reports, title = "Shahar xaritasi", compact = false, c
           </Modal>
         );
       })()}
+    </div>
+  );
+}
+
+function AnnouncementPopup({ a }) {
+  return (
+    <div style={{ fontSize: 12.5, lineHeight: 1.5, maxWidth: 200 }}>
+      <div style={{ fontWeight: 700, marginBottom: 3 }}>{a.title}</div>
+      {a.description && <div style={{ marginBottom: 3 }}>{a.description}</div>}
+      <div style={{ color: "#7A8A99" }}>{a.orgName}</div>
+      {(a.startsAt || a.endsAt) && (
+        <div style={{ color: "#7A8A99", marginTop: 3 }}>
+          {a.startsAt ? fmtDate(a.startsAt) : "?"} — {a.endsAt ? fmtDate(a.endsAt) : "noma'lum"}
+        </div>
+      )}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { fetchMyProfile, updateMyProfile } from "./lib/api/profiles";
 import { fetchReports, subscribeToReports } from "./lib/api/reports";
 import { fetchOrganizations, fetchOrgById } from "./lib/api/organizations";
 import { fetchNotifications, subscribeToNotifications, markNotificationRead } from "./lib/api/notifications";
+import { fetchAnnouncements } from "./lib/api/announcements";
 import { nearestLocation } from "./constants";
 import { GlobalStyle, S } from "./styles";
 import { SignInScreen } from "./components/SignInScreen";
@@ -33,6 +34,7 @@ export default function App() {
   const [orgs, setOrgs] = useState([]);
   const [myOrg, setMyOrg] = useState(null);
   const [notifications, setNotifications] = useState([]);
+  const [announcements, setAnnouncements] = useState([]);
   const [portal, setPortal] = useState("citizen");
   const [view, setView] = useState("home");
   const [toast, setToast] = useState(null);
@@ -42,6 +44,7 @@ export default function App() {
 
   const refreshReports = useCallback(async () => setReports(await fetchReports()), []);
   const refreshOrgs = useCallback(async () => setOrgs(await fetchOrganizations()), []);
+  const refreshAnnouncements = useCallback(async () => setAnnouncements(await fetchAnnouncements()), []);
   const refreshNotifications = useCallback(async () => {
     if (!user) return;
     setNotifications(await fetchNotifications(user.id));
@@ -56,19 +59,26 @@ export default function App() {
     let cancelled = false;
     setBooting(true);
     (async () => {
-      const [p, rpts, orgList, notifs] = await Promise.all([
-        fetchMyProfileWithRetry(user.id),
-        fetchReports(),
-        fetchOrganizations(),
-        fetchNotifications(user.id),
-      ]);
-      if (cancelled) return;
-      setProfile(p);
-      setReports(rpts);
-      setOrgs(orgList);
-      setMyOrg(await fetchOrgById(p.org_id));
-      setNotifications(notifs);
-      setBooting(false);
+      try {
+        // Har birini alohida .catch bilan o'raymiz — biror yangi jadval/migratsiya hali
+        // qo'llanilmagan bo'lsa ham, butun ilova cheksiz "yuklanmoqda"da qolib ketmasin.
+        const [p, rpts, orgList, notifs, announces] = await Promise.all([
+          fetchMyProfileWithRetry(user.id),
+          fetchReports().catch(() => []),
+          fetchOrganizations().catch(() => []),
+          fetchNotifications(user.id).catch(() => []),
+          fetchAnnouncements().catch(() => []),
+        ]);
+        if (cancelled) return;
+        setProfile(p);
+        setReports(rpts);
+        setOrgs(orgList);
+        setMyOrg(await fetchOrgById(p.org_id).catch(() => null));
+        setNotifications(notifs);
+        setAnnouncements(announces);
+      } finally {
+        if (!cancelled) setBooting(false);
+      }
     })();
     return () => { cancelled = true; };
   }, [user]);
@@ -129,11 +139,13 @@ export default function App() {
             profile={profile} reports={reports} refreshReports={refreshReports}
             myOrg={myOrg} orgs={orgs} notifications={notifications} refreshNotifications={refreshNotifications}
             markOneNotificationRead={markOneNotificationRead}
+            announcements={announcements}
             view={view} setView={setView} showToast={showToast}
           />
         )}
         {portal === "organization" && profile.role !== "citizen" && (
-          <OrganizationPortal profile={profile} myOrg={myOrg} reports={reports} refreshReports={refreshReports} showToast={showToast} />
+          <OrganizationPortal profile={profile} myOrg={myOrg} reports={reports} refreshReports={refreshReports}
+            announcements={announcements} refreshAnnouncements={refreshAnnouncements} showToast={showToast} />
         )}
         {portal === "admin" && profile.role === "admin" && (
           <AdminPortal reports={reports} refreshReports={refreshReports} orgs={orgs} refreshOrgs={refreshOrgs} showToast={showToast} />
