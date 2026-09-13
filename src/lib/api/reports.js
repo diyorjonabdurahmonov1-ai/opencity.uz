@@ -49,7 +49,7 @@ export async function fetchReport(id) {
   return mapReport(data);
 }
 
-export async function createReport(profile, { category, title, description, photoUrls, region, district, address, coords }) {
+export async function createReport(profile, { category, title, description, photoUrls, region, district, address, coords }, t) {
   const org = await findGovernmentOrg(region, district, category);
 
   const { data: inserted, error } = await supabase
@@ -66,8 +66,8 @@ export async function createReport(profile, { category, title, description, phot
   if (error) throw error;
 
   const { error: timelineError } = await supabase.from("report_timeline").insert([
-    { report_id: inserted.id, status: "submitted", by: "Fuqaro", note: "Hisobot yuborildi." },
-    { report_id: inserted.id, status: "assigned", by: "Tizim", note: `Avtomatik ravishda "${org.name}" ga yo'naltirildi.` },
+    { report_id: inserted.id, status: "submitted", by: t("timeline.actors.citizen"), note: t("timeline.notes.submitted") },
+    { report_id: inserted.id, status: "assigned", by: t("timeline.actors.system"), note: t("timeline.notes.autoAssigned", { org: org.name }) },
   ]);
   if (timelineError) throw timelineError;
 
@@ -95,32 +95,32 @@ export async function advanceStatus(reportId, status, note, by) {
   if (timelineError) throw timelineError;
 }
 
-export async function markResolved(reportId, resolutionPhotoUrls, by) {
+export async function markResolved(reportId, resolutionPhotoUrls, by, t) {
   const { error } = await supabase
     .from("reports")
     .update({ status: "resolved", resolution_photos: resolutionPhotoUrls })
     .eq("id", reportId);
   if (error) throw error;
-  const note = `${resolutionPhotoUrls.length} ta tasdiqlovchi rasm bilan yopildi. (Sun'iy intellekt yordamida yaratilgan rasmlar taqiqlanadi — bu ishonchga asoslangan, avtomatik tekshirilmaydi.)`;
+  const note = t("timeline.notes.resolved", { count: resolutionPhotoUrls.length });
   const { error: timelineError } = await supabase.from("report_timeline").insert({ report_id: reportId, status: "resolved", note, by });
   if (timelineError) throw timelineError;
 }
 
-export async function reassignToOrg(reportId, orgId, orgName, currentStatus) {
+export async function reassignToOrg(reportId, orgId, orgName, currentStatus, t) {
   const { error } = await supabase.from("reports").update({ assigned_org_id: orgId }).eq("id", reportId);
   if (error) throw error;
-  const note = `Boshqa tashkilotga qayta tayinlandi: "${orgName}".`;
-  await supabase.from("report_timeline").insert({ report_id: reportId, status: currentStatus, note, by: "Admin" });
+  const note = t("timeline.notes.reassigned", { org: orgName });
+  await supabase.from("report_timeline").insert({ report_id: reportId, status: currentStatus, note, by: t("timeline.actors.admin") });
 }
 
 // Xususiy tashkilot hali davlat bo'limida turgan (hal qilinmagan) hisobotni o'ziga qabul qiladi.
-export async function claimReport(reportId, orgId, orgName) {
+export async function claimReport(reportId, orgId, orgName, t) {
   const { error } = await supabase
     .from("reports")
     .update({ assigned_org_id: orgId, status: "in_progress" })
     .eq("id", reportId);
   if (error) throw error;
-  const note = `"${orgName}" ushbu muammoni o'z zimmasiga oldi va hal qilish ustida ishlamoqda.`;
+  const note = t("timeline.notes.claimed", { org: orgName });
   const { error: timelineError } = await supabase
     .from("report_timeline")
     .insert({ report_id: reportId, status: "in_progress", note, by: orgName });
@@ -151,7 +151,7 @@ export async function setPriority(reportId, priority) {
 }
 
 // Ovoz qo'shadi va agar chegaraga yetsa hisobotni avtomatik qayta ochadi (in_progress).
-export async function reopenVote(report, userId) {
+export async function reopenVote(report, userId, t) {
   const { error } = await supabase.from("report_reopen_votes").insert({ report_id: report.id, user_id: userId });
   if (error && error.code !== "23505") throw error;
 
@@ -165,8 +165,8 @@ export async function reopenVote(report, userId) {
     await advanceStatus(
       report.id,
       "in_progress",
-      `${count} fuqaro "hal qilinmagan" deb ovoz berdi — hisobot qayta ochildi.`,
-      "Jamiyat"
+      t("timeline.notes.reopened", { count }),
+      t("timeline.actors.community")
     );
   }
   return count;

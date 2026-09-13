@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { MapContainer, TileLayer, Marker, Polyline, Circle, Popup } from "react-leaflet";
 import L from "leaflet";
 import { MoreHorizontal, ThumbsUp, Flame, X, ChevronLeft, LocateFixed, Loader2, Building2, HandHeart, Trash2 } from "lucide-react";
@@ -54,6 +55,7 @@ export function SideNav({ items, active, onChange }) {
 }
 
 export function PartnerFlyer({ orgs }) {
+  const { t } = useTranslation();
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
@@ -67,7 +69,7 @@ export function PartnerFlyer({ orgs }) {
 
   return (
     <div style={S.flyer}>
-      <span style={S.flyerLabel}>Hamkorlarimiz</span>
+      <span style={S.flyerLabel}>{t("shared.partnerFlyer.label")}</span>
       <div key={org.id} className="oc-flyer-fade" style={S.flyerContent}>
         {org.logo_url ? (
           <img src={org.logo_url} alt="" style={S.flyerLogo} />
@@ -99,6 +101,7 @@ export function EmptyState({ icon: Icon, text }) {
 }
 
 export function ReportCard({ report, onClick, profile, onVote }) {
+  const { t, i18n } = useTranslation();
   const cat = CATEGORIES.find((c) => c.id === report.category) || CATEGORIES[CATEGORIES.length - 1];
   const st = STATUS[report.status];
   const Icon = cat.icon;
@@ -109,23 +112,23 @@ export function ReportCard({ report, onClick, profile, onVote }) {
       {report.photo ? (
         <div style={{ position: "relative" }}>
           <img src={report.photo} alt="" style={S.reportImg} />
-          {hot && <span style={S.hotBadge}><Flame size={11} /> Dolzarb</span>}
+          {hot && <span style={S.hotBadge}><Flame size={11} /> {t("shared.reportCard.hot")}</span>}
         </div>
       ) : (
         <div style={{ ...S.reportImg, ...S.reportImgPlaceholder, position: "relative" }}>
           <Icon size={22} color="#7A8A99" />
-          {hot && <span style={S.hotBadge}><Flame size={11} /> Dolzarb</span>}
+          {hot && <span style={S.hotBadge}><Flame size={11} /> {t("shared.reportCard.hot")}</span>}
         </div>
       )}
       <div style={S.reportCardBody}>
         <div style={S.reportCardTop}>
-          <span style={S.catChip}><Icon size={12} /> {cat.label}</span>
-          <span style={{ ...S.statusPill, background: st.color + "1a", color: st.color }}>{st.label}</span>
+          <span style={S.catChip}><Icon size={12} /> {t(`category.${cat.id}`)}</span>
+          <span style={{ ...S.statusPill, background: st.color + "1a", color: st.color }}>{t(`status.${report.status}`)}</span>
         </div>
         <div style={S.reportCardTitle}>{report.title}</div>
-        <div style={S.reportCardMeta}>{report.district}, {report.region} · {fmtDate(report.createdAt)}</div>
+        <div style={S.reportCardMeta}>{report.district}, {report.region} · {fmtDate(report.createdAt, i18n.language)}</div>
         {report.assignedOrgKind === "private" ? (
-          <span style={S.sponsorBadge}><Building2 size={11} /> {report.assignedDeptName} hal qilmoqda</span>
+          <span style={S.sponsorBadge}><Building2 size={11} /> {report.assignedDeptName} {t("shared.reportCard.sponsorSuffix")}</span>
         ) : (
           <div style={S.reportCardMeta}>{report.assignedDeptName}</div>
         )}
@@ -144,7 +147,8 @@ export function ReportCard({ report, onClick, profile, onVote }) {
   );
 }
 
-export function CityMap({ reports, title = "Shahar xaritasi", compact = false, center, profile, myOrg, refreshReports, showToast, announcements = [] }) {
+export function CityMap({ reports, title, compact = false, center, profile, myOrg, refreshReports, showToast, announcements = [] }) {
+  const { t, i18n } = useTranslation();
   const [catFilter, setCatFilter] = useState("all");
   const [showDone, setShowDone] = useState(false);
   const [openId, setOpenId] = useState(null);
@@ -153,6 +157,7 @@ export function CityMap({ reports, title = "Shahar xaritasi", compact = false, c
   const [locating, setLocating] = useState(false);
   const [locateError, setLocateError] = useState("");
   const mapRef = useRef(null);
+  const resolvedTitle = title === null ? null : (title || t("shared.cityMap.defaultTitle"));
 
   const base = showDone ? reports : reports.filter((r) => !DONE_STATUSES.includes(r.status));
   const filtered = base.filter((r) => (catFilter === "all" || r.category === catFilter) && r.coords?.lat != null && r.coords?.lng != null);
@@ -165,14 +170,14 @@ export function CityMap({ reports, title = "Shahar xaritasi", compact = false, c
   };
 
   const geoErrorMessage = (err) => {
-    if (err.code === 1) return "Joylashuvga ruxsat berilmagan. Brauzer manzil satridagi qulf/sozlamalar belgisidan saytga joylashuv ruxsatini bering.";
-    if (err.code === 3) return "Joylashuvni aniqlash vaqti tugadi. Qaytadan urinib ko'ring.";
-    return "Joylashuvni aniqlab bo'lmadi. GPS/joylashuv xizmati yoqilganini tekshiring.";
+    if (err.code === 1) return t("shared.geo.permissionDenied");
+    if (err.code === 3) return t("shared.geo.timeout");
+    return t("shared.geo.unavailable");
   };
 
   const locateMe = () => {
     setLocateError("");
-    if (!navigator.geolocation) { setLocateError("Bu brauzer joylashuvni aniqlashni qo'llab-quvvatlamaydi."); return; }
+    if (!navigator.geolocation) { setLocateError(t("shared.geo.notSupported")); return; }
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -188,17 +193,17 @@ export function CityMap({ reports, title = "Shahar xaritasi", compact = false, c
 
   return (
     <div>
-      {title && <h2 style={S.pageTitle}>{title}</h2>}
+      {resolvedTitle && <h2 style={S.pageTitle}>{resolvedTitle}</h2>}
       <div style={S.filterRow}>
         <select style={S.selectSm} value={catFilter} onChange={(e) => setCatFilter(e.target.value)}>
-          <option value="all">Barcha turkumlar</option>
-          {CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+          <option value="all">{t("shared.cityMap.allCategories")}</option>
+          {CATEGORIES.map((c) => <option key={c.id} value={c.id}>{t(`category.${c.id}`)}</option>)}
         </select>
         <label style={S.checkboxRow}>
           <input type="checkbox" checked={showDone} onChange={(e) => setShowDone(e.target.checked)} />
-          Tugatilganlarni ham ko'rsatish
+          {t("shared.cityMap.showDone")}
         </label>
-        <span style={S.fine}>{filtered.length} ta hisobot · <Flame size={11} style={{ verticalAlign: "-1px" }} color="#B2402A" /> = {HOT_VOTES}+ ovoz olgan dolzarb muammo</span>
+        <span style={S.fine}>{t("shared.cityMap.reportsCount", { count: filtered.length })} · <Flame size={11} style={{ verticalAlign: "-1px" }} color="#B2402A" /> {t("shared.cityMap.hotLegend", { hot: HOT_VOTES })}</span>
       </div>
       <div style={{ ...(compact ? S.compactMap : S.bigMap), position: "relative" }}>
         <MapContainer ref={mapRef} key={center ? center.join(",") : "uzbekistan"} center={center || UZBEKISTAN_CENTER} zoom={center ? 13 : 6}
@@ -247,7 +252,7 @@ export function CityMap({ reports, title = "Shahar xaritasi", compact = false, c
           })}
           {myLocation && <Marker position={myLocation} icon={meIcon} />}
         </MapContainer>
-        <button onClick={locateMe} title="Joylashuvimni aniqlash" style={S.locateBtn}>
+        <button onClick={locateMe} title={t("shared.cityMap.locateTitle")} style={S.locateBtn}>
           {locating ? <Loader2 className="spin" size={17} /> : <LocateFixed size={17} />}
         </button>
         {locateError && (
@@ -277,9 +282,9 @@ export function CityMap({ reports, title = "Shahar xaritasi", compact = false, c
               onBack={() => setDetailId(null)}
               canClaim={canClaim}
               onClaim={async () => {
-                await claimReport(detailReport.id, myOrg.id, myOrg.name);
+                await claimReport(detailReport.id, myOrg.id, myOrg.name, t);
                 await refreshReports?.();
-                showToast?.(`"${detailReport.title}" hisobotini qabul qildingiz ✓`);
+                showToast?.(t("shared.reportDetail.claimedToast", { title: detailReport.title }));
                 setDetailId(null);
               }}
               profile={profile}
@@ -287,7 +292,7 @@ export function CityMap({ reports, title = "Shahar xaritasi", compact = false, c
               onDelete={profile && detailReport?.createdBy === profile.id ? async (id) => {
                 await deleteReport(id);
                 await refreshReports?.();
-                showToast?.("Hisobot o'chirildi ✓");
+                showToast?.(t("shared.reportDetail.deletedToast"));
                 setDetailId(null);
                 setOpenId(null);
               } : undefined}
@@ -300,6 +305,7 @@ export function CityMap({ reports, title = "Shahar xaritasi", compact = false, c
 }
 
 function AnnouncementPopup({ a }) {
+  const { t, i18n } = useTranslation();
   return (
     <div style={{ fontSize: 12.5, lineHeight: 1.5, maxWidth: 200 }}>
       <div style={{ fontWeight: 700, marginBottom: 3 }}>{a.title}</div>
@@ -307,7 +313,7 @@ function AnnouncementPopup({ a }) {
       <div style={{ color: "#7A8A99" }}>{a.orgName}</div>
       {(a.startsAt || a.endsAt) && (
         <div style={{ color: "#7A8A99", marginTop: 3 }}>
-          {a.startsAt ? fmtDate(a.startsAt) : "?"} — {a.endsAt ? fmtDate(a.endsAt) : "noma'lum"}
+          {a.startsAt ? fmtDate(a.startsAt, i18n.language) : t("shared.announcementPopup.unknownStart")} — {a.endsAt ? fmtDate(a.endsAt, i18n.language) : t("shared.announcementPopup.unknownEnd")}
         </div>
       )}
     </div>
@@ -326,6 +332,7 @@ export function Modal({ onClose, children }) {
 }
 
 export function Timeline({ events }) {
+  const { t, i18n } = useTranslation();
   return (
     <div style={S.timeline}>
       {events.map((ev, i) => {
@@ -337,8 +344,8 @@ export function Timeline({ events }) {
               {i < events.length - 1 && <div style={S.timelineLine} />}
             </div>
             <div style={S.timelineBody}>
-              <div style={S.timelineStatus}>{st?.label || ev.status}</div>
-              <div style={S.timelineMeta}>{ev.by} · {fmtDate(ev.at)}</div>
+              <div style={S.timelineStatus}>{st ? t(`status.${ev.status}`) : ev.status}</div>
+              <div style={S.timelineMeta}>{ev.by} · {fmtDate(ev.at, i18n.language)}</div>
               {ev.note && <div style={S.timelineNote}>{ev.note}</div>}
             </div>
           </div>
@@ -349,6 +356,7 @@ export function Timeline({ events }) {
 }
 
 export function ReportDetail({ report, onBack, canClaim = false, onClaim, profile, onVote, onDelete }) {
+  const { t, i18n } = useTranslation();
   const cat = CATEGORIES.find((c) => c.id === report.category);
   const Icon = cat?.icon || MoreHorizontal;
   const voted = !!profile && report.votes.includes(profile.id);
@@ -357,30 +365,30 @@ export function ReportDetail({ report, onBack, canClaim = false, onClaim, profil
   return (
     <div style={S.detailWrap}>
       <div style={S.rowHeader}>
-        <button style={{ ...S.linkBtn, marginBottom: 0 }} onClick={onBack}><ChevronLeft size={15} /> Orqaga</button>
+        <button style={{ ...S.linkBtn, marginBottom: 0 }} onClick={onBack}><ChevronLeft size={15} /> {t("common.back")}</button>
         {onDelete && (
           <button style={S.dangerBtn} onClick={() => {
-            if (window.confirm("Bu hisobotni butunlay o'chirmoqchimisiz? Bu amalni orqaga qaytarib bo'lmaydi.")) onDelete(report.id);
+            if (window.confirm(t("shared.reportDetail.confirmDelete"))) onDelete(report.id);
           }}>
-            <Trash2 size={14} /> O'chirish
+            <Trash2 size={14} /> {t("common.delete")}
           </button>
         )}
       </div>
       <div style={S.detailHeader}>
         {photos[0] && <img src={photos[0]} style={S.detailImg} alt="" onClick={() => setLightbox(photos[0])} />}
         <div>
-          <span style={S.catChip}><Icon size={12} /> {cat?.label}</span>
+          <span style={S.catChip}><Icon size={12} /> {cat && t(`category.${cat.id}`)}</span>
           <h2 style={S.detailTitle}>{report.title}</h2>
-          <div style={S.reportCardMeta}>{report.district}, {report.region} · {fmtDate(report.createdAt)}</div>
+          <div style={S.reportCardMeta}>{report.district}, {report.region} · {fmtDate(report.createdAt, i18n.language)}</div>
           {report.assignedOrgKind === "private" ? (
-            <div style={S.sponsorBanner}><Building2 size={15} /> Bu muammoni <b>{report.assignedDeptName}</b> hal qilmoqda</div>
+            <div style={S.sponsorBanner}><Building2 size={15} /> {t("shared.reportDetail.sponsorPrefix")} <b>{report.assignedDeptName}</b> {t("shared.reportDetail.sponsorSuffix")}</div>
           ) : (
-            <div style={S.reportCardMeta}>Mas'ul: {report.assignedDeptName}</div>
+            <div style={S.reportCardMeta}>{t("shared.reportDetail.responsible")} {report.assignedDeptName}</div>
           )}
           {report.description && <p style={S.detailDesc}>{report.description}</p>}
           {onVote && (
             <button style={{ ...S.voteBtn, ...(voted ? S.voteBtnActive : {}), marginTop: 10 }} onClick={() => onVote(report.id, voted)}>
-              <ThumbsUp size={14} /> {voted ? "Ovoz berilgan" : "Ovoz berish"} ({report.votes.length})
+              <ThumbsUp size={14} /> {voted ? t("shared.reportDetail.voted") : t("shared.reportDetail.voteButton")} ({report.votes.length})
             </button>
           )}
         </div>
@@ -391,15 +399,15 @@ export function ReportDetail({ report, onBack, canClaim = false, onClaim, profil
         </div>
       )}
       {canClaim && (
-        <button style={S.claimBtn} onClick={onClaim}><HandHeart size={15} /> Men bu muammoni hal qilaman</button>
+        <button style={S.claimBtn} onClick={onClaim}><HandHeart size={15} /> {t("shared.reportDetail.claim")}</button>
       )}
       {report.resolutionPhotos?.length > 0 && (
         <>
-          <h3 style={S.sectionTitle}>Yopilganini tasdiqlovchi rasmlar</h3>
+          <h3 style={S.sectionTitle}>{t("shared.reportDetail.resolutionPhotos")}</h3>
           <div style={S.proofRow}>{report.resolutionPhotos.map((p, i) => <img key={i} src={p} style={S.proofImg} alt="" onClick={() => setLightbox(p)} />)}</div>
         </>
       )}
-      <h3 style={S.sectionTitle}>Holat tarixi</h3>
+      <h3 style={S.sectionTitle}>{t("shared.reportDetail.statusHistory")}</h3>
       <Timeline events={report.timeline} />
       {lightbox && (
         <div style={S.lightboxBackdrop} onClick={() => setLightbox(null)}>

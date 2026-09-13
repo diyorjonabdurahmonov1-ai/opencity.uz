@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { MapContainer, TileLayer, Marker, Polyline, Circle, useMapEvents } from "react-leaflet";
 import {
   Camera, ChevronLeft, ClipboardList, Megaphone, Milestone, CircleDot, Trash2, RotateCcw, Check,
@@ -11,6 +12,7 @@ import { uploadPhoto } from "../lib/api/storage";
 import { createAnnouncement, deleteAnnouncement } from "../lib/api/announcements";
 
 export function OrganizationPortal({ profile, myOrg, reports, refreshReports, announcements, refreshAnnouncements, showToast }) {
+  const { t } = useTranslation();
   const [tab, setTab] = useState("reports");
   const [openId, setOpenId] = useState(null);
   const [proofUrls, setProofUrls] = useState([]);
@@ -36,24 +38,24 @@ export function OrganizationPortal({ profile, myOrg, reports, refreshReports, an
   };
 
   const advance = async (report, nextStatus, note) => {
-    await advanceStatus(report.id, nextStatus, note, myOrg?.name || "Tashkilot");
+    await advanceStatus(report.id, nextStatus, note, myOrg?.name || t("org.defaultOrgName"));
     await refreshReports();
-    showToast("Holat yangilandi ✓");
+    showToast(t("org.toasts.statusUpdated"));
   };
 
   const finishResolve = async (report) => {
     if (proofUrls.length < RESOLUTION_PHOTOS_REQUIRED) return;
-    await markResolved(report.id, proofUrls, myOrg?.name || "Tashkilot");
+    await markResolved(report.id, proofUrls, myOrg?.name || t("org.defaultOrgName"), t);
     await refreshReports();
     setProofUrls([]);
     setOpenId(null);
-    showToast("Hisobot hal qilindi deb belgilandi va xaritadan olib tashlandi ✓");
+    showToast(t("org.toasts.resolvedToast"));
   };
 
   if (!profile.org_id) {
     return (
       <div style={S.content}>
-        <EmptyState icon={ClipboardList} text="Sizga hali biror tashkilot biriktirilmagan. Admin bilan bog'laning." />
+        <EmptyState icon={ClipboardList} text={t("org.noOrgAssigned")} />
       </div>
     );
   }
@@ -61,25 +63,25 @@ export function OrganizationPortal({ profile, myOrg, reports, refreshReports, an
   if (open) {
     return (
       <div style={S.content}>
-        <button style={S.linkBtn} onClick={() => { setOpenId(null); setProofUrls([]); }}><ChevronLeft size={15} /> Ro'yxatga qaytish</button>
+        <button style={S.linkBtn} onClick={() => { setOpenId(null); setProofUrls([]); }}><ChevronLeft size={15} /> {t("common.backToList")}</button>
         <ReportDetail report={open} onBack={() => setOpenId(null)} />
         <div style={S.orgActionBox}>
-          {open.status === "assigned" && <button style={S.primaryBtn} onClick={() => advance(open, "in_progress", "Ish boshlandi.")}>Ishni boshlash</button>}
-          {open.status === "assigned" && <button style={S.secondaryBtn} onClick={() => advance(open, "neglected", "Hozircha e'tiborsiz qoldirildi.")}>E'tiborsiz qoldirish</button>}
+          {open.status === "assigned" && <button style={S.primaryBtn} onClick={() => advance(open, "in_progress", t("timeline.notes.workStarted"))}>{t("org.startWork")}</button>}
+          {open.status === "assigned" && <button style={S.secondaryBtn} onClick={() => advance(open, "neglected", t("timeline.notes.neglected"))}>{t("org.neglect")}</button>}
           {open.status === "in_progress" && (
             <div style={{ width: "100%" }}>
-              <div style={S.label}>Yopish uchun kamida {RESOLUTION_PHOTOS_REQUIRED} ta shu joydan olingan rasm kerak ({proofUrls.length}/{RESOLUTION_PHOTOS_REQUIRED})</div>
+              <div style={S.label}>{t("org.resolvePhotosNeeded", { count: RESOLUTION_PHOTOS_REQUIRED, have: proofUrls.length })}</div>
               <div style={S.proofRow}>
                 {proofUrls.map((p, i) => <img key={i} src={p} style={S.proofImg} alt="" />)}
                 <button style={S.uploadMini} onClick={() => fileRef.current?.click()} disabled={uploading}><Camera size={16} /></button>
               </div>
               <input ref={fileRef} type="file" accept="image/*" style={{ display: "none" }} onChange={addProof} />
               <button style={S.primaryBtn} disabled={proofUrls.length < RESOLUTION_PHOTOS_REQUIRED} onClick={() => finishResolve(open)}>
-                Hal qilindi deb belgilash
+                {t("org.markResolved")}
               </button>
             </div>
           )}
-          {open.status === "neglected" && <button style={S.primaryBtn} onClick={() => advance(open, "in_progress", "Ish qayta boshlandi.")}>Ishni boshlash</button>}
+          {open.status === "neglected" && <button style={S.primaryBtn} onClick={() => advance(open, "in_progress", t("timeline.notes.workResumed"))}>{t("org.startWork")}</button>}
         </div>
       </div>
     );
@@ -88,14 +90,14 @@ export function OrganizationPortal({ profile, myOrg, reports, refreshReports, an
   return (
     <div style={S.content}>
       <div style={S.rowHeader}>
-        <h2 style={S.pageTitle}>{myOrg?.name || "Bo'lim / Tashkilot paneli"}</h2>
+        <h2 style={S.pageTitle}>{myOrg?.name || t("org.defaultOrgName")}</h2>
         {isGovernment && (
           <div style={S.portalSwitch}>
             <button onClick={() => setTab("reports")} style={{ ...S.portalTab, ...(tab === "reports" ? S.portalTabActive : {}) }}>
-              <ClipboardList size={14} /> <span>Hisobotlar</span>
+              <ClipboardList size={14} /> <span>{t("org.tabReports")}</span>
             </button>
             <button onClick={() => setTab("announcements")} style={{ ...S.portalTab, ...(tab === "announcements" ? S.portalTabActive : {}) }}>
-              <Megaphone size={14} /> <span>E'lonlar</span>
+              <Megaphone size={14} /> <span>{t("org.tabAnnouncements")}</span>
             </button>
           </div>
         )}
@@ -104,12 +106,12 @@ export function OrganizationPortal({ profile, myOrg, reports, refreshReports, an
       {tab === "reports" && (
         <>
           <div style={S.statsRow}>
-            <StatCard label="Yangi tayinlangan" value={assigned.filter((r) => r.status === "assigned").length} accent="#8759B3" />
-            <StatCard label="Bajarilmoqda" value={assigned.filter((r) => r.status === "in_progress").length} accent="#1E88A8" />
-            <StatCard label="Hal qilingan" value={assigned.filter((r) => r.status === "resolved" || r.status === "closed").length} accent="#2E9A5C" />
+            <StatCard label={t("org.statNew")} value={assigned.filter((r) => r.status === "assigned").length} accent="#8759B3" />
+            <StatCard label={t("org.statInProgress")} value={assigned.filter((r) => r.status === "in_progress").length} accent="#1E88A8" />
+            <StatCard label={t("org.statResolved")} value={assigned.filter((r) => r.status === "resolved" || r.status === "closed").length} accent="#2E9A5C" />
           </div>
-          <h3 style={S.sectionTitle}>Tayinlangan hisobotlar</h3>
-          {assigned.length === 0 ? <EmptyState icon={ClipboardList} text="Hozircha tayinlangan hisobotlar yo'q." /> : (
+          <h3 style={S.sectionTitle}>{t("org.assignedReportsTitle")}</h3>
+          {assigned.length === 0 ? <EmptyState icon={ClipboardList} text={t("org.assignedEmpty")} /> : (
             <div style={S.reportGrid}>{assigned.map((r) => <ReportCard key={r.id} report={r} onClick={() => setOpenId(r.id)} />)}</div>
           )}
         </>
@@ -128,21 +130,22 @@ function LocationClickCatcher({ onPick }) {
 }
 
 function AnnouncementsSection({ profile, myOrg, announcements, refreshAnnouncements, showToast }) {
+  const { t, i18n } = useTranslation();
   const mine = (announcements || []).filter((a) => a.orgId === myOrg.id);
 
   const remove = async (id) => {
-    if (!window.confirm("Bu e'lonni o'chirmoqchimisiz?")) return;
+    if (!window.confirm(t("org.announcementsSection.confirmDelete"))) return;
     await deleteAnnouncement(id);
     await refreshAnnouncements();
-    showToast("E'lon o'chirildi ✓");
+    showToast(t("org.toasts.announcementDeleted"));
   };
 
   return (
     <div>
       <AnnouncementForm profile={profile} myOrg={myOrg}
-        onCreated={async () => { await refreshAnnouncements(); showToast("E'lon joylandi ✓"); }} />
-      <h3 style={S.sectionTitle}>Sizning e'lonlaringiz</h3>
-      {mine.length === 0 ? <EmptyState icon={Megaphone} text="Hali e'lon joylamagansiz." /> : (
+        onCreated={async () => { await refreshAnnouncements(); showToast(t("org.toasts.announcementCreated")); }} />
+      <h3 style={S.sectionTitle}>{t("org.announcementsSection.yourAnnouncements")}</h3>
+      {mine.length === 0 ? <EmptyState icon={Megaphone} text={t("org.announcementsSection.empty")} /> : (
         <div style={S.appList}>
           {mine.map((a) => (
             <div key={a.id} style={S.appRow}>
@@ -150,10 +153,10 @@ function AnnouncementsSection({ profile, myOrg, announcements, refreshAnnounceme
               <div style={{ flex: 1 }}>
                 <div style={S.reportCardTitle}>{a.title}</div>
                 <div style={S.reportCardMeta}>
-                  {(a.startsAt || a.endsAt) ? `${a.startsAt ? fmtDate(a.startsAt) : "?"} — ${a.endsAt ? fmtDate(a.endsAt) : "noma'lum"}` : fmtDate(a.createdAt)}
+                  {(a.startsAt || a.endsAt) ? `${a.startsAt ? fmtDate(a.startsAt, i18n.language) : "?"} — ${a.endsAt ? fmtDate(a.endsAt, i18n.language) : t("common.unknown")}` : fmtDate(a.createdAt, i18n.language)}
                 </div>
               </div>
-              <button style={S.iconBtn} onClick={() => remove(a.id)} title="O'chirish"><Trash2 size={14} /></button>
+              <button style={S.iconBtn} onClick={() => remove(a.id)} title={t("common.delete")}><Trash2 size={14} /></button>
             </div>
           ))}
         </div>
@@ -163,6 +166,7 @@ function AnnouncementsSection({ profile, myOrg, announcements, refreshAnnounceme
 }
 
 function AnnouncementForm({ profile, myOrg, onCreated }) {
+  const { t } = useTranslation();
   const [kind, setKind] = useState("line");
   const [points, setPoints] = useState([]);
   const [zoneCenter, setZoneCenter] = useState(null);
@@ -195,10 +199,10 @@ function AnnouncementForm({ profile, myOrg, onCreated }) {
   );
 
   const geometryHint = kind === "line"
-    ? (points.length === 0 ? "Ko'chaning YOPILADIGAN qismi boshlanadigan nuqtani xaritada bosing (qizil chiziq bo'ladi)."
-      : points.length === 1 ? "Endi ko'chaning tugash nuqtasini bosing."
-        : "Yopilgan qism qizil rangda chizildi. Kerak bo'lsa, aylanib o'tish yo'li uchun oraliq nuqtalarni bosib qo'shing — u yashil rangda ko'rinadi.")
-    : (zoneCenter ? "Endi pastdagi tayoqcha bilan ta'sirlangan hudud radiusini belgilang." : "Ta'sirlangan hudud markazini xaritada bosing.");
+    ? (points.length === 0 ? t("org.announcementForm.hint.lineStart")
+      : points.length === 1 ? t("org.announcementForm.hint.lineEnd")
+        : t("org.announcementForm.hint.lineDetour"))
+    : (zoneCenter ? t("org.announcementForm.hint.zoneRadius") : t("org.announcementForm.hint.zoneCenter"));
 
   const submit = async () => {
     setSubmitting(true);
@@ -221,20 +225,20 @@ function AnnouncementForm({ profile, myOrg, onCreated }) {
       setPoints([]); setZoneCenter(null); setTitle(""); setDescription(""); setStartsAt(""); setEndsAt("");
       onCreated();
     } catch (e) {
-      setError(e.message || "Xatolik yuz berdi.");
+      setError(e.message || t("org.announcementForm.errorGeneric"));
     }
     setSubmitting(false);
   };
 
   return (
     <div style={S.staffForm}>
-      <h3 style={{ ...S.sectionTitle, margin: "0 0 8px" }}>Yangi e'lon joylash</h3>
+      <h3 style={{ ...S.sectionTitle, margin: "0 0 8px" }}>{t("org.announcementForm.newTitle")}</h3>
       <div style={S.row2} className="oc-row2">
         <button onClick={() => changeKind("line")} style={{ ...S.catBtn, ...(kind === "line" ? S.catBtnActive : {}) }}>
-          <Milestone size={18} color={kind === "line" ? "#fff" : "#C98A2B"} /><span>Ko'cha yopilishi</span>
+          <Milestone size={18} color={kind === "line" ? "#fff" : "#C98A2B"} /><span>{t("org.announcementForm.kindLine")}</span>
         </button>
         <button onClick={() => changeKind("zone")} style={{ ...S.catBtn, ...(kind === "zone" ? S.catBtnActive : {}) }}>
-          <CircleDot size={18} color={kind === "zone" ? "#fff" : "#B2402A"} /><span>Xizmat uzilishi (hudud)</span>
+          <CircleDot size={18} color={kind === "zone" ? "#fff" : "#B2402A"} /><span>{t("org.announcementForm.kindZone")}</span>
         </button>
       </div>
 
@@ -265,39 +269,39 @@ function AnnouncementForm({ profile, myOrg, onCreated }) {
         </MapContainer>
       </div>
       {(points.length > 0 || zoneCenter) && (
-        <button style={{ ...S.secondaryBtn, marginTop: 8 }} onClick={resetGeometry}><RotateCcw size={14} /> Qaytadan belgilash</button>
+        <button style={{ ...S.secondaryBtn, marginTop: 8 }} onClick={resetGeometry}><RotateCcw size={14} /> {t("org.announcementForm.resetGeometry")}</button>
       )}
 
       {kind === "zone" && zoneCenter && (
         <div style={S.field}>
-          <label style={S.label}>Ta'sirlangan hudud radiusi: {zoneRadius} metr</label>
+          <label style={S.label}>{t("org.announcementForm.radiusLabel", { radius: zoneRadius })}</label>
           <input type="range" min={50} max={3000} step={50} value={zoneRadius} onChange={(e) => setZoneRadius(Number(e.target.value))} style={{ width: "100%" }} />
         </div>
       )}
 
       <div style={S.field}>
-        <label style={S.label}>Sarlavha</label>
-        <input style={S.input} placeholder={kind === "line" ? "Masalan: Amir Temur ko'chasi yopiladi" : "Masalan: Issiq suv uzilishi"}
+        <label style={S.label}>{t("org.announcementForm.titleLabel")}</label>
+        <input style={S.input} placeholder={kind === "line" ? t("org.announcementForm.titlePlaceholderLine") : t("org.announcementForm.titlePlaceholderZone")}
           value={title} onChange={(e) => setTitle(e.target.value)} maxLength={100} />
       </div>
       <div style={S.field}>
-        <label style={S.label}>Tavsif (ixtiyoriy)</label>
-        <textarea style={{ ...S.input, height: 80 }} placeholder="Sabab, aylanib o'tish yo'li haqida qo'shimcha ma'lumot..."
+        <label style={S.label}>{t("org.announcementForm.descriptionLabel")}</label>
+        <textarea style={{ ...S.input, height: 80 }} placeholder={t("org.announcementForm.descriptionPlaceholder")}
           value={description} onChange={(e) => setDescription(e.target.value)} />
       </div>
       <div style={S.row2} className="oc-row2">
         <div style={S.field}>
-          <label style={S.label}>Boshlanish vaqti (ixtiyoriy)</label>
+          <label style={S.label}>{t("org.announcementForm.startsAtLabel")}</label>
           <input type="datetime-local" style={S.input} value={startsAt} onChange={(e) => setStartsAt(e.target.value)} />
         </div>
         <div style={S.field}>
-          <label style={S.label}>Tugash vaqti (ixtiyoriy)</label>
+          <label style={S.label}>{t("org.announcementForm.endsAtLabel")}</label>
           <input type="datetime-local" style={S.input} value={endsAt} onChange={(e) => setEndsAt(e.target.value)} />
         </div>
       </div>
       {error && <div style={{ fontSize: 12.5, color: "#A33A3A", marginBottom: 10 }}>{error}</div>}
       <button style={S.primaryBtn} disabled={!canSubmit || submitting} onClick={submit}>
-        <Check size={15} /> E'lonni joylash
+        <Check size={15} /> {t("org.announcementForm.submit")}
       </button>
     </div>
   );

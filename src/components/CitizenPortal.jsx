@@ -1,4 +1,5 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Home, Map as MapIcon, ListChecks, ThumbsUp, CheckCircle2, Bell, User, Plus,
   Building2, ChevronRight, FileWarning, RotateCcw, Clock, XCircle, ArrowRight,
@@ -10,6 +11,7 @@ import {
 } from "../constants";
 import { S } from "../styles";
 import { SideNav, StatCard, EmptyState, ReportCard, CityMap, ReportDetail, PartnerFlyer } from "./shared";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ReportWizard } from "./ReportWizard";
 import { toggleVote, addVoteIfMissing, reopenVote, deleteReport } from "../lib/api/reports";
 import { fetchMyApplication, submitApplication } from "../lib/api/applications";
@@ -19,6 +21,7 @@ export function CitizenPortal({
   profile, reports, refreshReports, myOrg, orgs, notifications, refreshNotifications, markOneNotificationRead,
   announcements, view, setView, showToast,
 }) {
+  const { t } = useTranslation();
   const [myApplication, setMyApplication] = useState(null);
   const [focusAnnouncement, setFocusAnnouncement] = useState(null);
 
@@ -38,14 +41,14 @@ export function CitizenPortal({
   const myReports = reports.filter((r) => r.createdBy === profile.id);
 
   const nav = [
-    { id: "home", label: "Mahallam xaritasi", icon: Home },
-    { id: "map", label: "Butun shahar xaritasi", icon: MapIcon },
-    { id: "my-reports", label: "Mening hisobotlarim", icon: ListChecks },
-    { id: "voting", label: "Ovoz berish", icon: ThumbsUp },
-    { id: "announcements", label: "E'lonlar", icon: Megaphone },
-    { id: "completed", label: "Tugatilgan ishlar", icon: CheckCircle2 },
-    { id: "notifications", label: "Bildirishnomalar", icon: Bell },
-    { id: "profile", label: "Profil", icon: User },
+    { id: "home", label: t("citizen.nav.home"), icon: Home },
+    { id: "map", label: t("citizen.nav.map"), icon: MapIcon },
+    { id: "my-reports", label: t("citizen.nav.myReports"), icon: ListChecks },
+    { id: "voting", label: t("citizen.nav.voting"), icon: ThumbsUp },
+    { id: "announcements", label: t("citizen.nav.announcements"), icon: Megaphone },
+    { id: "completed", label: t("citizen.nav.completed"), icon: CheckCircle2 },
+    { id: "notifications", label: t("citizen.nav.notifications"), icon: Bell },
+    { id: "profile", label: t("citizen.nav.profile"), icon: User },
   ];
 
   return (
@@ -63,25 +66,25 @@ export function CitizenPortal({
             onVoteInstead={async (id) => {
               await addVoteIfMissing(id, profile.id);
               await refreshReports();
-              showToast("Ovoz berildi — rahmat! ✓");
+              showToast(t("citizen.voteRecordedToast"));
               setView("voting");
             }}
             onDone={async (report) => {
               await refreshReports();
               await createNotification(profile.id, {
-                title: "Hisobot yuborildi",
-                message: `Hisobotingiz "${report.assignedDeptName}" ga avtomatik yo'naltirildi. Holatini "Mening hisobotlarim" bo'limidan kuzatishingiz mumkin.`,
+                title: t("citizen.reportSubmittedTitle"),
+                message: t("citizen.reportSubmittedMessage", { org: report.assignedDeptName }),
                 type: "success",
               });
               await refreshNotifications();
-              showToast("Hisobot yuborildi ✓");
+              showToast(t("citizen.reportSubmittedToast"));
               setView("my-reports");
             }}
             onCancel={() => setView("home")}
           />
         )}
         {view === "map" && (
-          <CityMap reports={reports} title="Butun shahar xaritasi" center={announcementCenter(focusAnnouncement)}
+          <CityMap reports={reports} title={t("citizen.nav.map")} center={announcementCenter(focusAnnouncement)}
             profile={profile} myOrg={myOrg} refreshReports={refreshReports} showToast={showToast} announcements={announcements} />
         )}
         {view === "announcements" && (
@@ -93,7 +96,7 @@ export function CitizenPortal({
             onDelete={async (id) => {
               await deleteReport(id);
               await refreshReports();
-              showToast("Hisobot o'chirildi ✓");
+              showToast(t("citizen.reportDeletedToast"));
             }} />
         )}
         {view === "voting" && (
@@ -106,9 +109,9 @@ export function CitizenPortal({
         {view === "completed" && (
           <CompletedWorks reports={reports} profile={profile}
             onReopenVote={async (report) => {
-              const count = await reopenVote(report, profile.id);
+              const count = await reopenVote(report, profile.id, t);
               await refreshReports();
-              showToast(count >= REOPEN_VOTES_REQUIRED ? "Hisobot qayta ochildi va xaritaga qaytdi ✓" : `Ovoz qabul qilindi (${count}/${REOPEN_VOTES_REQUIRED})`);
+              showToast(count >= REOPEN_VOTES_REQUIRED ? t("citizen.completed.reopenedToast") : t("citizen.completed.voteRecordedToast", { count, required: REOPEN_VOTES_REQUIRED }));
             }} />
         )}
         {view === "notifications" && (
@@ -127,7 +130,7 @@ export function CitizenPortal({
             onSubmit={async (form) => {
               const app = await submitApplication(profile.id, form);
               setMyApplication(app);
-              showToast("Ariza yuborildi ✓");
+              showToast(t("citizen.applicationSubmittedToast"));
               setView("profile");
             }}
             onCancel={() => setView("profile")} />
@@ -139,6 +142,7 @@ export function CitizenPortal({
 }
 
 function CitizenHome({ profile, myOrg, orgs, myReports, reports, refreshReports, announcements, showToast, setView, myApplication }) {
+  const { t } = useTranslation();
   const district = profile.detected_district;
   const region = profile.detected_region;
   const localReports = district
@@ -151,15 +155,13 @@ function CitizenHome({ profile, myOrg, orgs, myReports, reports, refreshReports,
     <div>
       <div style={S.rowHeader}>
         <div>
-          <div style={S.heroEyebrowDark}>Salom, {profile.name.split(" ")[0]}</div>
-          <h1 style={S.pageTitleLg}>{district ? `${district} xaritasi` : "O'zbekiston xaritasi"}</h1>
+          <div style={S.heroEyebrowDark}>{t("citizen.home.greeting", { name: profile.name.split(" ")[0] })}</div>
+          <h1 style={S.pageTitleLg}>{district ? t("citizen.home.titleWithDistrict", { district }) : t("citizen.home.titleFallback")}</h1>
           <p style={S.fine}>
-            {district
-              ? "Joylashuvingiz asosida aniqlandi. Qizil rangda yonib turgan nuqtalar — eng ko'p ovoz olgan, eng dolzarb muammolar."
-              : "Joylashuvni aniqlash uchun xaritadagi \"Joylashuvimni aniqlash\" tugmasini bosing yoki brauzer so'ragan GPS ruxsatini bering."}
+            {district ? t("citizen.home.subtitleWithDistrict") : t("citizen.home.subtitleFallback")}
           </p>
         </div>
-        <button style={S.primaryBtn} onClick={() => setView("report")}><Plus size={16} /> Muammo haqida xabar berish</button>
+        <button style={S.primaryBtn} onClick={() => setView("report")}><Plus size={16} /> {t("citizen.home.reportButton")}</button>
       </div>
 
       <CityMap reports={localReports} compact title={null}
@@ -169,25 +171,25 @@ function CitizenHome({ profile, myOrg, orgs, myReports, reports, refreshReports,
       <PartnerFlyer orgs={orgs} />
 
       <div style={S.statsRow}>
-        <StatCard label="Faol hisobotlarim" value={active} accent="#1E88A8" />
-        <StatCard label="Hal qilinganlarim" value={resolved} accent="#2E9A5C" />
-        <StatCard label={district ? `${district}dagi faol muammolar` : "Shahar bo'yicha faol"} value={localReports.length} accent="#8759B3" />
+        <StatCard label={t("citizen.home.statActive")} value={active} accent="#1E88A8" />
+        <StatCard label={t("citizen.home.statResolved")} value={resolved} accent="#2E9A5C" />
+        <StatCard label={district ? t("citizen.home.statLocalActive", { district }) : t("citizen.home.statCityActive")} value={localReports.length} accent="#8759B3" />
       </div>
 
       {!myApplication && (
         <div style={S.orgPromo} className="oc-card" onClick={() => setView("apply-org")}>
           <Building2 size={20} color="#1E88A8" />
           <div style={{ flex: 1 }}>
-            <div style={S.orgPromoTitle}>Tashkilot vakilimisiz?</div>
-            <div style={S.orgPromoSub}>Kommunal xizmat yoki kompaniyangiz uchun Tashkilot Portaliga kirish huquqini so'rang.</div>
+            <div style={S.orgPromoTitle}>{t("citizen.home.orgPromoTitle")}</div>
+            <div style={S.orgPromoSub}>{t("citizen.home.orgPromoSub")}</div>
           </div>
           <ChevronRight size={18} color="#7A8A99" />
         </div>
       )}
 
-      <h3 style={S.sectionTitle}>So'nggi hisobotlaringiz</h3>
+      <h3 style={S.sectionTitle}>{t("citizen.home.recentReports")}</h3>
       {myReports.length === 0 ? (
-        <EmptyState icon={FileWarning} text="Hali hisobot yubormagansiz. Birinchi hisobotingizni yuboring." />
+        <EmptyState icon={FileWarning} text={t("citizen.home.noReportsYet")} />
       ) : (
         <div style={S.reportGrid}>{myReports.slice(0, 4).map((r) => <ReportCard key={r.id} report={r} />)}</div>
       )}
@@ -196,6 +198,7 @@ function CitizenHome({ profile, myOrg, orgs, myReports, reports, refreshReports,
 }
 
 function MyReports({ myReports, onNew, onDelete }) {
+  const { t } = useTranslation();
   const [openId, setOpenId] = useState(null);
   const open = myReports.find((r) => r.id === openId);
   if (open) {
@@ -207,10 +210,10 @@ function MyReports({ myReports, onNew, onDelete }) {
   return (
     <div>
       <div style={S.rowHeader}>
-        <h2 style={S.pageTitle}>Mening hisobotlarim</h2>
-        <button style={S.primaryBtn} onClick={onNew}><Plus size={15} /> Yangi hisobot</button>
+        <h2 style={S.pageTitle}>{t("citizen.myReports.title")}</h2>
+        <button style={S.primaryBtn} onClick={onNew}><Plus size={15} /> {t("citizen.myReports.newReport")}</button>
       </div>
-      {myReports.length === 0 ? <EmptyState icon={FileWarning} text="Hozircha hisobotlaringiz yo'q." /> : (
+      {myReports.length === 0 ? <EmptyState icon={FileWarning} text={t("citizen.myReports.empty")} /> : (
         <div style={S.reportGrid}>{myReports.map((r) => <ReportCard key={r.id} report={r} onClick={() => setOpenId(r.id)} />)}</div>
       )}
     </div>
@@ -218,12 +221,13 @@ function MyReports({ myReports, onNew, onDelete }) {
 }
 
 function VotingBoard({ reports, profile, onVote }) {
+  const { t, i18n } = useTranslation();
   const active = reports.filter((r) => !DONE_STATUSES.includes(r.status));
   const sorted = [...active].sort((a, b) => b.votes.length - a.votes.length);
   return (
     <div>
-      <h2 style={S.pageTitle}>Jamoat ovoz berishi</h2>
-      <p style={S.fine}>Muhim deb bilgan muammolarga ovoz bering. {HOT_VOTES}+ ovoz olganlar xaritada qizil "yonib" ko'rinadi va birinchi navbatda e'tiborga olinadi.</p>
+      <h2 style={S.pageTitle}>{t("citizen.voting.title")}</h2>
+      <p style={S.fine}>{t("citizen.voting.description", { hotVotes: HOT_VOTES })}</p>
       <div style={S.votingList}>
         {sorted.map((r) => {
           const cat = CATEGORIES.find((c) => c.id === r.category);
@@ -235,7 +239,7 @@ function VotingBoard({ reports, profile, onVote }) {
               <Icon size={18} color="#1E88A8" />
               <div style={{ flex: 1 }}>
                 <div style={S.reportCardTitle}>{r.title} {hot && <Flame size={13} color="#B2402A" style={{ verticalAlign: "-2px" }} />}</div>
-                <div style={S.reportCardMeta}>{r.district} В· {STATUS[r.status].label}</div>
+                <div style={S.reportCardMeta}>{r.district} · {t(`status.${r.status}`)}</div>
               </div>
               <button style={{ ...S.voteBtn, ...(voted ? S.voteBtnActive : {}) }} onClick={() => onVote(r.id, voted)}>
                 <ThumbsUp size={14} /> {r.votes.length}
@@ -243,13 +247,14 @@ function VotingBoard({ reports, profile, onVote }) {
             </div>
           );
         })}
-        {sorted.length === 0 && <EmptyState icon={ThumbsUp} text="Hozircha faol hisobotlar yo'q." />}
+        {sorted.length === 0 && <EmptyState icon={ThumbsUp} text={t("citizen.voting.empty")} />}
       </div>
     </div>
   );
 }
 
 function CompletedWorks({ reports, profile, onReopenVote }) {
+  const { t } = useTranslation();
   const done = reports.filter((r) => DONE_STATUSES.includes(r.status));
   const [openId, setOpenId] = useState(null);
   const open = done.find((r) => r.id === openId);
@@ -258,12 +263,12 @@ function CompletedWorks({ reports, profile, onReopenVote }) {
     const voted = open.reopenVotes.includes(profile.id);
     return (
       <div>
-        <button style={S.linkBtn} onClick={() => setOpenId(null)}><ChevronLeft size={15} /> Ro'yxatga qaytish</button>
+        <button style={S.linkBtn} onClick={() => setOpenId(null)}><ChevronLeft size={15} /> {t("common.backToList")}</button>
         <ReportDetail report={open} onBack={() => setOpenId(null)} />
         <div style={S.reopenBox}>
-          <div style={S.reopenText}>Bu muammo hali ham mavjudmi? {open.reopenVotes.length} kishi "hal qilinmagan" degan — {REOPEN_VOTES_REQUIRED} taga yetsa hisobot qayta ochiladi.</div>
+          <div style={S.reopenText}>{t("citizen.completed.reopenText", { count: open.reopenVotes.length, required: REOPEN_VOTES_REQUIRED })}</div>
           <button style={{ ...S.dangerBtn, ...(voted ? { opacity: 0.5, cursor: "default" } : {}) }} disabled={voted} onClick={() => onReopenVote(open)}>
-            <RotateCcw size={14} /> {voted ? "Ovoz berilgan" : "Bu muammo hal qilinmagan"}
+            <RotateCcw size={14} /> {voted ? t("citizen.completed.reopenVoted") : t("citizen.completed.reopenButton")}
           </button>
         </div>
       </div>
@@ -272,9 +277,9 @@ function CompletedWorks({ reports, profile, onReopenVote }) {
 
   return (
     <div>
-      <h2 style={S.pageTitle}>Tugatilgan ishlar</h2>
-      <p style={S.fine}>Bu yerda hal qilingan muammolarni ko'rishingiz mumkin. Agar biror ish noto'g'ri yopilgan bo'lsa, uni belgilab qayta ochilishiga ovoz bera olasiz.</p>
-      {done.length === 0 ? <EmptyState icon={CheckCircle2} text="Hali tugatilgan ishlar yo'q." /> : (
+      <h2 style={S.pageTitle}>{t("citizen.completed.title")}</h2>
+      <p style={S.fine}>{t("citizen.completed.description")}</p>
+      {done.length === 0 ? <EmptyState icon={CheckCircle2} text={t("citizen.completed.empty")} /> : (
         <div style={S.reportGrid}>{done.map((r) => <ReportCard key={r.id} report={r} onClick={() => setOpenId(r.id)} />)}</div>
       )}
     </div>
@@ -282,12 +287,13 @@ function CompletedWorks({ reports, profile, onReopenVote }) {
 }
 
 function AnnouncementsList({ announcements, onSelect }) {
+  const { t, i18n } = useTranslation();
   const active = (announcements || []).filter((a) => !a.endsAt || new Date(a.endsAt) > new Date());
   return (
     <div>
-      <h2 style={S.pageTitle}>E'lonlar</h2>
-      <p style={S.fine}>Davlat tashkilotlari tomonidan e'lon qilingan ko'cha yopilishi va xizmat uzilishlari. Xaritada ko'rish uchun bosing.</p>
-      {active.length === 0 ? <EmptyState icon={Megaphone} text="Hozircha faol e'lonlar yo'q." /> : (
+      <h2 style={S.pageTitle}>{t("citizen.announcements.title")}</h2>
+      <p style={S.fine}>{t("citizen.announcements.description")}</p>
+      {active.length === 0 ? <EmptyState icon={Megaphone} text={t("citizen.announcements.empty")} /> : (
         <div style={S.notifList}>
           {active.map((a) => (
             <div key={a.id} style={{ ...S.notifRow, cursor: "pointer" }} className="oc-card" onClick={() => onSelect(a)}>
@@ -300,7 +306,7 @@ function AnnouncementsList({ announcements, onSelect }) {
                 {a.description && <div style={S.notifMsg}>{a.description}</div>}
                 <div style={S.notifTime}>
                   {a.orgName}{a.district ? ` · ${a.district}` : ""}
-                  {(a.startsAt || a.endsAt) && ` · ${a.startsAt ? fmtDate(a.startsAt) : "?"} — ${a.endsAt ? fmtDate(a.endsAt) : "noma'lum"}`}
+                  {(a.startsAt || a.endsAt) && ` · ${a.startsAt ? fmtDate(a.startsAt, i18n.language) : "?"} — ${a.endsAt ? fmtDate(a.endsAt, i18n.language) : t("citizen.announcements.unknownEnd")}`}
                 </div>
               </div>
               <ChevronRight size={16} color="#9AA7B2" />
@@ -313,13 +319,14 @@ function AnnouncementsList({ announcements, onSelect }) {
 }
 
 function NotificationsView({ notifications, onReadAll, onReadOne }) {
+  const { t, i18n } = useTranslation();
   return (
     <div>
       <div style={S.rowHeader}>
-        <h2 style={S.pageTitle}>Bildirishnomalar</h2>
-        {notifications.some((n) => !n.read) && <button style={S.linkBtn} onClick={onReadAll}>Barchasini o'qilgan deb belgilash</button>}
+        <h2 style={S.pageTitle}>{t("citizen.notifications.title")}</h2>
+        {notifications.some((n) => !n.read) && <button style={S.linkBtn} onClick={onReadAll}>{t("citizen.notifications.markAllRead")}</button>}
       </div>
-      {notifications.length === 0 ? <EmptyState icon={Bell} text="Bildirishnomalar yo'q." /> : (
+      {notifications.length === 0 ? <EmptyState icon={Bell} text={t("citizen.notifications.empty")} /> : (
         <div style={S.notifList}>
           {notifications.map((n) => (
             <div key={n.id} style={{ ...S.notifRow, ...(n.read ? {} : S.notifRowUnread), cursor: n.read ? "default" : "pointer" }}
@@ -328,7 +335,7 @@ function NotificationsView({ notifications, onReadAll, onReadOne }) {
               <div style={{ flex: 1 }}>
                 <div style={S.notifTitle}>{n.title}</div>
                 <div style={S.notifMsg}>{n.message}</div>
-                <div style={S.notifTime}>{fmtDate(n.created_at)}</div>
+                <div style={S.notifTime}>{fmtDate(n.created_at, i18n.language)}</div>
               </div>
               {!n.read && <span style={S.notifUnreadBadge} />}
             </div>
@@ -340,28 +347,31 @@ function NotificationsView({ notifications, onReadAll, onReadOne }) {
 }
 
 function ProfileView({ profile, myApplication, myOrg, onApply }) {
+  const { t } = useTranslation();
   return (
     <div>
-      <h2 style={S.pageTitle}>Profil</h2>
+      <h2 style={S.pageTitle}>{t("citizen.profile.title")}</h2>
       <div style={S.profileCard}>
         <div style={S.avatarLg}>{profile.name.slice(0, 1).toUpperCase()}</div>
         <div>
           <div style={S.profileName}>{profile.name}</div>
-          <div style={S.profileRole}>Fuqaro {myOrg ? `В· ${myOrg.name} a'zosi` : ""}</div>
-          <div style={S.profileRole}>{profile.detected_district ? `Aniqlangan hudud: ${profile.detected_district}, ${profile.detected_region}` : "Hudud hali aniqlanmagan"}</div>
+          <div style={S.profileRole}>{t("citizen.profile.roleCitizen")} {myOrg ? `· ${myOrg.name} ${t("citizen.profile.orgMemberSuffix")}` : ""}</div>
+          <div style={S.profileRole}>{profile.detected_district ? t("citizen.profile.detectedRegion", { district: profile.detected_district, region: profile.detected_region }) : t("citizen.profile.undetected")}</div>
         </div>
       </div>
-      <h3 style={S.sectionTitle}>Tashkilot huquqi</h3>
+      <h3 style={S.sectionTitle}>{t("citizen.profile.languageTitle")}</h3>
+      <LanguageSwitcher profile={profile} />
+      <h3 style={S.sectionTitle}>{t("citizen.profile.orgRightsTitle")}</h3>
       {myOrg ? (
-        <div style={S.infoBanner}><CheckCircle2 size={18} color="#2E9A5C" /> Siz "{myOrg.name}" tashkiloti a'zosisiz. Tashkilot Portaliga yuqoridagi menyudan o'ting.</div>
+        <div style={S.infoBanner}><CheckCircle2 size={18} color="#2E9A5C" /> {t("citizen.profile.memberBanner", { org: myOrg.name })}</div>
       ) : myApplication ? (
         <ApplicationStatusCard application={myApplication} />
       ) : (
         <div style={S.orgPromo} className="oc-card" onClick={onApply}>
           <Building2 size={20} color="#1E88A8" />
           <div style={{ flex: 1 }}>
-            <div style={S.orgPromoTitle}>Tashkilot huquqi uchun ariza bering</div>
-            <div style={S.orgPromoSub}>Kommunal xizmat yoki kompaniya vakilisiz — hisobotlarni ko'rib, hal qiling.</div>
+            <div style={S.orgPromoTitle}>{t("citizen.profile.applyTitle")}</div>
+            <div style={S.orgPromoSub}>{t("citizen.profile.applySub")}</div>
           </div>
           <ChevronRight size={18} color="#7A8A99" />
         </div>
@@ -371,10 +381,11 @@ function ProfileView({ profile, myApplication, myOrg, onApply }) {
 }
 
 function ApplicationStatusCard({ application }) {
+  const { t, i18n } = useTranslation();
   const map = {
-    pending: { label: "Ko'rib chiqilmoqda", color: "#C98A2B", icon: Clock },
-    approved: { label: "Tasdiqlandi", color: "#2E9A5C", icon: CheckCircle2 },
-    rejected: { label: "Rad etildi", color: "#A33A3A", icon: XCircle },
+    pending: { color: "#C98A2B", icon: Clock },
+    approved: { color: "#2E9A5C", icon: CheckCircle2 },
+    rejected: { color: "#A33A3A", icon: XCircle },
   };
   const st = map[application.status] || map.pending;
   const Icon = st.icon;
@@ -382,28 +393,29 @@ function ApplicationStatusCard({ application }) {
     <div style={{ ...S.infoBanner, borderColor: st.color + "55" }}>
       <Icon size={18} color={st.color} />
       <div>
-        <div style={{ fontWeight: 600, color: st.color }}>{st.label}</div>
-        <div style={S.fine}>{application.org_name} В· yuborilgan: {fmtDate(application.created_at)}</div>
-        {application.rejection_reason && <div style={S.fine}>Sabab: {application.rejection_reason}</div>}
+        <div style={{ fontWeight: 600, color: st.color }}>{t(`citizen.applicationStatus.${application.status}`) || t("citizen.applicationStatus.pending")}</div>
+        <div style={S.fine}>{application.org_name} · {t("citizen.applicationStatus.submittedAt", { date: fmtDate(application.created_at, i18n.language) })}</div>
+        {application.rejection_reason && <div style={S.fine}>{t("citizen.applicationStatus.reason", { reason: application.rejection_reason })}</div>}
       </div>
     </div>
   );
 }
 
 function OrgApplicationForm({ profile, onSubmit, onCancel }) {
+  const { t } = useTranslation();
   const [kind, setKind] = useState(null);
 
   if (!kind) {
     return (
       <div style={S.wizardWrap}>
-        <button style={S.linkBtn} onClick={onCancel}><X size={16} /> Bekor qilish</button>
-        <h2 style={S.wizardTitle}>Siz kimsiz?</h2>
+        <button style={S.linkBtn} onClick={onCancel}><X size={16} /> {t("common.cancel")}</button>
+        <h2 style={S.wizardTitle}>{t("citizen.application.whoAreYou")}</h2>
         <div style={S.catGrid}>
           <button style={S.catBtn} onClick={() => setKind("government")}>
-            <Building2 size={20} color="#1E88A8" /><span>Davlat tashkiloti xodimiman</span>
+            <Building2 size={20} color="#1E88A8" /><span>{t("citizen.application.govOption")}</span>
           </button>
           <button style={S.catBtn} onClick={() => setKind("private")}>
-            <Building2 size={20} color="#1E88A8" /><span>Tadbirkor / xususiy kompaniya vakiliman</span>
+            <Building2 size={20} color="#1E88A8" /><span>{t("citizen.application.privateOption")}</span>
           </button>
         </div>
       </div>
@@ -416,6 +428,7 @@ function OrgApplicationForm({ profile, onSubmit, onCancel }) {
 }
 
 function GovernmentApplicationForm({ profile, onSubmit, onCancel }) {
+  const { t } = useTranslation();
   const [region, setRegion] = useState(REGION_NAMES[0]);
   const [district, setDistrict] = useState(districtsOf(REGION_NAMES[0])[0]?.name);
   const [category, setCategory] = useState(CATEGORIES[0].id);
@@ -433,35 +446,35 @@ function GovernmentApplicationForm({ profile, onSubmit, onCancel }) {
 
   return (
     <div style={S.wizardWrap}>
-      <button style={S.linkBtn} onClick={onCancel}><X size={16} /> Orqaga</button>
-      <h2 style={S.wizardTitle}>Davlat bo'limi xodimi sifatida ariza</h2>
+      <button style={S.linkBtn} onClick={onCancel}><X size={16} /> {t("common.back")}</button>
+      <h2 style={S.wizardTitle}>{t("citizen.application.govTitle")}</h2>
       <div style={S.row2} className="oc-row2">
-        <div style={S.field}><label style={S.label}>Viloyat</label>
+        <div style={S.field}><label style={S.label}>{t("citizen.application.fields.region")}</label>
           <select style={S.input} value={region} onChange={(e) => changeRegion(e.target.value)}>
             {REGION_NAMES.map((r) => <option key={r} value={r}>{r}</option>)}
           </select></div>
-        <div style={S.field}><label style={S.label}>Tuman / shahar</label>
+        <div style={S.field}><label style={S.label}>{t("citizen.application.fields.district")}</label>
           <select style={S.input} value={district} onChange={(e) => setDistrict(e.target.value)}>
             {regionDistricts.map((d) => <option key={d.name} value={d.name}>{d.name}</option>)}
           </select></div>
       </div>
-      <div style={S.field}><label style={S.label}>Qaysi yo'nalishda ishlaysiz</label>
+      <div style={S.field}><label style={S.label}>{t("citizen.application.fields.workArea")}</label>
         <select style={S.input} value={category} onChange={(e) => setCategory(e.target.value)}>
-          {CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+          {CATEGORIES.map((c) => <option key={c.id} value={c.id}>{t(`category.${c.id}`)}</option>)}
         </select></div>
       <div style={S.row2} className="oc-row2">
-        <div style={S.field}><label style={S.label}>Rasmiy email</label><input style={S.input} type="email" value={form.email} onChange={set("email")} /></div>
-        <div style={S.field}><label style={S.label}>Telefon raqami</label><input style={S.input} value={form.phone} onChange={set("phone")} /></div>
+        <div style={S.field}><label style={S.label}>{t("citizen.application.fields.officialEmail")}</label><input style={S.input} type="email" value={form.email} onChange={set("email")} /></div>
+        <div style={S.field}><label style={S.label}>{t("citizen.application.fields.phone")}</label><input style={S.input} value={form.phone} onChange={set("phone")} /></div>
       </div>
       <div style={S.row2} className="oc-row2">
-        <div style={S.field}><label style={S.label}>Ismingiz</label><input style={S.input} value={form.contact_person} onChange={set("contact_person")} /></div>
-        <div style={S.field}><label style={S.label}>Lavozimingiz</label><input style={S.input} value={form.contact_position} onChange={set("contact_position")} /></div>
+        <div style={S.field}><label style={S.label}>{t("citizen.application.fields.yourName")}</label><input style={S.input} value={form.contact_person} onChange={set("contact_person")} /></div>
+        <div style={S.field}><label style={S.label}>{t("citizen.application.fields.position")}</label><input style={S.input} value={form.contact_position} onChange={set("contact_position")} /></div>
       </div>
-      <div style={S.field}><label style={S.label}>Qo'shimcha izoh (ixtiyoriy)</label><textarea style={{ ...S.input, height: 90 }} value={form.description} onChange={set("description")} /></div>
+      <div style={S.field}><label style={S.label}>{t("citizen.application.fields.extraNote")}</label><textarea style={{ ...S.input, height: 90 }} value={form.description} onChange={set("description")} /></div>
       <div style={S.wizardFooter}>
         <div style={{ flex: 1 }} />
         <button style={S.primaryBtn} disabled={!valid} onClick={() => onSubmit({ kind: "government", region, district, category, ...form })}>
-          Arizani yuborish <ArrowRight size={15} />
+          {t("citizen.application.submitButton")} <ArrowRight size={15} />
         </button>
       </div>
     </div>
@@ -469,6 +482,7 @@ function GovernmentApplicationForm({ profile, onSubmit, onCancel }) {
 }
 
 function PrivateApplicationForm({ profile, onSubmit, onCancel }) {
+  const { t } = useTranslation();
   const [form, setForm] = useState({
     org_name: "", org_type: ORG_TYPES[0], reg_number: "", address: "", city: "Toshkent",
     email: "", phone: "", contact_person: profile.name, contact_position: "", description: "",
@@ -477,34 +491,35 @@ function PrivateApplicationForm({ profile, onSubmit, onCancel }) {
   const valid = form.org_name.trim() && form.email.trim() && form.phone.trim() && form.contact_person.trim();
   return (
     <div style={S.wizardWrap}>
-      <button style={S.linkBtn} onClick={onCancel}><X size={16} /> Orqaga</button>
-      <h2 style={S.wizardTitle}>Tadbirkor / xususiy kompaniya arizasi</h2>
+      <button style={S.linkBtn} onClick={onCancel}><X size={16} /> {t("common.back")}</button>
+      <h2 style={S.wizardTitle}>{t("citizen.application.privateTitle")}</h2>
       <div style={S.row2} className="oc-row2">
-        <div style={S.field}><label style={S.label}>Tashkilot nomi</label><input style={S.input} value={form.org_name} onChange={set("org_name")} /></div>
-        <div style={S.field}><label style={S.label}>Tashkilot turi</label>
-          <select style={S.input} value={form.org_type} onChange={set("org_type")}>{ORG_TYPES.map((t) => <option key={t}>{t}</option>)}</select></div>
+        <div style={S.field}><label style={S.label}>{t("citizen.application.fields.orgName")}</label><input style={S.input} value={form.org_name} onChange={set("org_name")} /></div>
+        <div style={S.field}><label style={S.label}>{t("citizen.application.fields.orgType")}</label>
+          <select style={S.input} value={form.org_type} onChange={set("org_type")}>
+            {ORG_TYPES.map((ot) => <option key={ot} value={ot}>{t(`orgType.${ot}`)}</option>)}
+          </select></div>
       </div>
       <div style={S.row2} className="oc-row2">
-        <div style={S.field}><label style={S.label}>Guvohnoma / STIR raqami</label><input style={S.input} value={form.reg_number} onChange={set("reg_number")} /></div>
-        <div style={S.field}><label style={S.label}>Shahar</label><input style={S.input} value={form.city} onChange={set("city")} /></div>
+        <div style={S.field}><label style={S.label}>{t("citizen.application.fields.regNumber")}</label><input style={S.input} value={form.reg_number} onChange={set("reg_number")} /></div>
+        <div style={S.field}><label style={S.label}>{t("citizen.application.fields.city")}</label><input style={S.input} value={form.city} onChange={set("city")} /></div>
       </div>
-      <div style={S.field}><label style={S.label}>Rasmiy manzil</label><input style={S.input} value={form.address} onChange={set("address")} /></div>
+      <div style={S.field}><label style={S.label}>{t("citizen.application.fields.officialAddress")}</label><input style={S.input} value={form.address} onChange={set("address")} /></div>
       <div style={S.row2} className="oc-row2">
-        <div style={S.field}><label style={S.label}>Rasmiy email</label><input style={S.input} type="email" value={form.email} onChange={set("email")} /></div>
-        <div style={S.field}><label style={S.label}>Telefon raqami</label><input style={S.input} value={form.phone} onChange={set("phone")} /></div>
+        <div style={S.field}><label style={S.label}>{t("citizen.application.fields.officialEmail")}</label><input style={S.input} type="email" value={form.email} onChange={set("email")} /></div>
+        <div style={S.field}><label style={S.label}>{t("citizen.application.fields.phone")}</label><input style={S.input} value={form.phone} onChange={set("phone")} /></div>
       </div>
       <div style={S.row2} className="oc-row2">
-        <div style={S.field}><label style={S.label}>Mas'ul shaxs</label><input style={S.input} value={form.contact_person} onChange={set("contact_person")} /></div>
-        <div style={S.field}><label style={S.label}>Lavozimi</label><input style={S.input} value={form.contact_position} onChange={set("contact_position")} /></div>
+        <div style={S.field}><label style={S.label}>{t("citizen.application.fields.contactPerson")}</label><input style={S.input} value={form.contact_person} onChange={set("contact_person")} /></div>
+        <div style={S.field}><label style={S.label}>{t("citizen.application.fields.contactPosition")}</label><input style={S.input} value={form.contact_position} onChange={set("contact_position")} /></div>
       </div>
-      <div style={S.field}><label style={S.label}>Tashkilot haqida qisqacha</label><textarea style={{ ...S.input, height: 90 }} value={form.description} onChange={set("description")} /></div>
+      <div style={S.field}><label style={S.label}>{t("citizen.application.fields.orgDescription")}</label><textarea style={{ ...S.input, height: 90 }} value={form.description} onChange={set("description")} /></div>
       <div style={S.wizardFooter}>
         <div style={{ flex: 1 }} />
         <button style={S.primaryBtn} disabled={!valid} onClick={() => onSubmit({ kind: "private", ...form })}>
-          Arizani yuborish <ArrowRight size={15} />
+          {t("citizen.application.submitButton")} <ArrowRight size={15} />
         </button>
       </div>
     </div>
   );
 }
-

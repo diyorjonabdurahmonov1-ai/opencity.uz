@@ -1,5 +1,7 @@
 import { Camera, ThumbsUp, Building2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { S } from "../styles";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 function GoogleG() {
   return (
@@ -13,36 +15,35 @@ function GoogleG() {
 }
 
 export function SignInScreen({ onSignIn }) {
+  const { t } = useTranslation();
   return (
     <div style={S.signinWrap}>
       <div style={S.signinCard}>
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 6 }}>
+          <LanguageSwitcher />
+        </div>
         <div style={S.brandRow}>
           <img src="/icon-192.png" alt="OpenCity" style={{ ...S.brandMark, width: 56, height: 56, borderRadius: 16 }} />
           <div style={S.brandName}>OpenCity</div>
         </div>
-        <h1 style={S.h1}>Shaharni birga yaxshilaymiz</h1>
-        <p style={S.lead}>
-          Kirishingiz bilan sizning hududingiz xaritasi ochiladi — u yerdagi muammolarni ko'rasiz,
-          ovoz berasiz yoki yangisini bir necha soniyada yuborasiz.
-        </p>
+        <h1 style={S.h1}>{t("signIn.heading")}</h1>
+        <p style={S.lead}>{t("signIn.lead")}</p>
         <button style={S.googleBtn} onClick={onSignIn}>
-          <GoogleG /> Google bilan kirish
+          <GoogleG /> {t("signIn.googleButton")}
         </button>
-        <p style={S.fine}>
-          Joylashuvingizni aniqlash uchun brauzer GPS ruxsatini so'raymiz — buni istalgan payt rad etishingiz mumkin.
-        </p>
+        <p style={S.fine}>{t("signIn.gpsNote")}</p>
         <div style={S.signinFeatureRow}>
           <div style={S.signinFeature}>
             <div style={S.signinFeatureIcon}><Camera size={17} color="#1E88A8" /></div>
-            Rasm bilan xabar bering
+            {t("signIn.feature1")}
           </div>
           <div style={S.signinFeature}>
             <div style={S.signinFeatureIcon}><ThumbsUp size={17} color="#8759B3" /></div>
-            Muammoga ovoz bering
+            {t("signIn.feature2")}
           </div>
           <div style={S.signinFeature}>
             <div style={S.signinFeatureIcon}><Building2 size={17} color="#2E9A5C" /></div>
-            Tashkilotlar hal qiladi
+            {t("signIn.feature3")}
           </div>
         </div>
       </div>

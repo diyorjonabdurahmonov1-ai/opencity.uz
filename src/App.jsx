@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { changeLanguage } from "./i18n";
 import { useAuth } from "./hooks/useAuth";
 import { fetchMyProfile, updateMyProfile } from "./lib/api/profiles";
 import { fetchReports, subscribeToReports } from "./lib/api/reports";
@@ -28,6 +30,7 @@ async function fetchMyProfileWithRetry(userId, attempts = 4) {
 }
 
 export default function App() {
+  const { t } = useTranslation();
   const { user, loading: authLoading, signInWithGoogle, signOut } = useAuth();
   const [profile, setProfile] = useState(null);
   const [reports, setReports] = useState([]);
@@ -71,6 +74,7 @@ export default function App() {
         ]);
         if (cancelled) return;
         setProfile(p);
+        if (p.language) changeLanguage(p.language);
         setReports(rpts);
         setOrgs(orgList);
         setMyOrg(await fetchOrgById(p.org_id).catch(() => null));
@@ -104,9 +108,7 @@ export default function App() {
         setProfile(updated);
       },
       (err) => {
-        const msg = err.code === 1
-          ? "Joylashuvga ruxsat berilmadi — brauzer manzil satridagi qulf belgisidan saytga joylashuv ruxsatini berishingiz mumkin."
-          : "Joylashuvingizni aniqlab bo'lmadi. Hisobot yuborishda hududni qo'lda tanlashingiz mumkin.";
+        const msg = err.code === 1 ? t("app.geo.permissionDenied") : t("app.geo.unavailable");
         showToast(msg);
       },
       { timeout: 8000, enableHighAccuracy: true }

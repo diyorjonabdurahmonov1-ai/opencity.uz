@@ -68,3 +68,9 @@ export async function setProfileBanned(profileId, banned) {
   if (error) throw error;
   return data;
 }
+
+export async function setProfileLanguage(profileId, language) {
+  const { data, error } = await supabase.from("profiles").update({ language }).eq("id", profileId).select().single();
+  if (error) throw error;
+  return data;
+}

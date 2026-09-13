@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import { Camera, X, Check, ChevronRight, ChevronLeft, Loader2, MapPin, CheckCircle2, ThumbsUp } from "lucide-react";
 import {
@@ -17,6 +18,7 @@ function LocationPicker({ onPick }) {
 }
 
 export function ReportWizard({ profile, reports, onDone, onCancel, onVoteInstead }) {
+  const { t, i18n } = useTranslation();
   const [step, setStep] = useState(0);
   const [category, setCategory] = useState(null);
   const [photoBlobs, setPhotoBlobs] = useState([]);
@@ -45,7 +47,10 @@ export function ReportWizard({ profile, reports, onDone, onCancel, onVoteInstead
     findGovernmentOrg(region, district, category).then((org) => setAssignedOrgName(org.name)).catch(() => setAssignedOrgName(""));
   }, [step, category, region, district]);
 
-  const steps = ["Turkum", "Rasm", "Joylashuv", "O'xshash tekshiruv", "Tavsif", "Ko'rib chiqish"];
+  const steps = [
+    t("wizard.steps.category"), t("wizard.steps.photo"), t("wizard.steps.location"),
+    t("wizard.steps.similarCheck"), t("wizard.steps.description"), t("wizard.steps.review"),
+  ];
 
   const similar = category
     ? reports.filter((r) => r.category === category && r.district === district && r.region === region && !DONE_STATUSES.includes(r.status))
@@ -83,7 +88,7 @@ export function ReportWizard({ profile, reports, onDone, onCancel, onVoteInstead
   // o'qishni saqlaydi — telefonlarda GPS bir necha soniyada aniqroq bo'lib boradi.
   const useMyLocation = () => {
     setLocateError("");
-    if (!navigator.geolocation) { setLocateError("Bu brauzer joylashuvni aniqlashni qo'llab-quvvatlamaydi."); return; }
+    if (!navigator.geolocation) { setLocateError(t("wizard.geo.notSupported")); return; }
     setLocating(true);
     let best = null;
     const watchId = navigator.geolocation.watchPosition(
@@ -96,18 +101,14 @@ export function ReportWizard({ profile, reports, onDone, onCancel, onVoteInstead
       (err) => {
         navigator.geolocation.clearWatch(watchId);
         setLocating(false);
-        setLocateError(
-          err.code === 1
-            ? "Joylashuvga ruxsat berilmadi — brauzer manzil satridagi qulf belgisidan ruxsat bering, yoki tumanni qo'lda tanlang."
-            : "Joylashuvni aniqlab bo'lmadi. Tumanni qo'lda tanlashingiz yoki xaritada bosishingiz mumkin."
-        );
+        setLocateError(err.code === 1 ? t("wizard.geo.permissionDenied") : t("wizard.geo.unavailable"));
       },
       { enableHighAccuracy: true, maximumAge: 0, timeout: 8000 }
     );
     setTimeout(() => {
       navigator.geolocation.clearWatch(watchId);
       setLocating(false);
-      if (!best) setLocateError("Joylashuvni aniqlab bo'lmadi. Tumanni qo'lda tanlashingiz yoki xaritada bosishingiz mumkin.");
+      if (!best) setLocateError(t("wizard.geo.unavailable"));
     }, 6000);
   };
   const pickOnMap = (lat, lng) => applyLocation(lat, lng, false);
@@ -139,10 +140,10 @@ export function ReportWizard({ profile, reports, onDone, onCancel, onVoteInstead
       for (const blob of photoBlobs) photoUrls.push(await uploadPhoto(profile.id, blob));
       const report = await createReport(profile, {
         category, title: title.trim(), description: description.trim(), photoUrls, region, district, address, coords,
-      });
+      }, t);
       onDone(report);
     } catch (e) {
-      setError(e.message || "Xatolik yuz berdi. Qaytadan urinib ko'ring.");
+      setError(e.message || t("wizard.errorGeneric"));
     } finally {
       setSubmitting(false);
     }
@@ -151,7 +152,7 @@ export function ReportWizard({ profile, reports, onDone, onCancel, onVoteInstead
   return (
     <div style={S.wizardWrap}>
       <div style={S.wizardHeader}>
-        <button style={S.linkBtn} onClick={onCancel}><X size={16} /> Bekor qilish</button>
+        <button style={S.linkBtn} onClick={onCancel}><X size={16} /> {t("common.cancel")}</button>
         <div style={S.stepIndicator}>{steps.map((s, i) => (<div key={s} style={{ ...S.stepDot, ...(i <= step ? S.stepDotActive : {}) }}>{i + 1}</div>))}</div>
       </div>
       <h2 style={S.wizardTitle}>{steps[step]}</h2>
@@ -163,7 +164,7 @@ export function ReportWizard({ profile, reports, onDone, onCancel, onVoteInstead
             const Icon = c.icon; const sel = category === c.id;
             return (
               <button key={c.id} onClick={() => setCategory(c.id)} style={{ ...S.catBtn, ...(sel ? S.catBtnActive : {}) }}>
-                <Icon size={20} color={sel ? "#fff" : "#1E88A8"} /><span>{c.label}</span>
+                <Icon size={20} color={sel ? "#fff" : "#1E88A8"} /><span>{t(`category.${c.id}`)}</span>
               </button>
             );
           })}
@@ -186,7 +187,7 @@ export function ReportWizard({ profile, reports, onDone, onCancel, onVoteInstead
             )}
           </div>
           <input ref={fileRef} type="file" accept="image/*" multiple style={{ display: "none" }} onChange={handleFile} />
-          <p style={S.fine}>Rasm(lar) ixtiyoriy (eng ko'p {MAX_PHOTOS} ta), lekin muammoni tezroq baholashga yordam beradi.</p>
+          <p style={S.fine}>{t("wizard.photoHint", { max: MAX_PHOTOS })}</p>
         </div>
       )}
 
@@ -194,28 +195,28 @@ export function ReportWizard({ profile, reports, onDone, onCancel, onVoteInstead
         <div>
           <div style={S.row2} className="oc-row2">
             <div style={S.field}>
-              <label style={S.label}>Viloyat</label>
+              <label style={S.label}>{t("wizard.fields.region")}</label>
               <select style={S.input} value={region} onChange={(e) => changeRegion(e.target.value)}>
                 {REGION_NAMES.map((r) => <option key={r} value={r}>{r}</option>)}
               </select>
             </div>
             <div style={S.field}>
-              <label style={S.label}>Tuman / shahar</label>
+              <label style={S.label}>{t("wizard.fields.district")}</label>
               <select style={S.input} value={district} onChange={(e) => setDistrict(e.target.value)}>
                 {regionDistricts.map((d) => <option key={d.name} value={d.name}>{d.name}</option>)}
               </select>
             </div>
           </div>
           <div style={S.field}>
-            <label style={S.label}>Manzil (ixtiyoriy)</label>
-            <input style={S.input} placeholder="Ko'cha, uy raqami..." value={address} onChange={(e) => setAddress(e.target.value)} />
+            <label style={S.label}>{t("wizard.fields.address")}</label>
+            <input style={S.input} placeholder={t("wizard.placeholders.address")} value={address} onChange={(e) => setAddress(e.target.value)} />
           </div>
           <button style={S.secondaryBtn} onClick={useMyLocation} disabled={locating}>
             {locating ? <Loader2 className="spin" size={15} /> : <MapPin size={15} />}
-            {locating ? "Aniqlashtirilmoqda..." : "Joriy joylashuvimdan foydalanish"}
+            {locating ? t("wizard.locating") : t("wizard.useMyLocation")}
           </button>
           {locateError && <div style={{ ...S.fine, color: "#A33A3A" }}>{locateError}</div>}
-          <p style={S.fine}>...yoki xaritada aniq nuqtani bosib belgilang:</p>
+          <p style={S.fine}>{t("wizard.mapHint")}</p>
           <div style={S.pickGrid}>
             <MapContainer key={district} center={mapCenter} zoom={13} style={{ width: "100%", height: "100%" }} scrollWheelZoom>
               <TileLayer
@@ -226,7 +227,7 @@ export function ReportWizard({ profile, reports, onDone, onCancel, onVoteInstead
               {coords && <Marker position={[coords.lat, coords.lng]} icon={pinIcon("#B2402A")} />}
             </MapContainer>
           </div>
-          {coords && <div style={S.coordConfirm}><Check size={14} color="#2E9A5C" /> Joylashuv belgilandi {coords.gps ? "(GPS)" : "(xaritada bosib)"}</div>}
+          {coords && <div style={S.coordConfirm}><Check size={14} color="#2E9A5C" /> {coords.gps ? t("wizard.locationConfirmedGps") : t("wizard.locationConfirmedMap")}</div>}
         </div>
       )}
 
@@ -234,31 +235,31 @@ export function ReportWizard({ profile, reports, onDone, onCancel, onVoteInstead
         <div>
           {similar.length > 0 ? (
             <>
-              <p style={S.fine}>{district}da shu turkumda {similar.length} ta faol hisobot bor. Agar bu xuddi shu muammo bo'lsa — qayta yubormang, shunchaki ovoz bering.</p>
+              <p style={S.fine}>{t("wizard.similarIntro", { district, count: similar.length })}</p>
               <div style={S.reportGrid}>
                 {similar.map((r) => (
                   <div key={r.id} style={S.similarCard}>
                     <ReportCard report={r} />
-                    <button style={S.primaryBtn} onClick={() => onVoteInstead(r.id)}><ThumbsUp size={14} /> Bu — men ko'rgan muammo, ovoz beraman</button>
+                    <button style={S.primaryBtn} onClick={() => onVoteInstead(r.id)}><ThumbsUp size={14} /> {t("wizard.voteInsteadButton")}</button>
                   </div>
                 ))}
               </div>
               <button style={{ ...S.secondaryBtn, marginTop: 14 }} onClick={() => setStep(4)}>
-                Yo'q, bu boshqa muammo — davom etish
+                {t("wizard.continueAnyway")}
               </button>
             </>
           ) : (
-            <EmptyState icon={CheckCircle2} text="Bu joyda va turkumda o'xshash faol hisobot topilmadi — yangi hisobot sifatida davom etamiz." />
+            <EmptyState icon={CheckCircle2} text={t("wizard.noSimilarFound")} />
           )}
         </div>
       )}
 
       {step === 4 && (
         <div>
-          <div style={S.field}><label style={S.label}>Muammo sarlavhasi</label>
-            <input style={S.input} placeholder="Masalan: Chorrahada katta chuqurlik" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={90} /></div>
-          <div style={S.field}><label style={S.label}>Batafsil tavsif</label>
-            <textarea style={{ ...S.input, height: 110, resize: "vertical" }} placeholder="Muammoni tasvirlab bering..." value={description} onChange={(e) => setDescription(e.target.value)} /></div>
+          <div style={S.field}><label style={S.label}>{t("wizard.fields.title")}</label>
+            <input style={S.input} placeholder={t("wizard.placeholders.title")} value={title} onChange={(e) => setTitle(e.target.value)} maxLength={90} /></div>
+          <div style={S.field}><label style={S.label}>{t("wizard.fields.description")}</label>
+            <textarea style={{ ...S.input, height: 110, resize: "vertical" }} placeholder={t("wizard.placeholders.description")} value={description} onChange={(e) => setDescription(e.target.value)} /></div>
         </div>
       )}
 
@@ -267,23 +268,23 @@ export function ReportWizard({ profile, reports, onDone, onCancel, onVoteInstead
           {photoPreviews.length > 0 && (
             <div style={S.proofRow}>{photoPreviews.map((src, i) => <img key={i} src={src} style={S.proofImg} alt="" />)}</div>
           )}
-          <div style={S.reviewRow}><b>Turkum:</b> {CATEGORIES.find((c) => c.id === category)?.label}</div>
-          <div style={S.reviewRow}><b>Sarlavha:</b> {title}</div>
-          {description && <div style={S.reviewRow}><b>Tavsif:</b> {description}</div>}
-          <div style={S.reviewRow}><b>Joylashuv:</b> {district}, {region}{address ? `, ${address}` : ""}</div>
-          {assignedOrgName && <div style={S.reviewRow}><b>Avtomatik yo'naltiriladi:</b> {assignedOrgName}</div>}
-          <div style={S.reviewRow}><b>Sana:</b> {fmtDate(now())}</div>
+          <div style={S.reviewRow}><b>{t("wizard.review.category")}</b> {t(`category.${category}`)}</div>
+          <div style={S.reviewRow}><b>{t("wizard.review.title")}</b> {title}</div>
+          {description && <div style={S.reviewRow}><b>{t("wizard.review.description")}</b> {description}</div>}
+          <div style={S.reviewRow}><b>{t("wizard.review.location")}</b> {district}, {region}{address ? `, ${address}` : ""}</div>
+          {assignedOrgName && <div style={S.reviewRow}><b>{t("wizard.review.autoAssigned")}</b> {assignedOrgName}</div>}
+          <div style={S.reviewRow}><b>{t("wizard.review.date")}</b> {fmtDate(now(), i18n.language)}</div>
           {error && <div style={{ ...S.reviewRow, color: "#A33A3A" }}>{error}</div>}
         </div>
       )}
       </div>
 
       <div style={S.wizardFooter}>
-        {step > 0 && <button style={S.secondaryBtn} onClick={goBack}><ChevronLeft size={15} /> Orqaga</button>}
+        {step > 0 && <button style={S.secondaryBtn} onClick={goBack}><ChevronLeft size={15} /> {t("common.back")}</button>}
         <div style={{ flex: 1 }} />
-        {step < 5 && <button style={S.primaryBtn} disabled={!canNext} onClick={goNext}>Keyingi <ChevronRight size={15} /></button>}
+        {step < 5 && <button style={S.primaryBtn} disabled={!canNext} onClick={goNext}>{t("common.next")} <ChevronRight size={15} /></button>}
         {step === 5 && <button style={S.primaryBtn} disabled={submitting} onClick={submit}>
-          {submitting ? <Loader2 className="spin" size={15} /> : <Check size={15} />} Yuborish
+          {submitting ? <Loader2 className="spin" size={15} /> : <Check size={15} />} {t("common.submit")}
         </button>}
       </div>
     </div>
