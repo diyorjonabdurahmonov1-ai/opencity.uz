@@ -18,7 +18,7 @@ export function pinIcon(color, hot = false) {
 
 const meIcon = L.divIcon({
   className: "oc-map-pin",
-  html: `<span style="display:flex;width:18px;height:18px;border-radius:50%;background:#1E88A8;border:3px solid #fff;box-shadow:0 0 0 2px rgba(30,136,168,0.5),0 2px 6px rgba(15,42,67,0.35);"></span>`,
+  html: `<span style="display:flex;width:18px;height:18px;border-radius:50%;background:#1C8B80;border:3px solid #fff;box-shadow:0 0 0 2px rgba(28,139,128,0.5),0 2px 6px rgba(15,42,67,0.35);"></span>`,
   iconSize: [18, 18],
   iconAnchor: [9, 9],
 });
@@ -74,7 +74,7 @@ export function PartnerFlyer({ orgs }) {
         {org.logo_url ? (
           <img src={org.logo_url} alt="" style={S.flyerLogo} />
         ) : (
-          <div style={{ ...S.flyerLogo, ...S.flyerLogoPlaceholder }}><Building2 size={22} color="#8759B3" /></div>
+          <div style={{ ...S.flyerLogo, ...S.flyerLogoPlaceholder }}><Building2 size={22} color="#B6903F" /></div>
         )}
         <div style={S.flyerTextCol}>
           <span style={S.flyerName}>{org.name}</span>
@@ -146,13 +146,13 @@ export function ReportCard({ report, onClick, profile, onVote }) {
         </div>
       ) : (
         <div style={{ ...S.reportImg, ...S.reportImgPlaceholder, position: "relative" }}>
-          <Icon size={22} color="#7A8A99" />
+          <Icon size={22} color={cat.color} />
           {hot && <span style={S.hotBadge}><Flame size={11} /> {t("shared.reportCard.hot")}</span>}
         </div>
       )}
       <div style={S.reportCardBody}>
         <div style={S.reportCardTop}>
-          <span style={S.catChip}><Icon size={12} /> {t(`category.${cat.id}`)}</span>
+          <span style={{ ...S.catChip, background: cat.color + "1a", color: cat.color }}><Icon size={12} /> {t(`category.${cat.id}`)}</span>
           <span style={{ ...S.statusPill, background: st.color + "1a", color: st.color }}>{t(`status.${report.status}`)}</span>
         </div>
         <div style={S.reportCardTitle}>{report.title}</div>
@@ -407,7 +407,7 @@ export function ReportDetail({ report, onBack, canClaim = false, onClaim, profil
       <div style={S.detailHeader}>
         {photos[0] && <img src={photos[0]} style={S.detailImg} alt="" onClick={() => setLightbox(photos[0])} />}
         <div>
-          <span style={S.catChip}><Icon size={12} /> {cat && t(`category.${cat.id}`)}</span>
+          <span style={{ ...S.catChip, ...(cat ? { background: cat.color + "1a", color: cat.color } : {}) }}><Icon size={12} /> {cat && t(`category.${cat.id}`)}</span>
           <h2 style={S.detailTitle}>{report.title}</h2>
           <div style={S.reportCardMeta}>{report.district}, {report.region} · {fmtDate(report.createdAt, i18n.language)}</div>
           {report.assignedOrgKind === "private" ? (

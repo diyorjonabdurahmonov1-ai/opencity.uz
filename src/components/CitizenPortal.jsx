@@ -172,14 +172,14 @@ function CitizenHome({ profile, myOrg, orgs, myReports, reports, refreshReports,
       <PartnerFlyer orgs={orgs} />
 
       <div style={S.statsRow}>
-        <StatCard label={t("citizen.home.statActive")} value={active} accent="#1E88A8" />
+        <StatCard label={t("citizen.home.statActive")} value={active} accent="#1C8B80" />
         <StatCard label={t("citizen.home.statResolved")} value={resolved} accent="#2E9A5C" />
-        <StatCard label={district ? t("citizen.home.statLocalActive", { district }) : t("citizen.home.statCityActive")} value={localReports.length} accent="#8759B3" />
+        <StatCard label={district ? t("citizen.home.statLocalActive", { district }) : t("citizen.home.statCityActive")} value={localReports.length} accent="#B6903F" />
       </div>
 
       {!myApplication && (
         <div style={S.orgPromo} className="oc-card" onClick={() => setView("apply-org")}>
-          <Building2 size={20} color="#1E88A8" />
+          <Building2 size={20} color="#1C8B80" />
           <div style={{ flex: 1 }}>
             <div style={S.orgPromoTitle}>{t("citizen.home.orgPromoTitle")}</div>
             <div style={S.orgPromoSub}>{t("citizen.home.orgPromoSub")}</div>
@@ -237,7 +237,7 @@ function VotingBoard({ reports, profile, onVote }) {
           const hot = r.votes.length >= HOT_VOTES;
           return (
             <div key={r.id} style={S.votingRow}>
-              <Icon size={18} color="#1E88A8" />
+              <Icon size={18} color={cat?.color || "#1C8B80"} />
               <div style={{ flex: 1 }}>
                 <div style={S.reportCardTitle}>{r.title} {hot && <Flame size={13} color="#B2402A" style={{ verticalAlign: "-2px" }} />}</div>
                 <div style={S.reportCardMeta}>{r.district} · {t(`status.${r.status}`)}</div>
@@ -332,7 +332,7 @@ function NotificationsView({ notifications, onReadAll, onReadOne }) {
           {notifications.map((n) => (
             <div key={n.id} style={{ ...S.notifRow, ...(n.read ? {} : S.notifRowUnread), cursor: n.read ? "default" : "pointer" }}
               onClick={() => !n.read && onReadOne(n.id)}>
-              <div style={{ ...S.notifDot, background: n.type === "success" ? "#2E9A5C" : n.type === "warn" ? "#C98A2B" : "#1E88A8" }} />
+              <div style={{ ...S.notifDot, background: n.type === "success" ? "#2E9A5C" : n.type === "warn" ? "#C98A2B" : "#1C8B80" }} />
               <div style={{ flex: 1 }}>
                 <div style={S.notifTitle}>{n.title}</div>
                 <div style={S.notifMsg}>{n.message}</div>
@@ -369,7 +369,7 @@ function ProfileView({ profile, myApplication, myOrg, onApply }) {
         <ApplicationStatusCard application={myApplication} />
       ) : (
         <div style={S.orgPromo} className="oc-card" onClick={onApply}>
-          <Building2 size={20} color="#1E88A8" />
+          <Building2 size={20} color="#1C8B80" />
           <div style={{ flex: 1 }}>
             <div style={S.orgPromoTitle}>{t("citizen.profile.applyTitle")}</div>
             <div style={S.orgPromoSub}>{t("citizen.profile.applySub")}</div>
@@ -413,10 +413,10 @@ function OrgApplicationForm({ profile, onSubmit, onCancel }) {
         <h2 style={S.wizardTitle}>{t("citizen.application.whoAreYou")}</h2>
         <div style={S.catGrid}>
           <button style={S.catBtn} onClick={() => setKind("government")}>
-            <Building2 size={20} color="#1E88A8" /><span>{t("citizen.application.govOption")}</span>
+            <Building2 size={20} color="#1C8B80" /><span>{t("citizen.application.govOption")}</span>
           </button>
           <button style={S.catBtn} onClick={() => setKind("private")}>
-            <Building2 size={20} color="#1E88A8" /><span>{t("citizen.application.privateOption")}</span>
+            <Building2 size={20} color="#1C8B80" /><span>{t("citizen.application.privateOption")}</span>
           </button>
         </div>
       </div>

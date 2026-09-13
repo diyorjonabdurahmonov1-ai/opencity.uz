@@ -35,11 +35,11 @@ export function SignInScreen({ onSignIn }) {
         <p style={S.fine}>{t("signIn.gpsNote")}</p>
         <div style={S.signinFeatureRow}>
           <div style={S.signinFeature}>
-            <div style={S.signinFeatureIcon}><Camera size={17} color="#1E88A8" /></div>
+            <div style={S.signinFeatureIcon}><Camera size={17} color="#1C8B80" /></div>
             {t("signIn.feature1")}
           </div>
           <div style={S.signinFeature}>
-            <div style={S.signinFeatureIcon}><ThumbsUp size={17} color="#8759B3" /></div>
+            <div style={S.signinFeatureIcon}><ThumbsUp size={17} color="#B6903F" /></div>
             {t("signIn.feature2")}
           </div>
           <div style={S.signinFeature}>

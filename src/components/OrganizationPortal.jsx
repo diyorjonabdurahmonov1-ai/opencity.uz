@@ -125,8 +125,8 @@ export function OrganizationPortal({ profile, myOrg, reports, refreshReports, an
       {tab === "reports" && (
         <>
           <div style={S.statsRow}>
-            <StatCard label={t("org.statNew")} value={assigned.filter((r) => r.status === "assigned").length} accent="#8759B3" />
-            <StatCard label={t("org.statInProgress")} value={assigned.filter((r) => r.status === "in_progress").length} accent="#1E88A8" />
+            <StatCard label={t("org.statNew")} value={assigned.filter((r) => r.status === "assigned").length} accent="#B6903F" />
+            <StatCard label={t("org.statInProgress")} value={assigned.filter((r) => r.status === "in_progress").length} accent="#1C8B80" />
             <StatCard label={t("org.statResolved")} value={assigned.filter((r) => r.status === "resolved" || r.status === "closed").length} accent="#2E9A5C" />
           </div>
           <h3 style={S.sectionTitle}>{t("org.assignedReportsTitle")}</h3>

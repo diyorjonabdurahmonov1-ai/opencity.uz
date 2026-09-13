@@ -1,7 +1,7 @@
 export function GlobalStyle() {
   return (
     <style>{`
-      @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600;700&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600;700&display=swap');
       * { box-sizing: border-box; }
       html, body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
       .spin { animation: spin 1s linear infinite; }
@@ -11,14 +11,14 @@ export function GlobalStyle() {
         50% { box-shadow: 0 0 0 8px rgba(178,64,42,0); background:#FBEAE6; }
       }
       .pin-hot { animation: hotpulse 1.4s ease-in-out infinite; }
-      input:focus, select:focus, textarea:focus { outline: 2px solid #1E88A8; outline-offset: 1px; }
-      button:focus-visible { outline: 2px solid #1E88A8; outline-offset: 2px; }
+      input:focus, select:focus, textarea:focus { outline: 2px solid #1C8B80; outline-offset: 1px; }
+      button:focus-visible { outline: 2px solid #1C8B80; outline-offset: 2px; }
       button, input, select, textarea, a { transition: box-shadow .15s ease, transform .12s ease, filter .15s ease, background-color .15s ease, border-color .15s ease; }
       button:not(:disabled):hover { filter: brightness(0.97); }
       button:not(:disabled):active { transform: scale(0.96); }
       button:disabled { cursor: default; }
       .oc-card { transition: box-shadow .18s ease, transform .18s ease, border-color .18s ease; }
-      .oc-card:hover { box-shadow: 0 10px 26px rgba(15,42,67,0.14); transform: translateY(-2px); border-color: rgba(30,136,168,0.35); }
+      .oc-card:hover { box-shadow: 0 10px 26px rgba(15,42,67,0.14); transform: translateY(-2px); border-color: rgba(23,58,102,0.35); }
       .leaflet-container { font-family: 'Inter', sans-serif; }
       @keyframes flyerFade { 0% { opacity: 0; transform: translateY(4px); } 12%, 88% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; } }
       .oc-flyer-fade { animation: flyerFade 3.5s ease-in-out; }
@@ -34,15 +34,15 @@ export function GlobalStyle() {
       .oc-aurora { position: relative; isolation: isolate; }
       .oc-aurora::before, .oc-aurora::after {
         content: ""; position: fixed; z-index: 0; pointer-events: none; border-radius: 50%;
-        filter: blur(70px); opacity: 0.55; animation: auroraDrift 22s ease-in-out infinite alternate;
+        filter: blur(70px); opacity: 0.5; animation: auroraDrift 22s ease-in-out infinite alternate;
       }
       .oc-aurora::before {
         top: -220px; left: -180px; width: 560px; height: 560px;
-        background: radial-gradient(circle, rgba(30,136,168,0.35), transparent 70%);
+        background: radial-gradient(circle, rgba(23,58,102,0.32), transparent 70%);
       }
       .oc-aurora::after {
         bottom: -260px; right: -220px; width: 620px; height: 620px;
-        background: radial-gradient(circle, rgba(135,89,179,0.30), transparent 70%);
+        background: radial-gradient(circle, rgba(28,139,128,0.28), transparent 70%);
         animation-delay: -11s;
       }
       @keyframes auroraDrift {
@@ -59,20 +59,24 @@ export function GlobalStyle() {
       .oc-signin-bg::before {
         content: ""; position: fixed; z-index: 0; pointer-events: none; border-radius: 50%;
         top: 50%; left: 50%; width: 720px; height: 720px; transform: translate(-50%,-58%);
-        background: radial-gradient(circle, rgba(46,154,92,0.16), transparent 68%);
+        background: radial-gradient(circle, rgba(182,144,63,0.18), transparent 68%);
         animation: auroraDrift 26s ease-in-out infinite alternate;
       }
       .oc-dotgrid { position: absolute; inset: 0; z-index: 0; pointer-events: none;
-        background-image: radial-gradient(rgba(15,42,67,0.10) 1.4px, transparent 1.4px);
-        background-size: 24px 24px;
+        background-image:
+          linear-gradient(45deg, rgba(23,58,102,0.09) 1px, transparent 1px),
+          linear-gradient(-45deg, rgba(23,58,102,0.09) 1px, transparent 1px),
+          linear-gradient(45deg, transparent 74%, rgba(182,144,63,0.16) 74.5%, rgba(182,144,63,0.16) 75.5%, transparent 76%),
+          linear-gradient(-45deg, transparent 74%, rgba(182,144,63,0.16) 74.5%, rgba(182,144,63,0.16) 75.5%, transparent 76%);
+        background-size: 46px 46px;
         -webkit-mask-image: radial-gradient(ellipse 60% 55% at 50% 42%, black 35%, transparent 75%);
         mask-image: radial-gradient(ellipse 60% 55% at 50% 42%, black 35%, transparent 75%);
       }
       @keyframes floatY { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
       .oc-float { animation: floatY 4.2s ease-in-out infinite; }
       @keyframes glowPulse {
-        0%, 100% { box-shadow: 0 4px 14px rgba(94,112,178,0.35), 0 0 0 0 rgba(30,136,168,0.35); }
-        50% { box-shadow: 0 4px 18px rgba(94,112,178,0.45), 0 0 0 8px rgba(30,136,168,0); }
+        0%, 100% { box-shadow: 0 4px 14px rgba(23,58,102,0.30), 0 0 0 0 rgba(182,144,63,0.35); }
+        50% { box-shadow: 0 4px 18px rgba(23,58,102,0.38), 0 0 0 8px rgba(182,144,63,0); }
       }
       .oc-glow { animation: glowPulse 2.6s ease-in-out infinite; }
       @keyframes cardIn { from { opacity: 0; transform: translateY(14px) scale(0.985); } to { opacity: 1; transform: none; } }
@@ -117,21 +121,31 @@ const GLASS_SOFT = {
 };
 const MONO = "'JetBrains Mono', ui-monospace, monospace";
 
+const HERITAGE = "'Fraunces', 'Georgia', serif";
+
 export const S = {
-  page: { minHeight: "100%", background: "linear-gradient(180deg, #F0F6F9 0%, #F5F8FA 320px)", fontFamily: "'Inter', sans-serif", color: "#16202B" },
+  page: {
+    minHeight: "100%",
+    background:
+      "linear-gradient(180deg, rgba(246,241,228,0) 0%, rgba(246,241,228,0.7) 320px), " +
+      "repeating-linear-gradient(45deg, rgba(23,58,102,0.028) 0, rgba(23,58,102,0.028) 1px, transparent 1px, transparent 27px), " +
+      "repeating-linear-gradient(-45deg, rgba(23,58,102,0.028) 0, rgba(23,58,102,0.028) 1px, transparent 1px, transparent 27px), " +
+      "#F6F1E4",
+    fontFamily: "'Inter', sans-serif", color: "#16202B",
+  },
   bootWrap: { position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 300 },
   body: { minHeight: "100%" },
 
   signinWrap: { position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", padding: 20, overflow: "hidden" },
-  signinCard: { position: "relative", zIndex: 1, maxWidth: 440, width: "100%", ...GLASS_SOFT, borderRadius: 24, padding: "40px 36px", boxShadow: "0 24px 60px rgba(15,42,67,0.16)", border: "1px solid rgba(255,255,255,0.6)" },
+  signinCard: { position: "relative", zIndex: 1, maxWidth: 440, width: "100%", ...GLASS_SOFT, borderRadius: "64px 64px 24px 24px", padding: "44px 36px 40px", boxShadow: "0 24px 60px rgba(15,42,67,0.16)", border: "1px solid rgba(255,255,255,0.6)" },
   signinFeatureRow: { display: "flex", justifyContent: "center", gap: 22, marginTop: 28 },
   signinFeature: { display: "flex", flexDirection: "column", alignItems: "center", gap: 6, fontSize: 11, color: "#5B6772", fontWeight: 600, maxWidth: 90, textAlign: "center" },
-  signinFeatureIcon: { width: 38, height: 38, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, rgba(30,136,168,0.14), rgba(135,89,179,0.14))" },
+  signinFeatureIcon: { width: 38, height: 38, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, rgba(23,58,102,0.14), rgba(28,139,128,0.14))" },
   brandRow: { display: "flex", alignItems: "center", gap: 11, marginBottom: 26 },
-  brandMark: { width: 44, height: 44, borderRadius: 12, objectFit: "cover", boxShadow: "0 6px 18px rgba(30,136,168,0.35)", flexShrink: 0 },
+  brandMark: { width: 44, height: 44, borderRadius: 12, objectFit: "cover", boxShadow: "0 6px 18px rgba(23,58,102,0.35)", flexShrink: 0 },
   brandMarkSm: { width: 28, height: 28, borderRadius: 8, objectFit: "cover", flexShrink: 0 },
-  brandName: { fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: 20, color: "#0F2A43", letterSpacing: -0.3 },
-  h1: { fontFamily: "'Space Grotesk', sans-serif", fontSize: 30, fontWeight: 700, lineHeight: 1.2, margin: "0 0 10px", background: "linear-gradient(120deg, #0F2A43 0%, #1E88A8 60%, #8759B3 100%)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" },
+  brandName: { fontFamily: HERITAGE, fontWeight: 600, fontSize: 21, color: "#14213A", letterSpacing: -0.2 },
+  h1: { fontFamily: HERITAGE, fontSize: 31, fontWeight: 600, lineHeight: 1.22, margin: "0 0 10px", background: "linear-gradient(120deg, #14213A 0%, #173A66 55%, #1C8B80 100%)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" },
   lead: { fontSize: 14.5, color: "#4B5B68", lineHeight: 1.55, margin: "0 0 24px" },
   fine: { fontSize: 12, color: "#7A8A99", lineHeight: 1.5, margin: "10px 0 0" },
 
@@ -141,7 +155,7 @@ export const S = {
   row2: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 },
 
   googleBtn: { width: "100%", display: "flex", alignItems: "center", justifyContent: "center", padding: "11px 16px", borderRadius: 10, border: "1px solid #D8E1E6", background: "#fff", fontSize: 14, fontWeight: 600, cursor: "pointer", color: "#16202B" },
-  primaryBtn: { display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 16px", borderRadius: 10, border: "none", background: "linear-gradient(135deg, #1E88A8 0%, #8759B3 100%)", color: "#fff", fontSize: 13.5, fontWeight: 600, cursor: "pointer", boxShadow: "0 4px 14px rgba(94,112,178,0.35)" },
+  primaryBtn: { display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 16px", borderRadius: 10, border: "none", background: "linear-gradient(135deg, #173A66 0%, #1C8B80 100%)", color: "#fff", fontSize: 13.5, fontWeight: 600, cursor: "pointer", boxShadow: "0 4px 14px rgba(23,58,102,0.32)" },
   secondaryBtn: { display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 14px", borderRadius: 10, border: "1px solid #D8E1E6", background: "#fff", color: "#16202B", fontSize: 13.5, fontWeight: 600, cursor: "pointer" },
   dangerBtn: { display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 14px", borderRadius: 10, border: "1px solid #E3B3AC", background: "#FBEEEC", color: "#A33A3A", fontSize: 13.5, fontWeight: 600, cursor: "pointer" },
   linkBtn: { display: "inline-flex", alignItems: "center", gap: 5, background: "none", border: "none", color: "#5B6772", fontSize: 13, cursor: "pointer", padding: "4px 0", marginBottom: 10 },
@@ -149,26 +163,26 @@ export const S = {
 
   topbar: { display: "flex", alignItems: "center", gap: 16, padding: "10px 20px", background: "rgba(255,255,255,0.72)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", boxShadow: "0 1px 3px rgba(15,42,67,0.06)", position: "sticky", top: 0, zIndex: 5, flexWrap: "wrap" },
   topbarLeft: { display: "flex", alignItems: "center", gap: 8, cursor: "pointer" },
-  topbarBrand: { fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: 15, color: "#0F2A43" },
+  topbarBrand: { fontFamily: HERITAGE, fontWeight: 600, fontSize: 16, color: "#14213A" },
   portalSwitch: { display: "flex", gap: 4, background: "#F0F4F6", padding: 4, borderRadius: 10, flexWrap: "wrap" },
   portalTab: { display: "flex", alignItems: "center", gap: 6, padding: "6px 11px", borderRadius: 7, border: "none", background: "transparent", fontSize: 12.5, fontWeight: 600, color: "#5B6772", cursor: "pointer" },
-  portalTabActive: { background: "linear-gradient(135deg, #0F2A43 0%, #1E4E70 100%)", color: "#fff" },
+  portalTabActive: { background: "linear-gradient(135deg, #14213A 0%, #173A66 100%)", color: "#fff" },
   topbarRight: { display: "flex", alignItems: "center", gap: 10, marginLeft: "auto" },
   badge: { position: "absolute", top: -4, right: -4, background: "#B2402A", color: "#fff", fontFamily: MONO, fontSize: 9.5, fontWeight: 700, borderRadius: 8, minWidth: 15, height: 15, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px" },
   avatarChip: { display: "flex", alignItems: "center", gap: 7, cursor: "pointer", padding: "3px 8px 3px 3px", borderRadius: 20, border: "1px solid #E4EAEE" },
-  avatar: { width: 24, height: 24, borderRadius: "50%", background: "linear-gradient(135deg, #1E88A8 0%, #8759B3 100%)", color: "#fff", fontSize: 11.5, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" },
-  avatarLg: { width: 48, height: 48, borderRadius: "50%", background: "linear-gradient(135deg, #1E88A8 0%, #8759B3 100%)", color: "#fff", fontSize: 19, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" },
+  avatar: { width: 24, height: 24, borderRadius: "50%", background: "linear-gradient(135deg, #173A66 0%, #1C8B80 100%)", color: "#fff", fontSize: 11.5, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" },
+  avatarLg: { width: 48, height: 48, borderRadius: "50%", background: "linear-gradient(135deg, #173A66 0%, #1C8B80 100%)", color: "#fff", fontSize: 19, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" },
   avatarName: { fontSize: 12.5, fontWeight: 600, color: "#3D4C57" },
 
   withSidebar: { display: "flex", alignItems: "flex-start", gap: 0 },
   sidenav: { width: 210, flexShrink: 0, padding: "18px 10px", position: "sticky", top: 53, display: "flex", flexDirection: "column", gap: 3 },
   sidenavItem: { display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 10, border: "none", background: "transparent", color: "#4B5B68", fontSize: 13.5, fontWeight: 500, cursor: "pointer", textAlign: "left" },
-  sidenavItemActive: { background: "linear-gradient(135deg, rgba(30,136,168,0.12), rgba(135,89,179,0.12))", color: "#1E4E70", fontWeight: 700, boxShadow: "inset 0 0 0 1px rgba(30,136,168,0.18)" },
+  sidenavItemActive: { background: "linear-gradient(135deg, rgba(23,58,102,0.12), rgba(28,139,128,0.12))", color: "#173A66", fontWeight: 700, boxShadow: "inset 0 0 0 1px rgba(23,58,102,0.18)" },
   content: { flex: 1, padding: "20px 24px 60px", minWidth: 0, maxWidth: 1100, margin: "0 auto", width: "100%" },
   demoNote: { display: "flex", alignItems: "center", gap: 7, fontSize: 12, color: "#7A8A99", background: "#EDF2F4", padding: "7px 12px", borderRadius: 8, marginBottom: 16 },
 
-  heroEyebrowDark: { fontSize: 12.5, color: "#1E88A8", fontWeight: 700, marginBottom: 4 },
-  pageTitleLg: { fontFamily: "'Space Grotesk', sans-serif", fontSize: 22, fontWeight: 700, color: "#0F2A43", margin: "0 0 6px", maxWidth: 420 },
+  heroEyebrowDark: { fontSize: 12.5, color: "#1C8B80", fontWeight: 700, marginBottom: 4 },
+  pageTitleLg: { fontFamily: HERITAGE, fontSize: 24, fontWeight: 600, color: "#14213A", margin: "0 0 6px", maxWidth: 420 },
 
   statsRow: { display: "flex", gap: 12, marginBottom: 22, flexWrap: "wrap" },
   statCard: { ...GLASS, border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 14, padding: "14px 18px", minWidth: 130 },
@@ -177,22 +191,22 @@ export const S = {
 
   orgPromo: { display: "flex", alignItems: "center", gap: 14, ...GLASS, border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 14, padding: "14px 18px", marginBottom: 22, cursor: "pointer" },
 
-  flyer: { display: "flex", alignItems: "center", gap: 16, background: "linear-gradient(120deg, rgba(243,236,250,0.85) 0%, rgba(234,242,245,0.85) 60%, rgba(243,236,250,0.85) 100%)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: "1px solid #E1D3F5", boxShadow: "0 4px 16px rgba(135,89,179,0.12)", borderRadius: 18, padding: "16px 22px", marginBottom: 22, overflow: "hidden" },
-  flyerLabel: { fontSize: 11, fontWeight: 700, color: "#8759B3", textTransform: "uppercase", letterSpacing: 1, flexShrink: 0, writingMode: "horizontal-tb" },
-  flyerContent: { display: "flex", alignItems: "center", gap: 12, flex: 1, color: "#3D2A5C", minWidth: 0 },
-  flyerLogo: { width: 44, height: 44, borderRadius: 12, objectFit: "cover", flexShrink: 0, boxShadow: "0 2px 8px rgba(135,89,179,0.25)" },
+  flyer: { display: "flex", alignItems: "center", gap: 16, background: "linear-gradient(120deg, rgba(246,238,218,0.88) 0%, rgba(234,242,240,0.85) 60%, rgba(246,238,218,0.88) 100%)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: "1px solid #E4D3A0", boxShadow: "0 4px 16px rgba(182,144,63,0.14)", borderRadius: 18, padding: "16px 22px", marginBottom: 22, overflow: "hidden" },
+  flyerLabel: { fontSize: 11, fontWeight: 700, color: "#8A6A22", textTransform: "uppercase", letterSpacing: 1, flexShrink: 0, writingMode: "horizontal-tb" },
+  flyerContent: { display: "flex", alignItems: "center", gap: 12, flex: 1, color: "#4A3B1C", minWidth: 0 },
+  flyerLogo: { width: 44, height: 44, borderRadius: 12, objectFit: "cover", flexShrink: 0, boxShadow: "0 2px 8px rgba(182,144,63,0.3)" },
   flyerLogoPlaceholder: { display: "flex", alignItems: "center", justifyContent: "center", background: "#fff" },
   flyerTextCol: { display: "flex", flexDirection: "column", gap: 3, minWidth: 0 },
   flyerName: { fontSize: 16, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
-  flyerType: { fontSize: 11.5, fontWeight: 600, color: "#8759B3", background: "rgba(135,89,179,0.14)", padding: "2px 9px", borderRadius: 20, alignSelf: "flex-start" },
+  flyerType: { fontSize: 11.5, fontWeight: 600, color: "#8A6A22", background: "rgba(182,144,63,0.16)", padding: "2px 9px", borderRadius: 20, alignSelf: "flex-start" },
   flyerDots: { display: "flex", gap: 5, flexShrink: 0 },
-  flyerDot: { width: 6, height: 6, borderRadius: "50%", background: "rgba(135,89,179,0.3)" },
-  flyerDotActive: { background: "#8759B3" },
+  flyerDot: { width: 6, height: 6, borderRadius: "50%", background: "rgba(182,144,63,0.35)" },
+  flyerDotActive: { background: "#B6903F" },
   orgPromoTitle: { fontSize: 14, fontWeight: 700, color: "#16202B" },
   orgPromoSub: { fontSize: 12.5, color: "#7A8A99", marginTop: 2 },
 
-  sectionTitle: { fontFamily: "'Space Grotesk', sans-serif", fontSize: 15.5, fontWeight: 700, color: "#0F2A43", margin: "22px 0 12px" },
-  pageTitle: { fontFamily: "'Space Grotesk', sans-serif", fontSize: 20, fontWeight: 700, color: "#0F2A43", margin: "0 0 4px" },
+  sectionTitle: { fontFamily: HERITAGE, fontSize: 17, fontWeight: 600, color: "#14213A", margin: "22px 0 12px" },
+  pageTitle: { fontFamily: HERITAGE, fontSize: 22, fontWeight: 600, color: "#14213A", margin: "0 0 4px" },
   rowHeader: { display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 14, marginBottom: 14, flexWrap: "wrap" },
 
   reportGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))", gap: 14 },
@@ -208,8 +222,8 @@ export const S = {
   reportCardMeta: { fontSize: 11.5, color: "#8A97A2" },
   reportCardVotes: { display: "flex", alignItems: "center", gap: 4, fontSize: 11.5, color: "#7A8A99", marginTop: 6, fontFamily: MONO },
   reportCardVoteBtn: { marginTop: 6, padding: "4px 10px", fontSize: 11.5 },
-  sponsorBadge: { display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10.5, fontWeight: 700, color: "#8759B3", background: "#F3ECFA", padding: "3px 8px", borderRadius: 20, marginTop: 2 },
-  sponsorBanner: { display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#5B3A8C", background: "#F3ECFA", border: "1px solid #E1D3F5", borderRadius: 10, padding: "9px 12px", marginTop: 6 },
+  sponsorBadge: { display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10.5, fontWeight: 700, color: "#8A6A22", background: "#F6EEDA", padding: "3px 8px", borderRadius: 20, marginTop: 2 },
+  sponsorBanner: { display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#6B5220", background: "#F6EEDA", border: "1px solid #E4D3A0", borderRadius: 10, padding: "9px 12px", marginTop: 6 },
   claimBtn: { display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 16px", borderRadius: 10, border: "none", background: "#2E9A5C", color: "#fff", fontSize: 13.5, fontWeight: 700, cursor: "pointer", boxShadow: "0 2px 8px rgba(46,154,92,0.35)", marginTop: 14, marginBottom: 6 },
 
   emptyState: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, padding: "40px 20px", ...GLASS_SOFT, border: "1px dashed #D8E1E6", borderRadius: 14, textAlign: "center" },
@@ -219,16 +233,16 @@ export const S = {
   wizardHeader: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 },
   stepIndicator: { display: "flex", gap: 6 },
   stepDot: { width: 22, height: 22, borderRadius: "50%", background: "#EEF3F5", color: "#8A97A2", fontFamily: MONO, fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" },
-  stepDotActive: { background: "linear-gradient(135deg, #1E88A8 0%, #8759B3 100%)", color: "#fff" },
-  wizardTitle: { fontFamily: "'Space Grotesk', sans-serif", fontSize: 19, fontWeight: 700, color: "#0F2A43", margin: "4px 0 18px" },
+  stepDotActive: { background: "linear-gradient(135deg, #173A66 0%, #1C8B80 100%)", color: "#fff" },
+  wizardTitle: { fontFamily: HERITAGE, fontSize: 21, fontWeight: 600, color: "#14213A", margin: "4px 0 18px" },
   wizardFooter: { display: "flex", alignItems: "center", gap: 10, marginTop: 20 },
 
   catGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(140px,1fr))", gap: 10 },
   catBtn: { display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 8, padding: "14px 12px", borderRadius: 12, border: "1px solid #D8E1E6", background: "#fff", cursor: "pointer", fontSize: 12.5, fontWeight: 600, color: "#3D4C57", textAlign: "left" },
-  catBtnActive: { background: "linear-gradient(135deg, #1E88A8 0%, #8759B3 100%)", borderColor: "transparent", color: "#fff", boxShadow: "0 4px 14px rgba(94,112,178,0.3)" },
+  catBtnActive: { background: "linear-gradient(135deg, #173A66 0%, #1C8B80 100%)", borderColor: "transparent", color: "#fff", boxShadow: "0 4px 14px rgba(23,58,102,0.3)" },
 
   uploadZone: { display: "flex", flexDirection: "column", alignItems: "center", gap: 8 },
-  uploadBtn: { display: "flex", flexDirection: "column", alignItems: "center", gap: 8, padding: "30px 50px", borderRadius: 12, border: "1.5px dashed #B7CBD3", background: "#F5F9FA", cursor: "pointer", color: "#1E88A8", fontSize: 13, fontWeight: 600 },
+  uploadBtn: { display: "flex", flexDirection: "column", alignItems: "center", gap: 8, padding: "30px 50px", borderRadius: 12, border: "1.5px dashed #B7CBD3", background: "#F5F9FA", cursor: "pointer", color: "#1C8B80", fontSize: 13, fontWeight: 600 },
   photoPreviewWrap: { position: "relative" },
   photoPreview: { maxWidth: 320, maxHeight: 220, borderRadius: 10, display: "block" },
   removePhotoBtn: { position: "absolute", top: 6, right: 6, width: 24, height: 24, borderRadius: "50%", border: "none", background: "rgba(15,42,67,0.75)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" },
@@ -246,13 +260,13 @@ export const S = {
   detailWrap: { maxWidth: 640 },
   detailHeader: { display: "flex", gap: 16, marginBottom: 10, flexWrap: "wrap" },
   detailImg: { width: 160, height: 120, objectFit: "cover", borderRadius: 10, flexShrink: 0, cursor: "zoom-in" },
-  detailTitle: { fontFamily: "'Space Grotesk', sans-serif", fontSize: 19, margin: "6px 0", color: "#0F2A43" },
+  detailTitle: { fontFamily: HERITAGE, fontWeight: 600, fontSize: 21, margin: "6px 0", color: "#14213A" },
   detailDesc: { fontSize: 13.5, color: "#4B5B68", marginTop: 8, lineHeight: 1.55 },
   detailCard: { ...GLASS, border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 14, padding: 20, maxWidth: 560 },
 
   proofRow: { display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 },
   proofImg: { width: 72, height: 72, objectFit: "cover", borderRadius: 8, border: "1px solid #E4EAEE", cursor: "zoom-in" },
-  uploadMini: { width: 72, height: 72, borderRadius: 8, border: "1.5px dashed #B7CBD3", background: "#F5F9FA", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#1E88A8" },
+  uploadMini: { width: 72, height: 72, borderRadius: 8, border: "1.5px dashed #B7CBD3", background: "#F5F9FA", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#1C8B80" },
 
   lightboxBackdrop: { position: "fixed", inset: 0, background: "rgba(10,15,25,0.85)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, zIndex: 3000 },
   lightboxImg: { maxWidth: "92vw", maxHeight: "88vh", objectFit: "contain", borderRadius: 8, boxShadow: "0 20px 60px rgba(0,0,0,0.5)" },
@@ -274,7 +288,7 @@ export const S = {
   compactMap: { position: "relative", width: "100%", height: 260, borderRadius: 16, overflow: "hidden", border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", marginBottom: 20 },
   mapPin: { position: "absolute", width: 24, height: 24, borderRadius: "50%", background: "#fff", border: "2px solid", transform: "translate(-50%,-50%)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 2px 6px rgba(0,0,0,0.2)" },
   mapPreviewCard: { position: "relative", maxWidth: 260, marginTop: 14 },
-  locateBtn: { position: "absolute", bottom: 14, right: 14, zIndex: 1000, width: 38, height: 38, borderRadius: "50%", border: "none", background: "#fff", color: "#1E88A8", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 2px 8px rgba(15,42,67,0.3)" },
+  locateBtn: { position: "absolute", bottom: 14, right: 14, zIndex: 1000, width: 38, height: 38, borderRadius: "50%", border: "none", background: "#fff", color: "#1C8B80", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 2px 8px rgba(15,42,67,0.3)" },
   locateError: { position: "absolute", bottom: 60, right: 14, left: 14, zIndex: 1000, background: "#0F2A43", color: "#fff", fontSize: 12, lineHeight: 1.4, padding: "10px 30px 10px 12px", borderRadius: 10, boxShadow: "0 4px 14px rgba(0,0,0,0.25)" },
   locateErrorClose: { position: "absolute", top: 6, right: 6, background: "none", border: "none", color: "#fff", opacity: 0.7, cursor: "pointer", padding: 4 },
 
@@ -285,15 +299,15 @@ export const S = {
   votingList: { display: "flex", flexDirection: "column", gap: 8 },
   votingRow: { display: "flex", alignItems: "center", gap: 12, ...GLASS, border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 12, padding: "10px 14px" },
   voteBtn: { display: "flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 20, border: "1px solid #D8E1E6", background: "#fff", color: "#3D4C57", fontSize: 12.5, fontWeight: 700, cursor: "pointer", fontFamily: MONO },
-  voteBtnActive: { background: "#E5F1F5", borderColor: "#1E88A8", color: "#1E88A8" },
+  voteBtnActive: { background: "#E3F1EE", borderColor: "#1C8B80", color: "#1C8B80" },
 
   reopenBox: { ...GLASS, border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 14, padding: 16, marginTop: 16, display: "flex", flexDirection: "column", gap: 10, maxWidth: 480 },
   reopenText: { fontSize: 13, color: "#4B5B68", lineHeight: 1.5 },
 
   notifList: { display: "flex", flexDirection: "column", gap: 8 },
   notifRow: { display: "flex", alignItems: "flex-start", gap: 10, ...GLASS, border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 12, padding: "12px 14px" },
-  notifRowUnread: { background: "linear-gradient(90deg, rgba(30,136,168,0.10), rgba(135,89,179,0.07))", borderColor: "#BFE0EA" },
-  notifUnreadBadge: { width: 8, height: 8, borderRadius: "50%", background: "#1E88A8", flexShrink: 0, marginTop: 4 },
+  notifRowUnread: { background: "linear-gradient(90deg, rgba(23,58,102,0.10), rgba(28,139,128,0.07))", borderColor: "#BFDEDA" },
+  notifUnreadBadge: { width: 8, height: 8, borderRadius: "50%", background: "#1C8B80", flexShrink: 0, marginTop: 4 },
   notifDot: { width: 8, height: 8, borderRadius: "50%", marginTop: 5, flexShrink: 0 },
   notifTitle: { fontSize: 13.5, fontWeight: 700, color: "#16202B" },
   notifMsg: { fontSize: 12.5, color: "#4B5B68", margin: "2px 0" },

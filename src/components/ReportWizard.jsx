@@ -210,8 +210,9 @@ export function ReportWizard({ profile, reports, onDone, onCancel, onVoteInstead
           {CATEGORIES.map((c) => {
             const Icon = c.icon; const sel = category === c.id;
             return (
-              <button key={c.id} onClick={() => setCategory(c.id)} style={{ ...S.catBtn, ...(sel ? S.catBtnActive : {}) }}>
-                <Icon size={20} color={sel ? "#fff" : "#1E88A8"} /><span>{t(`category.${c.id}`)}</span>
+              <button key={c.id} onClick={() => setCategory(c.id)}
+                style={{ ...S.catBtn, ...(sel ? { ...S.catBtnActive, background: c.color, boxShadow: `0 4px 14px ${c.color}4d` } : {}) }}>
+                <Icon size={20} color={sel ? "#fff" : c.color} /><span>{t(`category.${c.id}`)}</span>
               </button>
             );
           })}
@@ -242,7 +243,7 @@ export function ReportWizard({ profile, reports, onDone, onCancel, onVoteInstead
           )}
           {aiSuggestion && (
             <div style={S.infoBanner}>
-              <Sparkles size={16} color="#8759B3" />
+              <Sparkles size={16} color="#B6903F" />
               <div style={{ flex: 1 }}>{t("wizard.aiSuggestion", { category: t(`category.${aiSuggestion}`) })}</div>
               <button style={S.secondaryBtn} onClick={applyAiSuggestion}>{t("wizard.aiApply")}</button>
               <button style={S.linkBtn} onClick={() => setAiSuggestion(null)}>{t("wizard.aiDismiss")}</button>
@@ -307,7 +308,7 @@ export function ReportWizard({ profile, reports, onDone, onCancel, onVoteInstead
                     <div key={r.id} style={S.similarCard}>
                       <ReportCard report={r} />
                       {aiSame === true && (
-                        <div style={{ ...S.fine, display: "flex", alignItems: "center", gap: 4, color: "#8759B3" }}>
+                        <div style={{ ...S.fine, display: "flex", alignItems: "center", gap: 4, color: "#B6903F" }}>
                           <Sparkles size={12} /> {t("wizard.aiSameIssue")}
                         </div>
                       )}

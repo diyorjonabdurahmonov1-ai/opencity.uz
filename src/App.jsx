@@ -123,7 +123,7 @@ export default function App() {
   };
 
   if (authLoading || (user && booting)) {
-    return (<div style={S.page} className="oc-aurora"><GlobalStyle /><div style={S.bootWrap}><Loader2 className="spin" size={26} color="#1E88A8" /></div></div>);
+    return (<div style={S.page} className="oc-aurora"><GlobalStyle /><div style={S.bootWrap}><Loader2 className="spin" size={26} color="#1C8B80" /></div></div>);
   }
   if (!user || !profile) {
     return (<div style={S.page} className="oc-aurora"><GlobalStyle /><SignInScreen onSignIn={signInWithGoogle} /></div>);

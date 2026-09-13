@@ -71,7 +71,7 @@ export function AdminPortal({ reports, refreshReports, orgs, refreshOrgs, showTo
 
 function AdminOverview({ reports, applications, orgs }) {
   const { t } = useTranslation();
-  const byCategory = CATEGORIES.map((c) => ({ name: t(`category.${c.id}`).split(" ")[0], value: reports.filter((r) => r.category === c.id).length }));
+  const byCategory = CATEGORIES.map((c) => ({ name: t(`category.${c.id}`).split(" ")[0], value: reports.filter((r) => r.category === c.id).length, color: c.color }));
   const byStatus = Object.entries(STATUS).map(([k, v]) => ({ name: t(`status.${k}`), value: reports.filter((r) => r.status === k).length, color: v.color }));
   const resolved = reports.filter((r) => DONE_STATUSES.includes(r.status)).length;
   const hot = reports.filter((r) => r.votes.length >= HOT_VOTES && !DONE_STATUSES.includes(r.status)).length;
@@ -101,11 +101,11 @@ function AdminOverview({ reports, applications, orgs }) {
     <div>
       <h2 style={S.pageTitle}>{t("admin.overview.title")}</h2>
       <div style={S.statsRow}>
-        <StatCard label={t("admin.overview.statTotalReports")} value={reports.length} accent="#1E88A8" />
+        <StatCard label={t("admin.overview.statTotalReports")} value={reports.length} accent="#1C8B80" />
         <StatCard label={t("admin.overview.statResolved")} value={resolved} accent="#2E9A5C" />
         <StatCard label={t("admin.overview.statHot")} value={hot} accent="#B2402A" />
         <StatCard label={t("admin.overview.statAvgResolution")} value={avgResolutionDays} accent="#C98A2B" />
-        <StatCard label={t("admin.overview.statPrivateOrgs")} value={orgs.length} accent="#8759B3" />
+        <StatCard label={t("admin.overview.statPrivateOrgs")} value={orgs.length} accent="#B6903F" />
         <StatCard label={t("admin.overview.statPendingApps")} value={applications.filter((a) => a.status === "pending").length} accent="#C98A2B" />
       </div>
       {reports.length > 0 ? (
@@ -118,7 +118,9 @@ function AdminOverview({ reports, applications, orgs }) {
                 <XAxis dataKey="name" tick={{ fontSize: 11 }} interval={0} angle={-20} textAnchor="end" height={50} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
                 <Tooltip />
-                <Bar dataKey="value" fill="#1E88A8" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                  {byCategory.map((c, i) => <Cell key={i} fill={c.color} />)}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -130,7 +132,7 @@ function AdminOverview({ reports, applications, orgs }) {
                 <XAxis dataKey="name" tick={{ fontSize: 10 }} interval={0} angle={-20} textAnchor="end" height={60} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
                 <Tooltip />
-                <Bar dataKey="value" fill="#8759B3" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="value" fill="#B6903F" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -354,7 +356,7 @@ function AdminApplications({ applications, onDecision }) {
         <div style={S.appList}>
           {applications.map((a) => (
             <div key={a.id} style={S.appRow} className="oc-card" onClick={() => setOpenId(a.id)}>
-              <Building2 size={18} color="#1E88A8" />
+              <Building2 size={18} color="#1C8B80" />
               <div style={{ flex: 1 }}>
                 <div style={S.reportCardTitle}>{a.org_name}</div>
                 <div style={S.reportCardMeta}>{a.kind === "government" ? t("admin.applications.kindGovernment") : a.org_type} · {fmtDate(a.created_at, i18n.language)}</div>
@@ -624,4 +626,4 @@ function AdminUsers({ showToast }) {
     </div>
   );
 }
-function roleBadgeStyle(r) { const c = { citizen: "#5B7A99", org: "#8759B3", admin: "#B2402A" }[r] || "#7A8A99"; return { background: c + "1a", color: c }; }
+function roleBadgeStyle(r) { const c = { citizen: "#5B7A99", org: "#B6903F", admin: "#B2402A" }[r] || "#7A8A99"; return { background: c + "1a", color: c }; }

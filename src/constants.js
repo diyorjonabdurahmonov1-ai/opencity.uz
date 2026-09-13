@@ -10,18 +10,21 @@ export function districtsOf(regionName) {
   return REGIONS.find((r) => r.name === regionName)?.districts || [];
 }
 
+// Har bir turkumga xos rang — yerto'la kommunal xizmatlari belgilaydigan rangli
+// chiziqlardan ilhomlangan (suv-ko'k, elektr/yorug'lik-tilla va h.k.), shu bilan birga
+// har bir muammo turi xaritada/kartada o'zining aniq "bayrog'i"ga ega bo'ladi.
 export const CATEGORIES = [
-  { id: "roads", icon: TrafficCone },
-  { id: "lighting", icon: Lightbulb },
-  { id: "waste", icon: Trash2 },
-  { id: "water", icon: Droplet },
-  { id: "transport", icon: Bus },
-  { id: "parks", icon: Trees },
-  { id: "sidewalks", icon: Footprints },
-  { id: "buildings", icon: Building2 },
-  { id: "safety", icon: AlertTriangle },
-  { id: "environment", icon: Leaf },
-  { id: "other", icon: MoreHorizontal },
+  { id: "roads", icon: TrafficCone, color: "#A85A3E" },
+  { id: "lighting", icon: Lightbulb, color: "#C9952E" },
+  { id: "waste", icon: Trash2, color: "#6B7A3A" },
+  { id: "water", icon: Droplet, color: "#1E5FA8" },
+  { id: "transport", icon: Bus, color: "#1C8B80" },
+  { id: "parks", icon: Trees, color: "#3E8E5A" },
+  { id: "sidewalks", icon: Footprints, color: "#8A6C4A" },
+  { id: "buildings", icon: Building2, color: "#5B5A8C" },
+  { id: "safety", icon: AlertTriangle, color: "#C1442C" },
+  { id: "environment", icon: Leaf, color: "#2F8F6B" },
+  { id: "other", icon: MoreHorizontal, color: "#6B6B63" },
 ];
 
 export const TASHKENT_CENTER = [41.3111, 69.2797];
@@ -30,8 +33,8 @@ export const UZBEKISTAN_CENTER = [41.3775, 64.5853];
 export const STATUS = {
   submitted: { color: "#5B7A99" },
   under_review: { color: "#C98A2B" },
-  assigned: { color: "#8759B3" },
-  in_progress: { color: "#1E88A8" },
+  assigned: { color: "#B6903F" },
+  in_progress: { color: "#1C8B80" },
   waiting_info: { color: "#B2492A" },
   resolved: { color: "#2E9A5C" },
   neglected: { color: "#8A97A2" },
@@ -42,7 +45,7 @@ export const DONE_STATUSES = ["resolved", "closed"];
 
 export const PRIORITY = {
   low: { color: "#7A8A99" },
-  normal: { color: "#1E88A8" },
+  normal: { color: "#1C8B80" },
   high: { color: "#C98A2B" },
   urgent: { color: "#B2402A" },
 };
