@@ -86,13 +86,40 @@ async function verify(image) {
   };
 }
 
+async function compare(imageA, imageB) {
+  const result = await callOpenAI([
+    {
+      role: "system",
+      content:
+        "You compare two photos submitted to a civic-issue-reporting app to judge whether they show " +
+        "the SAME real-world physical issue at the same spot (e.g. the same pothole, the same broken " +
+        "streetlight, the same pile of garbage) rather than merely a similar-looking but different issue. " +
+        "Respond with strict JSON: {\"same\": true|false, \"confidence\": \"high\"|\"medium\"|\"low\"}.",
+    },
+    {
+      role: "user",
+      content: [
+        { type: "text", text: "Photo A (new report):" },
+        { type: "image_url", image_url: { url: imageA } },
+        { type: "text", text: "Photo B (existing report):" },
+        { type: "image_url", image_url: { url: imageB } },
+        { type: "text", text: "Do Photo A and Photo B show the same physical issue at the same spot?" },
+      ],
+    },
+  ]);
+  return {
+    same: !!result.same,
+    confidence: ["high", "medium", "low"].includes(result.confidence) ? result.confidence : "low",
+  };
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.status(405).json({ error: "Method not allowed" });
     return;
   }
   try {
-    const { task, image } = req.body || {};
+    const { task, image, imageB } = req.body || {};
     if (!image || typeof image !== "string") {
       res.status(400).json({ error: "Missing image" });
       return;
@@ -101,6 +128,12 @@ export default async function handler(req, res) {
       res.status(200).json(await categorize(image));
     } else if (task === "verify") {
       res.status(200).json(await verify(image));
+    } else if (task === "compare") {
+      if (!imageB || typeof imageB !== "string") {
+        res.status(400).json({ error: "Missing imageB" });
+        return;
+      }
+      res.status(200).json(await compare(image, imageB));
     } else {
       res.status(400).json({ error: "Unknown task" });
     }

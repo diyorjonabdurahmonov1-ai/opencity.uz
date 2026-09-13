@@ -11,7 +11,7 @@ import { EmptyState, ReportCard, pinIcon } from "./shared";
 import { createReport } from "../lib/api/reports";
 import { findGovernmentOrg } from "../lib/api/organizations";
 import { uploadPhoto } from "../lib/api/storage";
-import { suggestCategory } from "../lib/api/ai";
+import { suggestCategory, compareIssuePhotos } from "../lib/api/ai";
 
 function LocationPicker({ onPick }) {
   useMapEvents({ click(e) { onPick(e.latlng.lat, e.latlng.lng); } });
@@ -41,6 +41,8 @@ export function ReportWizard({ profile, reports, onDone, onCancel, onVoteInstead
   const [assignedOrgName, setAssignedOrgName] = useState("");
   const [aiSuggestion, setAiSuggestion] = useState(null);
   const [aiChecking, setAiChecking] = useState(false);
+  const [similarChecked, setSimilarChecked] = useState([]);
+  const [checkingSimilar, setCheckingSimilar] = useState(false);
   const fileRef = useRef();
 
   const regionDistricts = districtsOf(region);
@@ -58,6 +60,35 @@ export function ReportWizard({ profile, reports, onDone, onCancel, onVoteInstead
   const similar = category
     ? reports.filter((r) => r.category === category && r.district === district && r.region === region && !DONE_STATUSES.includes(r.status))
     : [];
+  const similarIds = similar.map((r) => r.id).join(",");
+
+  // O'xshash hisobotlar ro'yxatini AI orqali aniqlashtiradi: yangi rasmni har bir
+  // kandidatning rasmi bilan solishtirib, aniq boshqa muammo deb topilganlarni chiqarib
+  // tashlaydi (bir xil muammoni qayta-qayta yuborishning oldini olish uchun). AI xato
+  // bersa ("aiSame: null"), kandidat ro'yxatda qoladi — xato dublikatni yashirmasin.
+  useEffect(() => {
+    if (step !== 3) return;
+    if (similar.length === 0) { setSimilarChecked([]); setCheckingSimilar(false); return; }
+    setSimilarChecked(similar.map((r) => ({ report: r, aiSame: null })));
+    if (photoBlobs.length === 0) { setCheckingSimilar(false); return; }
+    let cancelled = false;
+    setCheckingSimilar(true);
+    (async () => {
+      const candidates = similar.slice(0, 5);
+      const results = await Promise.all(candidates.map(async (r) => {
+        if (!r.photo) return { report: r, aiSame: null };
+        const cmp = await compareIssuePhotos(photoBlobs[0], r.photo);
+        return { report: r, aiSame: cmp ? cmp.same : null };
+      }));
+      const rest = similar.slice(5).map((r) => ({ report: r, aiSame: null }));
+      if (!cancelled) {
+        setSimilarChecked([...results, ...rest].filter((x) => x.aiSame !== false));
+        setCheckingSimilar(false);
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, similarIds, photoBlobs.length]);
 
   const handleFile = async (e) => {
     const files = Array.from(e.target.files || []).slice(0, MAX_PHOTOS - photoBlobs.length);
@@ -265,14 +296,28 @@ export function ReportWizard({ profile, reports, onDone, onCancel, onVoteInstead
           {similar.length > 0 ? (
             <>
               <p style={S.fine}>{t("wizard.similarIntro", { district, count: similar.length })}</p>
-              <div style={S.reportGrid}>
-                {similar.map((r) => (
-                  <div key={r.id} style={S.similarCard}>
-                    <ReportCard report={r} />
-                    <button style={S.primaryBtn} onClick={() => onVoteInstead(r.id)}><ThumbsUp size={14} /> {t("wizard.voteInsteadButton")}</button>
-                  </div>
-                ))}
-              </div>
+              {checkingSimilar && (
+                <p style={{ ...S.fine, display: "flex", alignItems: "center", gap: 6 }}>
+                  <Loader2 className="spin" size={13} /> {t("wizard.aiCheckingDuplicates")}
+                </p>
+              )}
+              {similarChecked.length > 0 ? (
+                <div style={S.reportGrid}>
+                  {similarChecked.map(({ report: r, aiSame }) => (
+                    <div key={r.id} style={S.similarCard}>
+                      <ReportCard report={r} />
+                      {aiSame === true && (
+                        <div style={{ ...S.fine, display: "flex", alignItems: "center", gap: 4, color: "#8759B3" }}>
+                          <Sparkles size={12} /> {t("wizard.aiSameIssue")}
+                        </div>
+                      )}
+                      <button style={S.primaryBtn} onClick={() => onVoteInstead(r.id)}><ThumbsUp size={14} /> {t("wizard.voteInsteadButton")}</button>
+                    </div>
+                  ))}
+                </div>
+              ) : !checkingSimilar && (
+                <EmptyState icon={CheckCircle2} text={t("wizard.aiNoneConfirmed")} />
+              )}
               <button style={{ ...S.secondaryBtn, marginTop: 14 }} onClick={() => setStep(4)}>
                 {t("wizard.continueAnyway")}
               </button>
