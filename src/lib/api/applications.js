@@ -24,9 +24,12 @@ export async function fetchAllApplications() {
 }
 
 export async function submitApplication(userId, form) {
-  let payload = { ...form, created_by: userId };
+  // region/district/category `org_applications` jadvalida ustun emas — faqat davlat
+  // bo'limini topish uchun ishlatiladi, insert payload'ga qo'shilmasligi kerak.
+  const { region, district, category, ...rest } = form;
+  let payload = { ...rest, created_by: userId };
   if (form.kind === "government") {
-    const org = await findGovernmentOrg(form.region, form.district, form.category);
+    const org = await findGovernmentOrg(region, district, category);
     payload = { ...payload, org_name: org.name, target_org_id: org.id };
   }
   const { data, error } = await supabase.from("org_applications").insert(payload).select().single();
