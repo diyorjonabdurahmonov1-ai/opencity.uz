@@ -126,6 +126,10 @@ export default {
       review: "Review",
     },
     photoHint: "Photos are optional (up to {{max}}), but they help resolve the issue faster.",
+    aiChecking: "AI is analyzing the photo...",
+    aiSuggestion: "AI: this photo looks more like the \"{{category}}\" category.",
+    aiApply: "Switch",
+    aiDismiss: "No, current one is right",
     fields: {
       region: "Region",
       district: "District / city",
@@ -279,6 +283,7 @@ export default {
     startWork: "Start work",
     neglect: "Mark as neglected",
     resolvePhotosNeeded: "Closing requires at least {{count}} on-site photos ({{have}}/{{count}})",
+    aiSuspiciousWarning: "AI flagged {{count}} photo(s) as questionable — they may be artificially generated or not match the location. Hover over a photo to see why.",
     markResolved: "Mark as resolved",
     defaultOrgName: "Department / Organization panel",
     tabReports: "Reports",

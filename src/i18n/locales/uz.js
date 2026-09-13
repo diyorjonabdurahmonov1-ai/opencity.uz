@@ -126,6 +126,10 @@ export default {
       review: "Ko'rib chiqish",
     },
     photoHint: "Rasm(lar) ixtiyoriy (eng ko'p {{max}} ta), lekin muammoni tezroq baholashga yordam beradi.",
+    aiChecking: "Sun'iy intellekt rasmni tekshirmoqda...",
+    aiSuggestion: "Sun'iy intellekt: bu rasm ko'proq \"{{category}}\" turkumiga o'xshaydi.",
+    aiApply: "Almashtirish",
+    aiDismiss: "Yo'q, hozirgisi to'g'ri",
     fields: {
       region: "Viloyat",
       district: "Tuman / shahar",
@@ -279,6 +283,7 @@ export default {
     startWork: "Ishni boshlash",
     neglect: "E'tiborsiz qoldirish",
     resolvePhotosNeeded: "Yopish uchun kamida {{count}} ta shu joydan olingan rasm kerak ({{have}}/{{count}})",
+    aiSuspiciousWarning: "Sun'iy intellekt {{count}} ta rasmda shubha bildirdi — ular sun'iy tarzda yaratilgan yoki joyga mos kelmasligi mumkin. Iltimos, ustiga sichqoncha olib borib sababini o'qing.",
     markResolved: "Hal qilindi deb belgilash",
     defaultOrgName: "Bo'lim / Tashkilot paneli",
     tabReports: "Hisobotlar",

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
-import { Camera, X, Check, ChevronRight, ChevronLeft, Loader2, MapPin, CheckCircle2, ThumbsUp } from "lucide-react";
+import { Camera, X, Check, ChevronRight, ChevronLeft, Loader2, MapPin, CheckCircle2, ThumbsUp, Sparkles } from "lucide-react";
 import {
   CATEGORIES, REGION_NAMES, districtsOf, UZBEKISTAN_CENTER, nearestLocation,
   compressImage, fmtDate, now, DONE_STATUSES,
@@ -11,6 +11,7 @@ import { EmptyState, ReportCard, pinIcon } from "./shared";
 import { createReport } from "../lib/api/reports";
 import { findGovernmentOrg } from "../lib/api/organizations";
 import { uploadPhoto } from "../lib/api/storage";
+import { suggestCategory } from "../lib/api/ai";
 
 function LocationPicker({ onPick }) {
   useMapEvents({ click(e) { onPick(e.latlng.lat, e.latlng.lng); } });
@@ -38,6 +39,8 @@ export function ReportWizard({ profile, reports, onDone, onCancel, onVoteInstead
   const [locateError, setLocateError] = useState("");
   const [locating, setLocating] = useState(false);
   const [assignedOrgName, setAssignedOrgName] = useState("");
+  const [aiSuggestion, setAiSuggestion] = useState(null);
+  const [aiChecking, setAiChecking] = useState(false);
   const fileRef = useRef();
 
   const regionDistricts = districtsOf(region);
@@ -61,9 +64,11 @@ export function ReportWizard({ profile, reports, onDone, onCancel, onVoteInstead
     e.target.value = "";
     if (files.length === 0) return;
     setUploading(true);
+    let firstNewBlob = null;
     for (const file of files) {
       try {
         const blob = await compressImage(file);
+        if (!firstNewBlob) firstNewBlob = blob;
         setPhotoBlobs((prev) => [...prev, blob]);
         setPhotoPreviews((prev) => [...prev, URL.createObjectURL(blob)]);
       } catch {
@@ -71,6 +76,17 @@ export function ReportWizard({ profile, reports, onDone, onCancel, onVoteInstead
       }
     }
     setUploading(false);
+    if (firstNewBlob && photoBlobs.length === 0) {
+      setAiChecking(true);
+      const suggested = await suggestCategory(firstNewBlob);
+      setAiChecking(false);
+      if (suggested && suggested !== category) setAiSuggestion(suggested);
+    }
+  };
+
+  const applyAiSuggestion = () => {
+    if (aiSuggestion) setCategory(aiSuggestion);
+    setAiSuggestion(null);
   };
 
   const removePhoto = (i) => {
@@ -188,6 +204,19 @@ export function ReportWizard({ profile, reports, onDone, onCancel, onVoteInstead
           </div>
           <input ref={fileRef} type="file" accept="image/*" multiple style={{ display: "none" }} onChange={handleFile} />
           <p style={S.fine}>{t("wizard.photoHint", { max: MAX_PHOTOS })}</p>
+          {aiChecking && (
+            <p style={{ ...S.fine, display: "flex", alignItems: "center", gap: 6 }}>
+              <Loader2 className="spin" size={13} /> {t("wizard.aiChecking")}
+            </p>
+          )}
+          {aiSuggestion && (
+            <div style={S.infoBanner}>
+              <Sparkles size={16} color="#8759B3" />
+              <div style={{ flex: 1 }}>{t("wizard.aiSuggestion", { category: t(`category.${aiSuggestion}`) })}</div>
+              <button style={S.secondaryBtn} onClick={applyAiSuggestion}>{t("wizard.aiApply")}</button>
+              <button style={S.linkBtn} onClick={() => setAiSuggestion(null)}>{t("wizard.aiDismiss")}</button>
+            </div>
+          )}
         </div>
       )}
 

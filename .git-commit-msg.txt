@@ -1,0 +1,17 @@
+Add AI photo features: category suggestion and resolution proof check
+
+New /api/analyze-photo.js Vercel serverless function calls OpenAI
+gpt-4o-mini vision (OPENAI_API_KEY kept server-side, never exposed to
+the browser). Two uses:
+
+- ReportWizard: after the first photo is added, suggests a category
+  based on the image and lets the citizen apply it with one click.
+- OrganizationPortal: each resolution proof photo is checked for
+  signs of being AI-generated or otherwise not a genuine on-site
+  photo; suspicious ones get a warning badge and banner (non-blocking,
+  trust remains with the organization).
+
+Both calls fail silently (return null) if the API/key is unavailable,
+so the app degrades gracefully without it configured.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>

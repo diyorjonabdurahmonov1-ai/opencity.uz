@@ -1,14 +1,15 @@
-import { useRef, useState } from "react";
+﻿import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MapContainer, TileLayer, Marker, Polyline, Circle, useMapEvents } from "react-leaflet";
 import {
-  Camera, ChevronLeft, ClipboardList, Megaphone, Milestone, CircleDot, Trash2, RotateCcw, Check,
+  Camera, ChevronLeft, ClipboardList, Megaphone, Milestone, CircleDot, Trash2, RotateCcw, Check, AlertTriangle,
 } from "lucide-react";
 import { RESOLUTION_PHOTOS_REQUIRED, UZBEKISTAN_CENTER, districtsOf, fmtDate, compressImage } from "../constants";
 import { S } from "../styles";
 import { StatCard, EmptyState, ReportCard, ReportDetail, pinIcon } from "./shared";
 import { advanceStatus, markResolved } from "../lib/api/reports";
 import { uploadPhoto } from "../lib/api/storage";
+import { verifyPhoto } from "../lib/api/ai";
 import { createAnnouncement, deleteAnnouncement } from "../lib/api/announcements";
 
 export function OrganizationPortal({ profile, myOrg, reports, refreshReports, announcements, refreshAnnouncements, showToast }) {
@@ -16,12 +17,14 @@ export function OrganizationPortal({ profile, myOrg, reports, refreshReports, an
   const [tab, setTab] = useState("reports");
   const [openId, setOpenId] = useState(null);
   const [proofUrls, setProofUrls] = useState([]);
+  const [proofFlags, setProofFlags] = useState([]);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef();
 
   const assigned = reports.filter((r) => r.assignedOrgId === profile.org_id);
   const open = assigned.find((r) => r.id === openId);
   const isGovernment = myOrg?.kind === "government";
+  const suspiciousCount = proofFlags.filter((f) => f?.suspicious).length;
 
   const addProof = async (e) => {
     const file = e.target.files?.[0];
@@ -29,8 +32,9 @@ export function OrganizationPortal({ profile, myOrg, reports, refreshReports, an
     setUploading(true);
     try {
       const blob = await compressImage(file, 480, 0.55);
-      const url = await uploadPhoto(profile.id, blob);
+      const [url, flag] = await Promise.all([uploadPhoto(profile.id, blob), verifyPhoto(blob)]);
       setProofUrls((p) => [...p, url]);
+      setProofFlags((p) => [...p, flag]);
     } catch {
       // e'tiborsiz qoldiramiz — foydalanuvchi qayta urinib ko'rishi mumkin
     }
@@ -48,6 +52,7 @@ export function OrganizationPortal({ profile, myOrg, reports, refreshReports, an
     await markResolved(report.id, proofUrls, myOrg?.name || t("org.defaultOrgName"), t);
     await refreshReports();
     setProofUrls([]);
+    setProofFlags([]);
     setOpenId(null);
     showToast(t("org.toasts.resolvedToast"));
   };
@@ -63,7 +68,7 @@ export function OrganizationPortal({ profile, myOrg, reports, refreshReports, an
   if (open) {
     return (
       <div style={S.content}>
-        <button style={S.linkBtn} onClick={() => { setOpenId(null); setProofUrls([]); }}><ChevronLeft size={15} /> {t("common.backToList")}</button>
+        <button style={S.linkBtn} onClick={() => { setOpenId(null); setProofUrls([]); setProofFlags([]); }}><ChevronLeft size={15} /> {t("common.backToList")}</button>
         <ReportDetail report={open} onBack={() => setOpenId(null)} />
         <div style={S.orgActionBox}>
           {open.status === "assigned" && <button style={S.primaryBtn} onClick={() => advance(open, "in_progress", t("timeline.notes.workStarted"))}>{t("org.startWork")}</button>}
@@ -72,9 +77,23 @@ export function OrganizationPortal({ profile, myOrg, reports, refreshReports, an
             <div style={{ width: "100%" }}>
               <div style={S.label}>{t("org.resolvePhotosNeeded", { count: RESOLUTION_PHOTOS_REQUIRED, have: proofUrls.length })}</div>
               <div style={S.proofRow}>
-                {proofUrls.map((p, i) => <img key={i} src={p} style={S.proofImg} alt="" />)}
+                {proofUrls.map((p, i) => (
+                  <div key={i} style={{ position: "relative" }}>
+                    <img src={p} style={S.proofImg} alt="" />
+                    {proofFlags[i]?.suspicious && (
+                      <span title={proofFlags[i].reason} style={{ position: "absolute", top: -6, right: -6, background: "#C98A2B", borderRadius: "50%", width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 4px rgba(0,0,0,0.3)" }}>
+                        <AlertTriangle size={12} color="#fff" />
+                      </span>
+                    )}
+                  </div>
+                ))}
                 <button style={S.uploadMini} onClick={() => fileRef.current?.click()} disabled={uploading}><Camera size={16} /></button>
               </div>
+              {suspiciousCount > 0 && (
+                <div style={{ ...S.fine, color: "#C98A2B", display: "flex", alignItems: "center", gap: 6 }}>
+                  <AlertTriangle size={14} /> {t("org.aiSuspiciousWarning", { count: suspiciousCount })}
+                </div>
+              )}
               <input ref={fileRef} type="file" accept="image/*" style={{ display: "none" }} onChange={addProof} />
               <button style={S.primaryBtn} disabled={proofUrls.length < RESOLUTION_PHOTOS_REQUIRED} onClick={() => finishResolve(open)}>
                 {t("org.markResolved")}
@@ -339,3 +358,4 @@ function AnnouncementForm({ profile, myOrg, onCreated }) {
     </div>
   );
 }
+
