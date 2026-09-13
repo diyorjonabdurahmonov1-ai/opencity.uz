@@ -1,4 +1,4 @@
-import { MapPin, User, Building2, ShieldCheck, Bell, LogOut } from "lucide-react";
+import { User, Building2, ShieldCheck, Bell, LogOut } from "lucide-react";
 import { S } from "../styles";
 
 function PortalTab({ active, onClick, icon, label }) {
@@ -9,7 +9,7 @@ export function TopBar({ profile, portal, setPortal, setView, notifCount, onSign
   return (
     <div style={S.topbar} className="oc-topbar">
       <div style={S.topbarLeft} onClick={() => { setPortal("citizen"); setView("home"); }}>
-        <div style={S.brandMarkSm}><MapPin size={16} color="#fff" /></div>
+        <img src="/brand-mark.png" alt="OpenCity" style={S.brandMarkSm} />
         <span style={S.topbarBrand}>OpenCity</span>
       </div>
       <div style={S.portalSwitch}>

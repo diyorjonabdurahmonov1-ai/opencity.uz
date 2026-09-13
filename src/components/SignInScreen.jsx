@@ -1,4 +1,4 @@
-import { MapPin, Camera, ThumbsUp, Building2 } from "lucide-react";
+import { Camera, ThumbsUp, Building2 } from "lucide-react";
 import { S } from "../styles";
 
 function GoogleG() {
@@ -17,7 +17,7 @@ export function SignInScreen({ onSignIn }) {
     <div style={S.signinWrap}>
       <div style={S.signinCard}>
         <div style={S.brandRow}>
-          <div style={S.brandMark}><MapPin size={22} color="#fff" /></div>
+          <img src="/icon-192.png" alt="OpenCity" style={{ ...S.brandMark, width: 56, height: 56, borderRadius: 16 }} />
           <div style={S.brandName}>OpenCity</div>
         </div>
         <h1 style={S.h1}>Shaharni birga yaxshilaymiz</h1>
