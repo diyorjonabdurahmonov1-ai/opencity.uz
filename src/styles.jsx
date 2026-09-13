@@ -1,7 +1,7 @@
 export function GlobalStyle() {
   return (
     <style>{`
-      @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600;700&display=swap');
       * { box-sizing: border-box; }
       html, body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
       .spin { animation: spin 1s linear infinite; }
@@ -13,11 +13,12 @@ export function GlobalStyle() {
       .pin-hot { animation: hotpulse 1.4s ease-in-out infinite; }
       input:focus, select:focus, textarea:focus { outline: 2px solid #1E88A8; outline-offset: 1px; }
       button:focus-visible { outline: 2px solid #1E88A8; outline-offset: 2px; }
-      button, input, select, textarea, a { transition: box-shadow .15s ease, transform .15s ease, filter .15s ease, background-color .15s ease, border-color .15s ease; }
+      button, input, select, textarea, a { transition: box-shadow .15s ease, transform .12s ease, filter .15s ease, background-color .15s ease, border-color .15s ease; }
       button:not(:disabled):hover { filter: brightness(0.97); }
+      button:not(:disabled):active { transform: scale(0.96); }
       button:disabled { cursor: default; }
-      .oc-card { transition: box-shadow .15s ease, transform .15s ease; }
-      .oc-card:hover { box-shadow: 0 6px 18px rgba(15,42,67,0.10); transform: translateY(-1px); }
+      .oc-card { transition: box-shadow .18s ease, transform .18s ease, border-color .18s ease; }
+      .oc-card:hover { box-shadow: 0 10px 26px rgba(15,42,67,0.14); transform: translateY(-2px); border-color: rgba(30,136,168,0.35); }
       .leaflet-container { font-family: 'Inter', sans-serif; }
       @keyframes flyerFade { 0% { opacity: 0; transform: translateY(4px); } 12%, 88% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; } }
       .oc-flyer-fade { animation: flyerFade 3.5s ease-in-out; }
@@ -53,6 +54,33 @@ export function GlobalStyle() {
         .oc-aurora::before, .oc-aurora::after { animation: none; }
       }
 
+      /* ---- kirish sahifasi: qo'shimcha uchinchi rangli dog' + texnologik nuqtali panjara ---- */
+      .oc-signin-bg { position: relative; isolation: isolate; }
+      .oc-signin-bg::before {
+        content: ""; position: fixed; z-index: 0; pointer-events: none; border-radius: 50%;
+        top: 50%; left: 50%; width: 720px; height: 720px; transform: translate(-50%,-58%);
+        background: radial-gradient(circle, rgba(46,154,92,0.16), transparent 68%);
+        animation: auroraDrift 26s ease-in-out infinite alternate;
+      }
+      .oc-dotgrid { position: absolute; inset: 0; z-index: 0; pointer-events: none;
+        background-image: radial-gradient(rgba(15,42,67,0.10) 1.4px, transparent 1.4px);
+        background-size: 24px 24px;
+        -webkit-mask-image: radial-gradient(ellipse 60% 55% at 50% 42%, black 35%, transparent 75%);
+        mask-image: radial-gradient(ellipse 60% 55% at 50% 42%, black 35%, transparent 75%);
+      }
+      @keyframes floatY { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+      .oc-float { animation: floatY 4.2s ease-in-out infinite; }
+      @keyframes glowPulse {
+        0%, 100% { box-shadow: 0 4px 14px rgba(94,112,178,0.35), 0 0 0 0 rgba(30,136,168,0.35); }
+        50% { box-shadow: 0 4px 18px rgba(94,112,178,0.45), 0 0 0 8px rgba(30,136,168,0); }
+      }
+      .oc-glow { animation: glowPulse 2.6s ease-in-out infinite; }
+      @keyframes cardIn { from { opacity: 0; transform: translateY(14px) scale(0.985); } to { opacity: 1; transform: none; } }
+      .oc-signin-card-in { animation: cardIn 0.55s cubic-bezier(0.22,1,0.36,1); }
+      @media (prefers-reduced-motion: reduce) {
+        .oc-signin-bg::before, .oc-float, .oc-glow, .oc-signin-card-in { animation: none; }
+      }
+
       /* ---- responsive: tablet & phone ---- */
       @media (max-width: 780px) {
         .oc-shell { flex-direction: column !important; }
@@ -60,7 +88,7 @@ export function GlobalStyle() {
           position: static !important; top: auto !important; width: 100% !important;
           flex-direction: row !important; overflow-x: auto; -webkit-overflow-scrolling: touch;
           padding: 8px 10px !important; gap: 4px !important;
-          border-bottom: 1px solid #E4EAEE; background: #fff;
+          border-bottom: 1px solid #E4EAEE; background: rgba(255,255,255,0.75);
         }
         .oc-sidenav-item { flex: 0 0 auto !important; white-space: nowrap; padding: 8px 12px !important; }
         .oc-sidenav-label { display: inline; }
@@ -75,13 +103,27 @@ export function GlobalStyle() {
   );
 }
 
+// Shisha (glassmorphism) effekti — orqadagi "aurora" fon xira ko'rinib tursin deb,
+// asosiy kartalar endi to'liq oq emas, yarim shaffof + xiralashtirilgan fonga ega.
+const GLASS = {
+  background: "rgba(255,255,255,0.66)",
+  backdropFilter: "blur(14px)",
+  WebkitBackdropFilter: "blur(14px)",
+};
+const GLASS_SOFT = {
+  background: "rgba(255,255,255,0.8)",
+  backdropFilter: "blur(10px)",
+  WebkitBackdropFilter: "blur(10px)",
+};
+const MONO = "'JetBrains Mono', ui-monospace, monospace";
+
 export const S = {
   page: { minHeight: "100%", background: "linear-gradient(180deg, #F0F6F9 0%, #F5F8FA 320px)", fontFamily: "'Inter', sans-serif", color: "#16202B" },
   bootWrap: { position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 300 },
   body: { minHeight: "100%" },
 
-  signinWrap: { position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", padding: 20 },
-  signinCard: { position: "relative", maxWidth: 440, width: "100%", background: "rgba(255,255,255,0.85)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderRadius: 24, padding: "40px 36px", boxShadow: "0 24px 60px rgba(15,42,67,0.14)", border: "1px solid rgba(255,255,255,0.6)" },
+  signinWrap: { position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", padding: 20, overflow: "hidden" },
+  signinCard: { position: "relative", zIndex: 1, maxWidth: 440, width: "100%", ...GLASS_SOFT, borderRadius: 24, padding: "40px 36px", boxShadow: "0 24px 60px rgba(15,42,67,0.16)", border: "1px solid rgba(255,255,255,0.6)" },
   signinFeatureRow: { display: "flex", justifyContent: "center", gap: 22, marginTop: 28 },
   signinFeature: { display: "flex", flexDirection: "column", alignItems: "center", gap: 6, fontSize: 11, color: "#5B6772", fontWeight: 600, maxWidth: 90, textAlign: "center" },
   signinFeatureIcon: { width: 38, height: 38, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, rgba(30,136,168,0.14), rgba(135,89,179,0.14))" },
@@ -112,7 +154,7 @@ export const S = {
   portalTab: { display: "flex", alignItems: "center", gap: 6, padding: "6px 11px", borderRadius: 7, border: "none", background: "transparent", fontSize: 12.5, fontWeight: 600, color: "#5B6772", cursor: "pointer" },
   portalTabActive: { background: "linear-gradient(135deg, #0F2A43 0%, #1E4E70 100%)", color: "#fff" },
   topbarRight: { display: "flex", alignItems: "center", gap: 10, marginLeft: "auto" },
-  badge: { position: "absolute", top: -4, right: -4, background: "#B2402A", color: "#fff", fontSize: 9.5, fontWeight: 700, borderRadius: 8, minWidth: 15, height: 15, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px" },
+  badge: { position: "absolute", top: -4, right: -4, background: "#B2402A", color: "#fff", fontFamily: MONO, fontSize: 9.5, fontWeight: 700, borderRadius: 8, minWidth: 15, height: 15, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 3px" },
   avatarChip: { display: "flex", alignItems: "center", gap: 7, cursor: "pointer", padding: "3px 8px 3px 3px", borderRadius: 20, border: "1px solid #E4EAEE" },
   avatar: { width: 24, height: 24, borderRadius: "50%", background: "linear-gradient(135deg, #1E88A8 0%, #8759B3 100%)", color: "#fff", fontSize: 11.5, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" },
   avatarLg: { width: 48, height: 48, borderRadius: "50%", background: "linear-gradient(135deg, #1E88A8 0%, #8759B3 100%)", color: "#fff", fontSize: 19, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" },
@@ -129,13 +171,13 @@ export const S = {
   pageTitleLg: { fontFamily: "'Space Grotesk', sans-serif", fontSize: 22, fontWeight: 700, color: "#0F2A43", margin: "0 0 6px", maxWidth: 420 },
 
   statsRow: { display: "flex", gap: 12, marginBottom: 22, flexWrap: "wrap" },
-  statCard: { background: "#fff", border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 14, padding: "14px 18px", minWidth: 130 },
-  statValue: { fontFamily: "'Space Grotesk', sans-serif", fontSize: 24, fontWeight: 700 },
+  statCard: { ...GLASS, border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 14, padding: "14px 18px", minWidth: 130 },
+  statValue: { fontFamily: MONO, fontSize: 24, fontWeight: 700, fontVariantNumeric: "tabular-nums" },
   statLabel: { fontSize: 12, color: "#7A8A99", marginTop: 2 },
 
-  orgPromo: { display: "flex", alignItems: "center", gap: 14, background: "#fff", border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 14, padding: "14px 18px", marginBottom: 22, cursor: "pointer" },
+  orgPromo: { display: "flex", alignItems: "center", gap: 14, ...GLASS, border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 14, padding: "14px 18px", marginBottom: 22, cursor: "pointer" },
 
-  flyer: { display: "flex", alignItems: "center", gap: 16, background: "linear-gradient(120deg, #F3ECFA 0%, #EAF2F5 60%, #F3ECFA 100%)", border: "1px solid #E1D3F5", boxShadow: "0 4px 16px rgba(135,89,179,0.12)", borderRadius: 18, padding: "16px 22px", marginBottom: 22, overflow: "hidden" },
+  flyer: { display: "flex", alignItems: "center", gap: 16, background: "linear-gradient(120deg, rgba(243,236,250,0.85) 0%, rgba(234,242,245,0.85) 60%, rgba(243,236,250,0.85) 100%)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: "1px solid #E1D3F5", boxShadow: "0 4px 16px rgba(135,89,179,0.12)", borderRadius: 18, padding: "16px 22px", marginBottom: 22, overflow: "hidden" },
   flyerLabel: { fontSize: 11, fontWeight: 700, color: "#8759B3", textTransform: "uppercase", letterSpacing: 1, flexShrink: 0, writingMode: "horizontal-tb" },
   flyerContent: { display: "flex", alignItems: "center", gap: 12, flex: 1, color: "#3D2A5C", minWidth: 0 },
   flyerLogo: { width: 44, height: 44, borderRadius: 12, objectFit: "cover", flexShrink: 0, boxShadow: "0 2px 8px rgba(135,89,179,0.25)" },
@@ -154,7 +196,7 @@ export const S = {
   rowHeader: { display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 14, marginBottom: 14, flexWrap: "wrap" },
 
   reportGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))", gap: 14 },
-  reportCard: { background: "#fff", border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 14, overflow: "hidden", cursor: "pointer" },
+  reportCard: { ...GLASS, border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 14, overflow: "hidden", cursor: "pointer" },
   reportImg: { width: "100%", height: 110, objectFit: "cover", display: "block" },
   reportImgPlaceholder: { display: "flex", alignItems: "center", justifyContent: "center", background: "#EEF3F5" },
   hotBadge: { position: "absolute", top: 6, left: 6, display: "flex", alignItems: "center", gap: 3, background: "#B2402A", color: "#fff", fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 20 },
@@ -164,19 +206,19 @@ export const S = {
   statusPill: { fontSize: 10.5, fontWeight: 700, padding: "3px 8px", borderRadius: 20 },
   reportCardTitle: { fontSize: 14, fontWeight: 700, color: "#16202B", marginBottom: 3, lineHeight: 1.3 },
   reportCardMeta: { fontSize: 11.5, color: "#8A97A2" },
-  reportCardVotes: { display: "flex", alignItems: "center", gap: 4, fontSize: 11.5, color: "#7A8A99", marginTop: 6 },
+  reportCardVotes: { display: "flex", alignItems: "center", gap: 4, fontSize: 11.5, color: "#7A8A99", marginTop: 6, fontFamily: MONO },
   reportCardVoteBtn: { marginTop: 6, padding: "4px 10px", fontSize: 11.5 },
   sponsorBadge: { display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10.5, fontWeight: 700, color: "#8759B3", background: "#F3ECFA", padding: "3px 8px", borderRadius: 20, marginTop: 2 },
   sponsorBanner: { display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#5B3A8C", background: "#F3ECFA", border: "1px solid #E1D3F5", borderRadius: 10, padding: "9px 12px", marginTop: 6 },
   claimBtn: { display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 16px", borderRadius: 10, border: "none", background: "#2E9A5C", color: "#fff", fontSize: 13.5, fontWeight: 700, cursor: "pointer", boxShadow: "0 2px 8px rgba(46,154,92,0.35)", marginTop: 14, marginBottom: 6 },
 
-  emptyState: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, padding: "40px 20px", background: "#fff", border: "1px dashed #D8E1E6", borderRadius: 14, textAlign: "center" },
+  emptyState: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, padding: "40px 20px", ...GLASS_SOFT, border: "1px dashed #D8E1E6", borderRadius: 14, textAlign: "center" },
   emptyText: { fontSize: 13.5, color: "#7A8A99", margin: 0, maxWidth: 280 },
 
   wizardWrap: { maxWidth: 640 },
   wizardHeader: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 },
   stepIndicator: { display: "flex", gap: 6 },
-  stepDot: { width: 22, height: 22, borderRadius: "50%", background: "#EEF3F5", color: "#8A97A2", fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" },
+  stepDot: { width: 22, height: 22, borderRadius: "50%", background: "#EEF3F5", color: "#8A97A2", fontFamily: MONO, fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" },
   stepDotActive: { background: "linear-gradient(135deg, #1E88A8 0%, #8759B3 100%)", color: "#fff" },
   wizardTitle: { fontFamily: "'Space Grotesk', sans-serif", fontSize: 19, fontWeight: 700, color: "#0F2A43", margin: "4px 0 18px" },
   wizardFooter: { display: "flex", alignItems: "center", gap: 10, marginTop: 20 },
@@ -197,7 +239,7 @@ export const S = {
 
   similarCard: { display: "flex", flexDirection: "column", gap: 8 },
 
-  reviewCard: { background: "#fff", border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 14, padding: 18 },
+  reviewCard: { ...GLASS, border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 14, padding: 18 },
   reviewImg: { width: "100%", maxHeight: 220, objectFit: "cover", borderRadius: 8, marginBottom: 12 },
   reviewRow: { fontSize: 13.5, color: "#3D4C57", marginBottom: 8, lineHeight: 1.5 },
 
@@ -206,7 +248,7 @@ export const S = {
   detailImg: { width: 160, height: 120, objectFit: "cover", borderRadius: 10, flexShrink: 0, cursor: "zoom-in" },
   detailTitle: { fontFamily: "'Space Grotesk', sans-serif", fontSize: 19, margin: "6px 0", color: "#0F2A43" },
   detailDesc: { fontSize: 13.5, color: "#4B5B68", marginTop: 8, lineHeight: 1.55 },
-  detailCard: { background: "#fff", border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 14, padding: 20, maxWidth: 560 },
+  detailCard: { ...GLASS, border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 14, padding: 20, maxWidth: 560 },
 
   proofRow: { display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 },
   proofImg: { width: 72, height: 72, objectFit: "cover", borderRadius: 8, border: "1px solid #E4EAEE", cursor: "zoom-in" },
@@ -222,7 +264,7 @@ export const S = {
   timelineLine: { width: 2, flex: 1, background: "#E4EAEE", minHeight: 24 },
   timelineBody: { paddingBottom: 18 },
   timelineStatus: { fontSize: 13.5, fontWeight: 700, color: "#16202B" },
-  timelineMeta: { fontSize: 11.5, color: "#8A97A2", margin: "2px 0 4px" },
+  timelineMeta: { fontSize: 11.5, color: "#8A97A2", margin: "2px 0 4px", fontFamily: MONO },
   timelineNote: { fontSize: 12.5, color: "#4B5B68" },
 
   filterRow: { display: "flex", alignItems: "center", gap: 14, marginBottom: 14, flexWrap: "wrap" },
@@ -237,41 +279,41 @@ export const S = {
   locateErrorClose: { position: "absolute", top: 6, right: 6, background: "none", border: "none", color: "#fff", opacity: 0.7, cursor: "pointer", padding: 4 },
 
   modalBackdrop: { position: "fixed", inset: 0, background: "rgba(15,42,67,0.55)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20, zIndex: 2000 },
-  modalCard: { position: "relative", background: "#fff", borderRadius: 16, padding: 24, maxWidth: 640, width: "100%", maxHeight: "85vh", overflowY: "auto", boxShadow: "0 20px 60px rgba(0,0,0,0.35)" },
+  modalCard: { position: "relative", ...GLASS_SOFT, borderRadius: 16, padding: 24, maxWidth: 640, width: "100%", maxHeight: "85vh", overflowY: "auto", boxShadow: "0 20px 60px rgba(0,0,0,0.35)" },
   modalClose: { position: "absolute", top: 14, right: 14, width: 30, height: 30, borderRadius: "50%", border: "none", background: "#F0F4F6", color: "#3D4C57", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", zIndex: 1 },
 
   votingList: { display: "flex", flexDirection: "column", gap: 8 },
-  votingRow: { display: "flex", alignItems: "center", gap: 12, background: "#fff", border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 12, padding: "10px 14px" },
-  voteBtn: { display: "flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 20, border: "1px solid #D8E1E6", background: "#fff", color: "#3D4C57", fontSize: 12.5, fontWeight: 700, cursor: "pointer" },
+  votingRow: { display: "flex", alignItems: "center", gap: 12, ...GLASS, border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 12, padding: "10px 14px" },
+  voteBtn: { display: "flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 20, border: "1px solid #D8E1E6", background: "#fff", color: "#3D4C57", fontSize: 12.5, fontWeight: 700, cursor: "pointer", fontFamily: MONO },
   voteBtnActive: { background: "#E5F1F5", borderColor: "#1E88A8", color: "#1E88A8" },
 
-  reopenBox: { background: "#fff", border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 14, padding: 16, marginTop: 16, display: "flex", flexDirection: "column", gap: 10, maxWidth: 480 },
+  reopenBox: { ...GLASS, border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 14, padding: 16, marginTop: 16, display: "flex", flexDirection: "column", gap: 10, maxWidth: 480 },
   reopenText: { fontSize: 13, color: "#4B5B68", lineHeight: 1.5 },
 
   notifList: { display: "flex", flexDirection: "column", gap: 8 },
-  notifRow: { display: "flex", alignItems: "flex-start", gap: 10, background: "#fff", border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 12, padding: "12px 14px" },
-  notifRowUnread: { background: "linear-gradient(90deg, rgba(30,136,168,0.06), rgba(135,89,179,0.04))", borderColor: "#BFE0EA" },
+  notifRow: { display: "flex", alignItems: "flex-start", gap: 10, ...GLASS, border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 12, padding: "12px 14px" },
+  notifRowUnread: { background: "linear-gradient(90deg, rgba(30,136,168,0.10), rgba(135,89,179,0.07))", borderColor: "#BFE0EA" },
   notifUnreadBadge: { width: 8, height: 8, borderRadius: "50%", background: "#1E88A8", flexShrink: 0, marginTop: 4 },
   notifDot: { width: 8, height: 8, borderRadius: "50%", marginTop: 5, flexShrink: 0 },
   notifTitle: { fontSize: 13.5, fontWeight: 700, color: "#16202B" },
   notifMsg: { fontSize: 12.5, color: "#4B5B68", margin: "2px 0" },
-  notifTime: { fontSize: 11, color: "#9AA7B2" },
+  notifTime: { fontSize: 11, color: "#9AA7B2", fontFamily: MONO },
 
-  profileCard: { display: "flex", alignItems: "center", gap: 14, background: "#fff", border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 14, padding: 18, marginBottom: 10 },
+  profileCard: { display: "flex", alignItems: "center", gap: 14, ...GLASS, border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 14, padding: 18, marginBottom: 10 },
   profileName: { fontSize: 16, fontWeight: 700, color: "#16202B" },
   profileRole: { fontSize: 12.5, color: "#7A8A99", marginTop: 2 },
-  infoBanner: { display: "flex", alignItems: "flex-start", gap: 10, background: "#fff", border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 12, padding: "12px 14px", fontSize: 13 },
+  infoBanner: { display: "flex", alignItems: "flex-start", gap: 10, ...GLASS, border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 12, padding: "12px 14px", fontSize: 13 },
 
   orgActionBox: { display: "flex", gap: 10, marginTop: 16, flexWrap: "wrap", alignItems: "flex-start" },
-  adminActionBox: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, background: "#fff", border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 14, padding: 16, marginTop: 16, maxWidth: 460 },
-  chartBox: { background: "#fff", border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 14, padding: "14px 10px 4px", marginBottom: 8 },
+  adminActionBox: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, ...GLASS, border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 14, padding: 16, marginTop: 16, maxWidth: 460 },
+  chartBox: { ...GLASS, border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 14, padding: "14px 10px 4px", marginBottom: 8 },
   appList: { display: "flex", flexDirection: "column", gap: 8 },
-  appRow: { display: "flex", alignItems: "center", gap: 12, background: "#fff", border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 12, padding: "10px 14px", cursor: "pointer" },
-  orgCard: { background: "#fff", border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 14, padding: 16, display: "flex", flexDirection: "column", gap: 4 },
+  appRow: { display: "flex", alignItems: "center", gap: 12, ...GLASS, border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 12, padding: "10px 14px", cursor: "pointer" },
+  orgCard: { ...GLASS, border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 14, padding: 16, display: "flex", flexDirection: "column", gap: 4 },
   orgLogo: { width: 48, height: 48, borderRadius: 10, objectFit: "cover", marginBottom: 4 },
   orgLogoPlaceholder: { display: "flex", alignItems: "center", justifyContent: "center", background: "#F0F4F6" },
 
-  staffForm: { display: "flex", flexDirection: "column", gap: 10, background: "#fff", border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 14, padding: 16, marginBottom: 22, maxWidth: 520 },
+  staffForm: { display: "flex", flexDirection: "column", gap: 10, ...GLASS, border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 14, padding: 16, marginBottom: 22, maxWidth: 520 },
 
   bulkBar: { display: "flex", alignItems: "center", gap: 10, background: "#0F2A43", color: "#fff", padding: "10px 14px", borderRadius: 12, marginBottom: 14, flexWrap: "wrap" },
   bulkCheckbox: { position: "absolute", top: 8, left: 8, zIndex: 2, width: 18, height: 18, cursor: "pointer" },

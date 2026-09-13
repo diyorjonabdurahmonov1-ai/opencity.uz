@@ -92,8 +92,38 @@ export function PartnerFlyer({ orgs }) {
   );
 }
 
+// Butun sonlar o'zgarganda silliq "hisoblab chiqish" animatsiyasi bilan ko'rsatadi
+// (masalan "3" dan "7" ga sakramay, tez o'sib boradi) — matn/"—" kabi qiymatlar o'zgarishsiz qoladi.
+function useCountUp(value, duration = 650) {
+  const [display, setDisplay] = useState(value);
+  const prevRef = useRef(value);
+  useEffect(() => {
+    if (typeof value !== "number" || typeof prevRef.current !== "number") {
+      setDisplay(value);
+      prevRef.current = value;
+      return;
+    }
+    const from = prevRef.current;
+    const to = value;
+    if (from === to) return;
+    const start = performance.now();
+    let raf;
+    const tick = (now) => {
+      const p = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setDisplay(Math.round(from + (to - from) * eased));
+      if (p < 1) raf = requestAnimationFrame(tick);
+      else prevRef.current = to;
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value, duration]);
+  return display;
+}
+
 export function StatCard({ label, value, accent }) {
-  return (<div style={S.statCard}><div style={{ ...S.statValue, color: accent || "#16202B" }}>{value}</div><div style={S.statLabel}>{label}</div></div>);
+  const display = useCountUp(value);
+  return (<div style={S.statCard} className="oc-card"><div style={{ ...S.statValue, color: accent || "#16202B" }}>{display}</div><div style={S.statLabel}>{label}</div></div>);
 }
 
 export function EmptyState({ icon: Icon, text }) {

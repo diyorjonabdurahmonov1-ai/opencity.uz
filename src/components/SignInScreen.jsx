@@ -17,18 +17,19 @@ function GoogleG() {
 export function SignInScreen({ onSignIn }) {
   const { t } = useTranslation();
   return (
-    <div style={S.signinWrap}>
-      <div style={S.signinCard}>
+    <div style={S.signinWrap} className="oc-signin-bg">
+      <div className="oc-dotgrid" />
+      <div style={S.signinCard} className="oc-signin-card-in">
         <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 6 }}>
           <LanguageSwitcher />
         </div>
         <div style={S.brandRow}>
-          <img src="/icon-192.png" alt="OpenCity" style={{ ...S.brandMark, width: 56, height: 56, borderRadius: 16 }} />
+          <img src="/icon-192.png" alt="OpenCity" style={{ ...S.brandMark, width: 56, height: 56, borderRadius: 16 }} className="oc-float" />
           <div style={S.brandName}>OpenCity</div>
         </div>
         <h1 style={S.h1}>{t("signIn.heading")}</h1>
         <p style={S.lead}>{t("signIn.lead")}</p>
-        <button style={S.googleBtn} onClick={onSignIn}>
+        <button style={S.googleBtn} onClick={onSignIn} className="oc-glow">
           <GoogleG /> {t("signIn.googleButton")}
         </button>
         <p style={S.fine}>{t("signIn.gpsNote")}</p>
