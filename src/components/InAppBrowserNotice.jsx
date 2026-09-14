@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ExternalLink, Copy, Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { S } from "../styles";
@@ -22,14 +22,37 @@ export function detectInAppBrowser() {
 export function InAppBrowserNotice({ source }) {
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
+  const inputRef = useRef(null);
+  const url = typeof window !== "undefined" ? window.location.href : "";
 
+  // Ko'p ilova-ichidagi brauzerlarda (masalan ba'zi Instagram versiyalarida)
+  // zamonaviy Clipboard API mavjud emas — shuning uchun avval uni sinaymiz,
+  // keyin eski execCommand usulini, oxirida esa pastdagi maydonni belgilaymiz
+  // (shu holatda foydalanuvchi telefonining o'z "Copy" menyusidan foydalanadi).
   const copyLink = async () => {
+    let ok = false;
     try {
-      await navigator.clipboard.writeText(window.location.href);
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url);
+        ok = true;
+      }
+    } catch { /* keyingi usulga o'tamiz */ }
+
+    if (!ok && inputRef.current) {
+      try {
+        inputRef.current.focus();
+        inputRef.current.select();
+        inputRef.current.setSelectionRange(0, url.length);
+        ok = document.execCommand("copy");
+      } catch { /* pastdagi maydon baribir qo'lda belgilash uchun ochiq qoladi */ }
+    }
+
+    if (ok) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
-    } catch {
-      // clipboard ishlamasa ham hech narsa buzilmaydi — foydalanuvchi qo'lda nusxalashi mumkin
+    } else if (inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
     }
   };
 
@@ -50,10 +73,20 @@ export function InAppBrowserNotice({ source }) {
           <li>{t("inAppBrowser.step1")}</li>
           <li>{t("inAppBrowser.step2")}</li>
         </ol>
-        <button style={S.primaryBtn} onClick={copyLink} className="oc-glow">
-          {copied ? <Check size={16} /> : <Copy size={16} />}
-          {copied ? t("inAppBrowser.copied") : t("inAppBrowser.copyLink")}
-        </button>
+        <p style={{ ...S.label, marginBottom: 6 }}>{t("inAppBrowser.manualLabel")}</p>
+        <div style={{ display: "flex", gap: 8, marginBottom: 4 }}>
+          <input
+            ref={inputRef}
+            readOnly
+            value={url}
+            onFocus={(e) => e.target.select()}
+            style={{ ...S.input, flex: 1, fontSize: 12.5, color: "#4B5B68" }}
+          />
+          <button style={{ ...S.primaryBtn, flexShrink: 0 }} onClick={copyLink} className="oc-glow">
+            {copied ? <Check size={16} /> : <Copy size={16} />}
+            {copied ? t("inAppBrowser.copied") : t("inAppBrowser.copyLink")}
+          </button>
+        </div>
         <p style={S.fine}>
           <ExternalLink size={12} style={{ verticalAlign: "-2px", marginRight: 4 }} />
           {t("inAppBrowser.hint")}
