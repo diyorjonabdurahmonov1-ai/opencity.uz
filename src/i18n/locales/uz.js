@@ -466,6 +466,17 @@ export default {
     },
   },
 
+  inAppBrowser: {
+    heading: "Bu havolani brauzeringizda oching",
+    explain: "{{app}} ilovasi ichidagi brauzer Google hisobi bilan xavfsiz kirishni qo'llab-quvvatlamaydi — bu OpenCity emas, Google'ning o'zi qo'ygan cheklov.",
+    step1: "Yuqori (yoki pastki) burchakdagi \"···\" yoki ulashish belgisini bosing",
+    step2: "\"Brauzerda ochish\" (Safari yoki Chrome) ni tanlang",
+    copyLink: "Havolani nusxalash",
+    copied: "Nusxalandi ✓",
+    hint: "Yoki havolani nusxalab, to'g'ridan-to'g'ri brauzeringizga joylashtiring.",
+    apps: { instagram: "Instagram", facebook: "Facebook", line: "LINE", wechat: "WeChat", tiktok: "TikTok" },
+  },
+
   timeline: {
     actors: { citizen: "Fuqaro", system: "Tizim", admin: "Admin", community: "Jamiyat" },
     notes: {

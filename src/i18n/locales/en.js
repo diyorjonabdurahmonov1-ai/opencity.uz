@@ -466,6 +466,17 @@ export default {
     },
   },
 
+  inAppBrowser: {
+    heading: "Open this link in your browser",
+    explain: "{{app}}'s built-in browser doesn't support signing in securely with a Google account — that's a restriction set by Google itself, not by OpenCity.",
+    step1: "Tap \"···\" or the share icon in the corner of the screen",
+    step2: "Choose \"Open in browser\" (Safari or Chrome)",
+    copyLink: "Copy link",
+    copied: "Copied ✓",
+    hint: "Or copy the link and paste it directly into your browser.",
+    apps: { instagram: "Instagram", facebook: "Facebook", line: "LINE", wechat: "WeChat", tiktok: "TikTok" },
+  },
+
   timeline: {
     actors: { citizen: "Citizen", system: "System", admin: "Admin", community: "Community" },
     notes: {

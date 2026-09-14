@@ -11,6 +11,7 @@ import { fetchAnnouncements } from "./lib/api/announcements";
 import { nearestLocation } from "./constants";
 import { GlobalStyle, S } from "./styles";
 import { SignInScreen } from "./components/SignInScreen";
+import { InAppBrowserNotice, detectInAppBrowser } from "./components/InAppBrowserNotice";
 import { TopBar } from "./components/TopBar";
 import { CitizenPortal } from "./components/CitizenPortal";
 import { OrganizationPortal } from "./components/OrganizationPortal";
@@ -31,6 +32,7 @@ async function fetchMyProfileWithRetry(userId, attempts = 4) {
 
 export default function App() {
   const { t } = useTranslation();
+  const [inAppBrowser] = useState(() => detectInAppBrowser());
   const { user, loading: authLoading, signInWithGoogle, signOut } = useAuth();
   const [profile, setProfile] = useState(null);
   const [reports, setReports] = useState([]);
@@ -124,6 +126,9 @@ export default function App() {
 
   if (authLoading || (user && booting)) {
     return (<div style={S.page} className="oc-aurora"><GlobalStyle /><div style={S.bootWrap}><Loader2 className="spin" size={26} color="#1C8B80" /></div></div>);
+  }
+  if ((!user || !profile) && inAppBrowser) {
+    return (<div style={S.page} className="oc-aurora"><GlobalStyle /><InAppBrowserNotice source={inAppBrowser} /></div>);
   }
   if (!user || !profile) {
     return (<div style={S.page} className="oc-aurora"><GlobalStyle /><SignInScreen onSignIn={signInWithGoogle} /></div>);

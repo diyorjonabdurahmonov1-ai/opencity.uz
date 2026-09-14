@@ -466,6 +466,17 @@ export default {
     },
   },
 
+  inAppBrowser: {
+    heading: "Откройте эту ссылку в браузере",
+    explain: "Встроенный браузер приложения {{app}} не поддерживает безопасный вход через аккаунт Google — это ограничение самого Google, а не OpenCity.",
+    step1: "Нажмите «···» или значок «Поделиться» в углу экрана",
+    step2: "Выберите «Открыть в браузере» (Safari или Chrome)",
+    copyLink: "Скопировать ссылку",
+    copied: "Скопировано ✓",
+    hint: "Либо скопируйте ссылку и вставьте её напрямую в браузер.",
+    apps: { instagram: "Instagram", facebook: "Facebook", line: "LINE", wechat: "WeChat", tiktok: "TikTok" },
+  },
+
   timeline: {
     actors: { citizen: "Гражданин", system: "Система", admin: "Админ", community: "Сообщество" },
     notes: {
