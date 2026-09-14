@@ -7,12 +7,19 @@ import { CATEGORIES, STATUS, DONE_STATUSES, HOT_VOTES, UZBEKISTAN_CENTER, fmtDat
 import { S } from "../styles";
 import { claimReport, toggleVote, deleteReport } from "../lib/api/reports";
 
+// Hisobot bayrog'i — kommunal xizmat xodimlari yerga qadaydigan rangli
+// belgi-bayroqchalardan ilhomlangan, har bir turkumning o'z rangida.
 export function pinIcon(color, hot = false) {
   return L.divIcon({
     className: "oc-map-pin",
-    html: `<span style="display:flex;width:24px;height:24px;border-radius:50%;background:#fff;border:2px solid ${color};align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(15,42,67,0.28);${hot ? "animation:hotpulse 1.4s ease-in-out infinite;" : ""}"><span style="width:9px;height:9px;border-radius:50%;background:${color};"></span></span>`,
-    iconSize: [24, 24],
-    iconAnchor: [12, 12],
+    html: `
+      <span style="position:relative;display:block;width:22px;height:32px;">
+        <span style="position:absolute;left:6px;bottom:0;width:10px;height:4px;border-radius:50%;background:rgba(15,10,5,0.28);filter:blur(0.5px);"></span>
+        <span style="position:absolute;left:10px;top:8px;width:2px;height:22px;background:#3D2E1A;border-radius:1px;"></span>
+        <span style="position:absolute;left:11px;top:5px;width:0;height:0;border-top:7px solid transparent;border-bottom:7px solid transparent;border-left:14px solid ${color};filter:drop-shadow(0 2px 2px rgba(15,10,5,0.4));transform-origin:0% 50%;${hot ? "animation:flagPulse 1.3s ease-in-out infinite;" : ""}"></span>
+      </span>`,
+    iconSize: [22, 32],
+    iconAnchor: [11, 32],
   });
 }
 
@@ -88,6 +95,31 @@ export function PartnerFlyer({ orgs }) {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+const BURST_COLORS = ["#173A66", "#1C8B80", "#B6903F", "#A85A3E", "#3E8E5A"];
+
+// Muvaffaqiyat lahzasi — hisobot yuborilgach yoki muammo hal qilingach, ekran
+// markazidan rangli "bayroqcha" bo'laklari sochilib, bir soniyadan keyin o'zi yo'qoladi.
+export function SuccessBurst({ onDone }) {
+  useEffect(() => {
+    const timer = setTimeout(() => onDone?.(), 900);
+    return () => clearTimeout(timer);
+  }, [onDone]);
+
+  return (
+    <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 4000, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ position: "relative", width: 0, height: 0 }}>
+        {Array.from({ length: 14 }).map((_, i) => (
+          <span
+            key={i}
+            className="oc-burst-dot"
+            style={{ "--angle": `${(360 / 14) * i}deg`, background: BURST_COLORS[i % BURST_COLORS.length] }}
+          />
+        ))}
+      </div>
     </div>
   );
 }

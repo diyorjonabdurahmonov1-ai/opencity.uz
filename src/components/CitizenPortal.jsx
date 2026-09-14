@@ -10,7 +10,7 @@ import {
   REOPEN_VOTES_REQUIRED, HOT_VOTES, fmtDate,
 } from "../constants";
 import { S } from "../styles";
-import { SideNav, StatCard, EmptyState, ReportCard, CityMap, ReportDetail, PartnerFlyer } from "./shared";
+import { SideNav, StatCard, EmptyState, ReportCard, CityMap, ReportDetail, PartnerFlyer, SuccessBurst } from "./shared";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ReportWizard } from "./ReportWizard";
 import { toggleVote, addVoteIfMissing, reopenVote, deleteReport } from "../lib/api/reports";
@@ -24,6 +24,7 @@ export function CitizenPortal({
   const { t } = useTranslation();
   const [myApplication, setMyApplication] = useState(null);
   const [focusAnnouncement, setFocusAnnouncement] = useState(null);
+  const [celebrate, setCelebrate] = useState(false);
 
   useEffect(() => {
     fetchMyApplication(profile.id).then(setMyApplication).catch(() => {});
@@ -54,6 +55,7 @@ export function CitizenPortal({
 
   return (
     <div style={S.withSidebar} className="oc-shell">
+      {celebrate && <SuccessBurst onDone={() => setCelebrate(false)} />}
       <SideNav items={nav} active={view} onChange={setView} />
       <div style={S.content}>
       <div key={view} className="oc-view-fade">
@@ -79,6 +81,7 @@ export function CitizenPortal({
               });
               await refreshNotifications();
               showToast(t("citizen.reportSubmittedToast"));
+              setCelebrate(true);
               setView("my-reports");
             }}
             onCancel={() => setView("home")}

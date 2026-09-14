@@ -11,6 +11,7 @@ export function GlobalStyle() {
         50% { box-shadow: 0 0 0 8px rgba(178,64,42,0); background:#FBEAE6; }
       }
       .pin-hot { animation: hotpulse 1.4s ease-in-out infinite; }
+      @keyframes flagPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
       input:focus, select:focus, textarea:focus { outline: 2px solid #1C8B80; outline-offset: 1px; }
       button:focus-visible { outline: 2px solid #1C8B80; outline-offset: 2px; }
       button, input, select, textarea, a { transition: box-shadow .15s ease, transform .12s ease, filter .15s ease, background-color .15s ease, border-color .15s ease; }
@@ -84,6 +85,22 @@ export function GlobalStyle() {
       .oc-signin-card-in { animation: cardIn 0.55s cubic-bezier(0.22,1,0.36,1); }
       @media (prefers-reduced-motion: reduce) {
         .oc-signin-bg::before, .oc-float, .oc-glow, .oc-signin-card-in { animation: none; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .oc-map-pin * { animation: none !important; }
+      }
+
+      /* ---- muvaffaqiyat lahzasi: hisobot yuborilgach / muammo hal qilingach ---- */
+      @keyframes burstOut {
+        0% { transform: rotate(var(--angle)) translateX(6px) scale(1); opacity: 1; }
+        100% { transform: rotate(var(--angle)) translateX(130px) scale(0.35); opacity: 0; }
+      }
+      .oc-burst-dot {
+        position: absolute; left: 0; top: 0; width: 10px; height: 10px; margin: -5px 0 0 -5px;
+        border-radius: 3px; animation: burstOut 0.85s cubic-bezier(0.15,0.6,0.4,1) forwards;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .oc-burst-dot { display: none; }
       }
 
       /* ---- responsive: tablet & phone ---- */

@@ -125,7 +125,17 @@ export default function App() {
   };
 
   if (authLoading || (user && booting)) {
-    return (<div style={S.page} className="oc-aurora"><GlobalStyle /><div style={S.bootWrap}><Loader2 className="spin" size={26} color="#1C8B80" /></div></div>);
+    return (
+      <div style={S.page} className="oc-aurora">
+        <GlobalStyle />
+        <div style={{ ...S.bootWrap, flexDirection: "column", gap: 14 }}>
+          <img src="/icon-192.png" alt="" style={{ width: 52, height: 52, borderRadius: 15, boxShadow: "0 6px 18px rgba(23,58,102,0.35)" }} className="oc-float" />
+          <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#5B6772", fontSize: 13, fontWeight: 600 }}>
+            <Loader2 className="spin" size={15} color="#1C8B80" /> {t("common.loading")}
+          </div>
+        </div>
+      </div>
+    );
   }
   if ((!user || !profile) && inAppBrowser) {
     return (<div style={S.page} className="oc-aurora"><GlobalStyle /><InAppBrowserNotice source={inAppBrowser} /></div>);

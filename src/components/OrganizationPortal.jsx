@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { RESOLUTION_PHOTOS_REQUIRED, UZBEKISTAN_CENTER, districtsOf, fmtDate, compressImage } from "../constants";
 import { S } from "../styles";
-import { StatCard, EmptyState, ReportCard, ReportDetail, pinIcon } from "./shared";
+import { StatCard, EmptyState, ReportCard, ReportDetail, pinIcon, SuccessBurst } from "./shared";
 import { advanceStatus, markResolved } from "../lib/api/reports";
 import { uploadPhoto } from "../lib/api/storage";
 import { verifyPhoto } from "../lib/api/ai";
@@ -19,6 +19,7 @@ export function OrganizationPortal({ profile, myOrg, reports, refreshReports, an
   const [proofUrls, setProofUrls] = useState([]);
   const [proofFlags, setProofFlags] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [celebrate, setCelebrate] = useState(false);
   const fileRef = useRef();
 
   const assigned = reports.filter((r) => r.assignedOrgId === profile.org_id);
@@ -54,6 +55,7 @@ export function OrganizationPortal({ profile, myOrg, reports, refreshReports, an
     setProofUrls([]);
     setProofFlags([]);
     setOpenId(null);
+    setCelebrate(true);
     showToast(t("org.toasts.resolvedToast"));
   };
 
@@ -108,6 +110,7 @@ export function OrganizationPortal({ profile, myOrg, reports, refreshReports, an
 
   return (
     <div style={S.content}>
+      {celebrate && <SuccessBurst onDone={() => setCelebrate(false)} />}
       <div style={S.rowHeader}>
         <h2 style={S.pageTitle}>{myOrg?.name || t("org.defaultOrgName")}</h2>
         {isGovernment && (
