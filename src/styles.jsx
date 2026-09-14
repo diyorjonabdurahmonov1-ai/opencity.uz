@@ -91,6 +91,28 @@ export function GlobalStyle() {
         .oc-map-pin *, .oc-map-pin { animation: none !important; }
       }
 
+      /* ---- "butun shahar xaritasi" — ilovaning old eshigi: bosh sahifa xamyoni ---- */
+      .oc-map-hero { position: relative; isolation: isolate; }
+      .oc-map-hero::before {
+        content: ""; position: absolute; inset: -20px -24px auto -24px; height: 220px; z-index: -1;
+        pointer-events: none; opacity: 0.6;
+        background-image:
+          linear-gradient(45deg, rgba(182,144,63,0.14) 1px, transparent 1px),
+          linear-gradient(-45deg, rgba(182,144,63,0.14) 1px, transparent 1px);
+        background-size: 34px 34px;
+        -webkit-mask-image: linear-gradient(180deg, black, transparent);
+        mask-image: linear-gradient(180deg, black, transparent);
+      }
+      @keyframes liveDotPulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(178,64,42,0.5); }
+        50% { box-shadow: 0 0 0 6px rgba(178,64,42,0); }
+      }
+      .oc-live-dot { animation: liveDotPulse 1.7s ease-in-out infinite; }
+      @media (prefers-reduced-motion: reduce) {
+        .oc-map-hero::before { display: none; }
+        .oc-live-dot { animation: none; }
+      }
+
       /* ---- muvaffaqiyat lahzasi: hisobot yuborilgach / muammo hal qilingach ---- */
       @keyframes burstOut {
         0% { transform: rotate(var(--angle)) translateX(6px) scale(1); opacity: 1; }
@@ -362,5 +384,25 @@ export const S = {
   reportFabIcon: {
     width: 38, height: 38, borderRadius: "50%", flexShrink: 0, background: "#fff",
     display: "flex", alignItems: "center", justifyContent: "center",
+  },
+
+  mapHero: { position: "relative", padding: "6px 0 26px", marginBottom: 4 },
+  mapHeroEyebrow: {
+    display: "inline-flex", alignItems: "center", gap: 7, fontSize: 11.5, fontWeight: 700,
+    color: "#B2402A", textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 8,
+  },
+  livePulseDot: { width: 8, height: 8, borderRadius: "50%", background: "#B2402A", flexShrink: 0 },
+  mapHeroTitle: {
+    fontFamily: HERITAGE, fontWeight: 600, fontSize: 40, lineHeight: 1.08, margin: "0 0 10px",
+    background: "linear-gradient(120deg, #14213A 0%, #173A66 45%, #1C8B80 100%)",
+    WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent",
+  },
+  mapHeroSub: { fontSize: 14.5, color: "#4B5B68", lineHeight: 1.55, margin: "0 0 22px", maxWidth: 520 },
+  mapHeroStats: { display: "flex", gap: 12, flexWrap: "wrap" },
+
+  mapFrame: {
+    padding: 10, borderRadius: 24, marginTop: 18,
+    background: "linear-gradient(120deg, rgba(182,144,63,0.16), rgba(23,58,102,0.10))",
+    border: "1px solid rgba(182,144,63,0.35)", boxShadow: "0 16px 40px rgba(15,42,67,0.14)",
   },
 };

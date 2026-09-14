@@ -191,6 +191,14 @@ export default {
     reportSubmittedToast: "Hisobot yuborildi ✓",
     reportDeletedToast: "Hisobot o'chirildi ✓",
     applicationSubmittedToast: "Ariza yuborildi ✓",
+    map: {
+      live: "Jonli xarita",
+      subtitle: "Butun O'zbekiston bo'ylab fuqarolar xabar bergan muammolar — real vaqtda, bitta xaritada.",
+      statActive: "Faol muammolar",
+      statResolved: "Hal qilingan",
+      statHot: "Dolzarb",
+      statOrgs: "Hamkor tashkilotlar",
+    },
     home: {
       greeting: "Salom, {{name}}",
       titleWithDistrict: "{{district}} xaritasi",

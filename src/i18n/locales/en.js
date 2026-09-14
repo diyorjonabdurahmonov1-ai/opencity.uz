@@ -191,6 +191,14 @@ export default {
     reportSubmittedToast: "Report submitted ✓",
     reportDeletedToast: "Report deleted ✓",
     applicationSubmittedToast: "Application submitted ✓",
+    map: {
+      live: "Live map",
+      subtitle: "Issues reported by citizens across all of Uzbekistan — in real time, on one map.",
+      statActive: "Active issues",
+      statResolved: "Resolved",
+      statHot: "Hot issues",
+      statOrgs: "Partner organizations",
+    },
     home: {
       greeting: "Hi, {{name}}",
       titleWithDistrict: "{{district}} map",

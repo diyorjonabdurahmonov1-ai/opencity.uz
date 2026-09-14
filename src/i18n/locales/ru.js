@@ -191,6 +191,14 @@ export default {
     reportSubmittedToast: "Обращение отправлено ✓",
     reportDeletedToast: "Отчёт удалён ✓",
     applicationSubmittedToast: "Заявка отправлена ✓",
+    map: {
+      live: "Живая карта",
+      subtitle: "Проблемы, о которых сообщили граждане по всему Узбекистану — в реальном времени, на одной карте.",
+      statActive: "Активные проблемы",
+      statResolved: "Решено",
+      statHot: "Актуальные",
+      statOrgs: "Партнёрские организации",
+    },
     home: {
       greeting: "Здравствуйте, {{name}}",
       titleWithDistrict: "Карта {{district}}",

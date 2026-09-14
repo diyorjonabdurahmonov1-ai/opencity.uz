@@ -94,8 +94,13 @@ export function CitizenPortal({
           />
         )}
         {view === "map" && (
-          <CityMap reports={reports} title={t("citizen.nav.map")} center={announcementCenter(focusAnnouncement)}
-            profile={profile} myOrg={myOrg} refreshReports={refreshReports} showToast={showToast} announcements={announcements} />
+          <div>
+            <CityMapHero reports={reports} orgs={orgs} />
+            <div style={S.mapFrame}>
+              <CityMap reports={reports} title={null} center={announcementCenter(focusAnnouncement)}
+                profile={profile} myOrg={myOrg} refreshReports={refreshReports} showToast={showToast} announcements={announcements} />
+            </div>
+          </div>
         )}
         {view === "announcements" && (
           <AnnouncementsList announcements={announcements}
@@ -146,6 +151,27 @@ export function CitizenPortal({
             onCancel={() => setView("profile")} />
         )}
       </div>
+      </div>
+    </div>
+  );
+}
+
+function CityMapHero({ reports, orgs }) {
+  const { t } = useTranslation();
+  const active = reports.filter((r) => !DONE_STATUSES.includes(r.status)).length;
+  const resolved = reports.filter((r) => DONE_STATUSES.includes(r.status)).length;
+  const hot = reports.filter(isHot).length;
+
+  return (
+    <div style={S.mapHero} className="oc-map-hero">
+      <div style={S.mapHeroEyebrow}><span className="oc-live-dot" style={S.livePulseDot} /> {t("citizen.map.live")}</div>
+      <h1 style={S.mapHeroTitle}>{t("citizen.nav.map")}</h1>
+      <p style={S.mapHeroSub}>{t("citizen.map.subtitle")}</p>
+      <div style={S.mapHeroStats}>
+        <StatCard label={t("citizen.map.statActive")} value={active} accent="#1C8B80" />
+        <StatCard label={t("citizen.map.statResolved")} value={resolved} accent="#2E9A5C" />
+        <StatCard label={t("citizen.map.statHot")} value={hot} accent="#B2402A" />
+        <StatCard label={t("citizen.map.statOrgs")} value={orgs.length} accent="#B6903F" />
       </div>
     </div>
   );
