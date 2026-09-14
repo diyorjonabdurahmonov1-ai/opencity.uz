@@ -128,7 +128,13 @@ export function ReportWizard({ profile, reports, onDone, onCancel, onVoteInstead
   const applyLocation = (lat, lng, gps) => {
     setCoords({ lat, lng, gps });
     const loc = nearestLocation(lat, lng);
-    if (loc) { setRegion(loc.region); setDistrict(loc.district); }
+    if (loc) {
+      setRegion(loc.region);
+      setDistrict(loc.district);
+      setLocateError("");
+    } else {
+      setLocateError(t("wizard.geo.outsideUzbekistan"));
+    }
   };
 
   // Bir necha soniya davomida signalni "aniqlashtirib", eng past xato (accuracy) bilan kelgan

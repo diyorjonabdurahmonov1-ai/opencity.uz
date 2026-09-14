@@ -82,7 +82,13 @@ export function haversine(a, b) {
   return 2 * R * Math.asin(Math.sqrt(s));
 }
 
+// GPS nuqtasi O'zbekiston hududidan shuncha uzoqda bo'lsa, "eng yaqin tuman" topish
+// endi ma'nosiz hisoblanadi (masalan boshqa qit'adan kirgan foydalanuvchi) — shunday
+// holatda noto'g'ri tumanni zo'rlab yopishtirib qo'ymaslik uchun chegara qo'yilgan.
+const MAX_MATCH_DISTANCE_KM = 150;
+
 // Berilgan GPS nuqtasiga eng yaqin tuman/shaharni (va uning viloyatini) butun mamlakat bo'yicha topadi.
+// Nuqta O'zbekistondan juda uzoqda bo'lsa (masalan boshqa davlat), null qaytaradi.
 export function nearestLocation(lat, lng) {
   let best = null, bestDist = Infinity;
   for (const region of REGIONS) {
@@ -91,7 +97,7 @@ export function nearestLocation(lat, lng) {
       if (dist < bestDist) { bestDist = dist; best = { region: region.name, district: d.name }; }
     }
   }
-  return best;
+  return bestDist <= MAX_MATCH_DISTANCE_KM ? best : null;
 }
 
 // Rasmni canvas orqali kichraytirib, Supabase Storage'ga yuklash uchun Blob qaytaradi.

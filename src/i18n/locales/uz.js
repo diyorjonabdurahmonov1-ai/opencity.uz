@@ -170,6 +170,7 @@ export default {
       permissionDenied: "Joylashuvga ruxsat berilmadi — brauzer manzil satridagi qulf belgisidan ruxsat bering, yoki tumanni qo'lda tanlang.",
       unavailable: "Joylashuvni aniqlab bo'lmadi. Tumanni qo'lda tanlashingiz yoki xaritada bosishingiz mumkin.",
       notSupported: "Bu brauzer joylashuvni aniqlashni qo'llab-quvvatlamaydi.",
+      outsideUzbekistan: "Bu joylashuv O'zbekiston hududidan tashqarida ko'rinadi — OpenCity hozircha faqat O'zbekiston bo'yicha ishlaydi. Iltimos, viloyat va tumanni pastdan qo'lda tanlang.",
     },
   },
 

@@ -170,6 +170,7 @@ export default {
       permissionDenied: "Location access was denied — allow it via the lock icon in your browser's address bar, or choose the district manually.",
       unavailable: "Could not determine your location. You can choose the district manually or tap it on the map.",
       notSupported: "This browser does not support locating.",
+      outsideUzbekistan: "This location appears to be outside Uzbekistan — OpenCity currently only covers Uzbekistan. Please choose the region and district manually below.",
     },
   },
 
