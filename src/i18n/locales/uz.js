@@ -113,6 +113,9 @@ export default {
       statusHistory: "Holat tarixi",
       claimedToast: "\"{{title}}\" hisobotini qabul qildingiz ✓",
       deletedToast: "Hisobot o'chirildi ✓",
+      translate: "Tarjima qilish",
+      showOriginal: "Asl matnni ko'rsatish",
+      translateFailed: "Tarjima qilib bo'lmadi.",
     },
   },
 
@@ -287,6 +290,9 @@ export default {
     neglect: "E'tiborsiz qoldirish",
     resolvePhotosNeeded: "Yopish uchun kamida {{count}} ta shu joydan olingan rasm kerak ({{have}}/{{count}})",
     aiSuspiciousWarning: "Sun'iy intellekt {{count}} ta rasmda shubha bildirdi — ular sun'iy tarzda yaratilgan yoki joyga mos kelmasligi mumkin. Iltimos, ustiga sichqoncha olib borib sababini o'qing.",
+    aiBeforeAfterChecking: "Sun'iy intellekt \"oldin/keyin\" rasmlarini solishtirmoqda...",
+    aiBeforeAfterDiffLocation: "Sun'iy intellekt: bu rasm dastlabki muammo rasmidagi joyga mos kelmasligi mumkin.",
+    aiBeforeAfterNotFixed: "Sun'iy intellekt: muammo hali ham hal qilinmaganga o'xshaydi — rasmni tekshirib ko'ring.",
     markResolved: "Hal qilindi deb belgilash",
     defaultOrgName: "Bo'lim / Tashkilot paneli",
     tabReports: "Hisobotlar",
@@ -476,6 +482,15 @@ export default {
     copied: "Nusxalandi ✓",
     hint: "Yoki havolani nusxalab, to'g'ridan-to'g'ri brauzeringizga joylashtiring.",
     apps: { instagram: "Instagram", facebook: "Facebook", line: "LINE", wechat: "WeChat", tiktok: "TikTok" },
+  },
+
+  assistant: {
+    title: "OpenCity yordamchisi",
+    welcome: "Salom! Ilovadan qanday foydalanish haqida savolingiz bo'lsa, so'rang.",
+    placeholder: "Savolingizni yozing...",
+    thinking: "Javob tayyorlanmoqda...",
+    error: "Javob berib bo'lmadi. Birozdan keyin qayta urinib ko'ring.",
+    openLabel: "Yordamchi bilan suhbat",
   },
 
   timeline: {

@@ -113,6 +113,9 @@ export default {
       statusHistory: "История статусов",
       claimedToast: "Вы взяли отчёт «{{title}}» в работу ✓",
       deletedToast: "Отчёт удалён ✓",
+      translate: "Перевести",
+      showOriginal: "Показать оригинал",
+      translateFailed: "Не удалось перевести.",
     },
   },
 
@@ -287,6 +290,9 @@ export default {
     neglect: "Оставить без внимания",
     resolvePhotosNeeded: "Для закрытия нужно минимум {{count}} фото с места ({{have}}/{{count}})",
     aiSuspiciousWarning: "ИИ выразил сомнение по {{count}} фото — они могут быть искусственно созданы или не соответствовать месту. Наведите курсор на фото, чтобы увидеть причину.",
+    aiBeforeAfterChecking: "ИИ сравнивает фото «до/после»...",
+    aiBeforeAfterDiffLocation: "ИИ: это фото может не соответствовать месту с исходной проблемой.",
+    aiBeforeAfterNotFixed: "ИИ: похоже, проблема всё ещё не устранена — проверьте фото.",
     markResolved: "Отметить как решено",
     defaultOrgName: "Панель отдела / организации",
     tabReports: "Обращения",
@@ -476,6 +482,15 @@ export default {
     copied: "Скопировано ✓",
     hint: "Либо скопируйте ссылку и вставьте её напрямую в браузер.",
     apps: { instagram: "Instagram", facebook: "Facebook", line: "LINE", wechat: "WeChat", tiktok: "TikTok" },
+  },
+
+  assistant: {
+    title: "Помощник OpenCity",
+    welcome: "Привет! Спросите что-нибудь о том, как пользоваться приложением.",
+    placeholder: "Напишите вопрос...",
+    thinking: "Готовлю ответ...",
+    error: "Не удалось получить ответ. Попробуйте ещё раз чуть позже.",
+    openLabel: "Чат с помощником",
   },
 
   timeline: {

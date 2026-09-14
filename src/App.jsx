@@ -12,6 +12,7 @@ import { nearestLocation } from "./constants";
 import { GlobalStyle, S } from "./styles";
 import { SignInScreen } from "./components/SignInScreen";
 import { InAppBrowserNotice, detectInAppBrowser } from "./components/InAppBrowserNotice";
+import { AssistantChat } from "./components/AssistantChat";
 import { TopBar } from "./components/TopBar";
 import { CitizenPortal } from "./components/CitizenPortal";
 import { OrganizationPortal } from "./components/OrganizationPortal";
@@ -170,6 +171,7 @@ export default function App() {
       </div>
       </div>
       {toast && <div style={S.toast}>{toast}</div>}
+      <AssistantChat />
     </div>
   );
 }

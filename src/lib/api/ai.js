@@ -59,3 +59,58 @@ export async function compareIssuePhotos(newBlob, existingPhotoUrl) {
     return null;
   }
 }
+
+// Dastlabki muammo rasmini "hal qilindi" deb yuborilgan rasm bilan solishtirib,
+// bir xil joy ekanligini va muammo chindan ham tuzatilganga o'xshashini tekshiradi.
+// Muvaffaqiyatsiz bo'lsa null qaytaradi — bu holda chaqiruvchi ogohlantirishni
+// ko'rsatmasligi kerak (xatoni haqiqiy muammo deb ko'rsatmaslik uchun).
+export async function checkBeforeAfter(beforePhotoUrl, afterPhotoUrl) {
+  if (!beforePhotoUrl || !afterPhotoUrl) return null;
+  try {
+    const resp = await fetch("/api/analyze-photo", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ task: "before_after", image: beforePhotoUrl, imageB: afterPhotoUrl }),
+    });
+    const data = await resp.json();
+    if (data.error) return null;
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+// Yordamchi chat-bot: qisqa suhbat tarixini yuborib, joriy tilda javob oladi.
+// Muvaffaqiyatsiz bo'lsa null qaytaradi.
+export async function askAssistant(messages, language) {
+  try {
+    const resp = await fetch("/api/ai-text", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ task: "chat", messages, language }),
+    });
+    const data = await resp.json();
+    if (data.error) return null;
+    return data.reply || null;
+  } catch {
+    return null;
+  }
+}
+
+// Foydalanuvchi yozgan matnni (hisobot/e'lon tavsifi) berilgan tilga tarjima qiladi.
+// Muvaffaqiyatsiz bo'lsa null qaytaradi.
+export async function translateText(text, targetLanguage) {
+  if (!text?.trim()) return null;
+  try {
+    const resp = await fetch("/api/ai-text", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ task: "translate", text, targetLanguage }),
+    });
+    const data = await resp.json();
+    if (data.error) return null;
+    return data.translated || null;
+  } catch {
+    return null;
+  }
+}

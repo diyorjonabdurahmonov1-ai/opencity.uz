@@ -1,15 +1,15 @@
-﻿import { useRef, useState } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MapContainer, TileLayer, Marker, Polyline, Circle, useMapEvents } from "react-leaflet";
 import {
-  Camera, ChevronLeft, ClipboardList, Megaphone, Milestone, CircleDot, Trash2, RotateCcw, Check, AlertTriangle,
+  Camera, ChevronLeft, ClipboardList, Megaphone, Milestone, CircleDot, Trash2, RotateCcw, Check, AlertTriangle, Sparkles,
 } from "lucide-react";
 import { RESOLUTION_PHOTOS_REQUIRED, UZBEKISTAN_CENTER, districtsOf, fmtDate, compressImage } from "../constants";
 import { S } from "../styles";
 import { StatCard, EmptyState, ReportCard, ReportDetail, pinIcon, SuccessBurst } from "./shared";
 import { advanceStatus, markResolved } from "../lib/api/reports";
 import { uploadPhoto } from "../lib/api/storage";
-import { verifyPhoto } from "../lib/api/ai";
+import { verifyPhoto, checkBeforeAfter } from "../lib/api/ai";
 import { createAnnouncement, deleteAnnouncement } from "../lib/api/announcements";
 
 export function OrganizationPortal({ profile, myOrg, reports, refreshReports, announcements, refreshAnnouncements, showToast }) {
@@ -20,12 +20,26 @@ export function OrganizationPortal({ profile, myOrg, reports, refreshReports, an
   const [proofFlags, setProofFlags] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [celebrate, setCelebrate] = useState(false);
+  const [beforeAfterCheck, setBeforeAfterCheck] = useState(null);
+  const [checkingBeforeAfter, setCheckingBeforeAfter] = useState(false);
   const fileRef = useRef();
 
   const assigned = reports.filter((r) => r.assignedOrgId === profile.org_id);
   const open = assigned.find((r) => r.id === openId);
   const isGovernment = myOrg?.kind === "government";
   const suspiciousCount = proofFlags.filter((f) => f?.suspicious).length;
+
+  // Yetarli rasm yuklangach, AI dastlabki muammo rasmini birinchi "hal qilindi"
+  // rasmi bilan solishtirib, joy bir xilligi va muammo chindan tuzatilganini tekshiradi.
+  useEffect(() => {
+    if (!open || proofUrls.length < RESOLUTION_PHOTOS_REQUIRED || !open.photo) { setBeforeAfterCheck(null); return; }
+    let cancelled = false;
+    setCheckingBeforeAfter(true);
+    checkBeforeAfter(open.photo, proofUrls[0]).then((result) => {
+      if (!cancelled) { setBeforeAfterCheck(result); setCheckingBeforeAfter(false); }
+    });
+    return () => { cancelled = true; };
+  }, [open?.id, open?.photo, proofUrls.length >= RESOLUTION_PHOTOS_REQUIRED]);
 
   const addProof = async (e) => {
     const file = e.target.files?.[0];
@@ -54,6 +68,7 @@ export function OrganizationPortal({ profile, myOrg, reports, refreshReports, an
     await refreshReports();
     setProofUrls([]);
     setProofFlags([]);
+    setBeforeAfterCheck(null);
     setOpenId(null);
     setCelebrate(true);
     showToast(t("org.toasts.resolvedToast"));
@@ -70,7 +85,7 @@ export function OrganizationPortal({ profile, myOrg, reports, refreshReports, an
   if (open) {
     return (
       <div style={S.content}>
-        <button style={S.linkBtn} onClick={() => { setOpenId(null); setProofUrls([]); setProofFlags([]); }}><ChevronLeft size={15} /> {t("common.backToList")}</button>
+        <button style={S.linkBtn} onClick={() => { setOpenId(null); setProofUrls([]); setProofFlags([]); setBeforeAfterCheck(null); }}><ChevronLeft size={15} /> {t("common.backToList")}</button>
         <ReportDetail report={open} onBack={() => setOpenId(null)} />
         <div style={S.orgActionBox}>
           {open.status === "assigned" && <button style={S.primaryBtn} onClick={() => advance(open, "in_progress", t("timeline.notes.workStarted"))}>{t("org.startWork")}</button>}
@@ -94,6 +109,17 @@ export function OrganizationPortal({ profile, myOrg, reports, refreshReports, an
               {suspiciousCount > 0 && (
                 <div style={{ ...S.fine, color: "#C98A2B", display: "flex", alignItems: "center", gap: 6 }}>
                   <AlertTriangle size={14} /> {t("org.aiSuspiciousWarning", { count: suspiciousCount })}
+                </div>
+              )}
+              {checkingBeforeAfter && (
+                <div style={{ ...S.fine, display: "flex", alignItems: "center", gap: 6 }}>
+                  <Sparkles size={13} /> {t("org.aiBeforeAfterChecking")}
+                </div>
+              )}
+              {beforeAfterCheck && (!beforeAfterCheck.sameLocation || !beforeAfterCheck.appearsFixed) && beforeAfterCheck.confidence !== "low" && (
+                <div style={{ ...S.fine, color: "#C98A2B", display: "flex", alignItems: "center", gap: 6 }}>
+                  <AlertTriangle size={14} />
+                  {!beforeAfterCheck.sameLocation ? t("org.aiBeforeAfterDiffLocation") : t("org.aiBeforeAfterNotFixed")}
                 </div>
               )}
               <input ref={fileRef} type="file" accept="image/*" style={{ display: "none" }} onChange={addProof} />

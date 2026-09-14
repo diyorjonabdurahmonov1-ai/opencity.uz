@@ -2,10 +2,11 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MapContainer, TileLayer, Marker, Polyline, Circle, Popup } from "react-leaflet";
 import L from "leaflet";
-import { MoreHorizontal, ThumbsUp, Flame, X, ChevronLeft, LocateFixed, Loader2, Building2, HandHeart, Trash2 } from "lucide-react";
+import { MoreHorizontal, ThumbsUp, Flame, X, ChevronLeft, LocateFixed, Loader2, Building2, HandHeart, Trash2, Languages } from "lucide-react";
 import { CATEGORIES, STATUS, DONE_STATUSES, HOT_VOTES, UZBEKISTAN_CENTER, fmtDate } from "../constants";
 import { S } from "../styles";
 import { claimReport, toggleVote, deleteReport } from "../lib/api/reports";
+import { translateText } from "../lib/api/ai";
 
 // Hisobot bayrog'i — kommunal xizmat xodimlari yerga qadaydigan rangli
 // belgi-bayroqchalardan ilhomlangan, har bir turkumning o'z rangida.
@@ -424,6 +425,17 @@ export function ReportDetail({ report, onBack, canClaim = false, onClaim, profil
   const voted = !!profile && report.votes.includes(profile.id);
   const photos = report.photos?.length ? report.photos : (report.photo ? [report.photo] : []);
   const [lightbox, setLightbox] = useState(null);
+  const [translated, setTranslated] = useState(null);
+  const [translating, setTranslating] = useState(false);
+
+  const toggleTranslate = async () => {
+    if (translated) { setTranslated(null); return; }
+    setTranslating(true);
+    const result = await translateText(report.description, i18n.language);
+    setTranslated(result || t("shared.reportDetail.translateFailed"));
+    setTranslating(false);
+  };
+
   return (
     <div style={S.detailWrap}>
       <div style={S.rowHeader}>
@@ -447,7 +459,15 @@ export function ReportDetail({ report, onBack, canClaim = false, onClaim, profil
           ) : (
             <div style={S.reportCardMeta}>{t("shared.reportDetail.responsible")} {report.assignedDeptName}</div>
           )}
-          {report.description && <p style={S.detailDesc}>{report.description}</p>}
+          {report.description && (
+            <>
+              <p style={S.detailDesc}>{translated || report.description}</p>
+              <button style={S.linkBtn} onClick={toggleTranslate} disabled={translating}>
+                {translating ? <Loader2 className="spin" size={12} /> : <Languages size={12} />}
+                {translated ? t("shared.reportDetail.showOriginal") : t("shared.reportDetail.translate")}
+              </button>
+            </>
+          )}
           {onVote && (
             <button style={{ ...S.voteBtn, ...(voted ? S.voteBtnActive : {}), marginTop: 10 }} onClick={() => onVote(report.id, voted)}>
               <ThumbsUp size={14} /> {voted ? t("shared.reportDetail.voted") : t("shared.reportDetail.voteButton")} ({report.votes.length})

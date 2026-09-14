@@ -113,6 +113,9 @@ export default {
       statusHistory: "Status history",
       claimedToast: "You've taken on the report \"{{title}}\" ✓",
       deletedToast: "Report deleted ✓",
+      translate: "Translate",
+      showOriginal: "Show original",
+      translateFailed: "Couldn't translate.",
     },
   },
 
@@ -287,6 +290,9 @@ export default {
     neglect: "Mark as neglected",
     resolvePhotosNeeded: "Closing requires at least {{count}} on-site photos ({{have}}/{{count}})",
     aiSuspiciousWarning: "AI flagged {{count}} photo(s) as questionable — they may be artificially generated or not match the location. Hover over a photo to see why.",
+    aiBeforeAfterChecking: "AI is comparing the before/after photos...",
+    aiBeforeAfterDiffLocation: "AI: this photo may not match the location of the original problem.",
+    aiBeforeAfterNotFixed: "AI: the problem still doesn't look resolved — double check the photo.",
     markResolved: "Mark as resolved",
     defaultOrgName: "Department / Organization panel",
     tabReports: "Reports",
@@ -476,6 +482,15 @@ export default {
     copied: "Copied ✓",
     hint: "Or copy the link and paste it directly into your browser.",
     apps: { instagram: "Instagram", facebook: "Facebook", line: "LINE", wechat: "WeChat", tiktok: "TikTok" },
+  },
+
+  assistant: {
+    title: "OpenCity assistant",
+    welcome: "Hi! Ask anything about how to use the app.",
+    placeholder: "Type your question...",
+    thinking: "Preparing a reply...",
+    error: "Couldn't get a reply. Please try again shortly.",
+    openLabel: "Chat with assistant",
   },
 
   timeline: {

@@ -113,6 +113,37 @@ async function compare(imageA, imageB) {
   };
 }
 
+async function beforeAfter(imageBefore, imageAfter) {
+  const result = await callOpenAI([
+    {
+      role: "system",
+      content:
+        "You review two photos of a civic infrastructure issue (road, lighting, water, waste, etc.): " +
+        "the first was submitted when the problem was reported, the second as proof the repair crew " +
+        "completed the fix. Judge (1) whether they plausibly show the same location, and (2) whether the " +
+        "second photo shows the original problem has actually been resolved. Respond with strict JSON: " +
+        "{\"sameLocation\": true|false, \"appearsFixed\": true|false, \"confidence\": \"high\"|\"medium\"|\"low\", " +
+        "\"reason\": \"<short reason, one sentence>\"}.",
+    },
+    {
+      role: "user",
+      content: [
+        { type: "text", text: "Before (reported problem):" },
+        { type: "image_url", image_url: { url: imageBefore } },
+        { type: "text", text: "After (submitted as proof of repair):" },
+        { type: "image_url", image_url: { url: imageAfter } },
+        { type: "text", text: "Same location, and does it look genuinely fixed?" },
+      ],
+    },
+  ]);
+  return {
+    sameLocation: !!result.sameLocation,
+    appearsFixed: !!result.appearsFixed,
+    confidence: ["high", "medium", "low"].includes(result.confidence) ? result.confidence : "low",
+    reason: typeof result.reason === "string" ? result.reason : "",
+  };
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.status(405).json({ error: "Method not allowed" });
@@ -128,12 +159,12 @@ export default async function handler(req, res) {
       res.status(200).json(await categorize(image));
     } else if (task === "verify") {
       res.status(200).json(await verify(image));
-    } else if (task === "compare") {
+    } else if (task === "compare" || task === "before_after") {
       if (!imageB || typeof imageB !== "string") {
         res.status(400).json({ error: "Missing imageB" });
         return;
       }
-      res.status(200).json(await compare(image, imageB));
+      res.status(200).json(task === "compare" ? await compare(image, imageB) : await beforeAfter(image, imageB));
     } else {
       res.status(400).json({ error: "Unknown task" });
     }
