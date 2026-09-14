@@ -184,6 +184,7 @@ export default {
       notifications: "Notifications",
       profile: "Profile",
     },
+    reportFab: "New report",
     reportSubmittedTitle: "Report submitted",
     reportSubmittedMessage: "Your report was automatically routed to \"{{org}}\". You can track its status in the \"My reports\" section.",
     voteRecordedToast: "Vote recorded — thank you! ✓",

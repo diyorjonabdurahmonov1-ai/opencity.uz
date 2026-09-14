@@ -352,4 +352,15 @@ export const S = {
   bulkCheckbox: { position: "absolute", top: 8, left: 8, zIndex: 2, width: 18, height: 18, cursor: "pointer" },
 
   toast: { position: "fixed", bottom: 20, left: "50%", transform: "translateX(-50%)", background: "#0F2A43", color: "#fff", padding: "10px 18px", borderRadius: 10, fontSize: 13, fontWeight: 600, boxShadow: "0 8px 24px rgba(0,0,0,0.25)", zIndex: 50 },
+
+  reportFab: {
+    position: "fixed", bottom: 20, left: 20, zIndex: 60, display: "flex", alignItems: "center", gap: 9,
+    border: "none", borderRadius: 30, padding: "6px 18px 6px 6px",
+    background: "linear-gradient(135deg, #173A66 0%, #1C8B80 100%)", color: "#fff",
+    cursor: "pointer", boxShadow: "0 6px 20px rgba(23,58,102,0.4)", fontSize: 13.5, fontWeight: 700,
+  },
+  reportFabIcon: {
+    width: 38, height: 38, borderRadius: "50%", flexShrink: 0, background: "#fff",
+    display: "flex", alignItems: "center", justifyContent: "center",
+  },
 };

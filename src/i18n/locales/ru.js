@@ -184,6 +184,7 @@ export default {
       notifications: "Уведомления",
       profile: "Профиль",
     },
+    reportFab: "Новое обращение",
     reportSubmittedTitle: "Обращение отправлено",
     reportSubmittedMessage: "Ваше обращение автоматически направлено в «{{org}}». Статус можно отслеживать в разделе «Мои обращения».",
     voteRecordedToast: "Голос учтён — спасибо! ✓",

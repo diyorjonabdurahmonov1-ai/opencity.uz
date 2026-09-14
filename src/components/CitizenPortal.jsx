@@ -56,6 +56,12 @@ export function CitizenPortal({
   return (
     <div style={S.withSidebar} className="oc-shell">
       {celebrate && <SuccessBurst onDone={() => setCelebrate(false)} />}
+      {view !== "report" && view !== "apply-org" && (
+        <button style={S.reportFab} onClick={() => setView("report")} className="oc-glow">
+          <span style={S.reportFabIcon}><Plus size={20} color="#173A66" /></span>
+          {t("citizen.reportFab")}
+        </button>
+      )}
       <SideNav items={nav} active={view} onChange={setView} />
       <div style={S.content}>
       <div key={view} className="oc-view-fade">

@@ -184,6 +184,7 @@ export default {
       notifications: "Bildirishnomalar",
       profile: "Profil",
     },
+    reportFab: "Yangi hisobot",
     reportSubmittedTitle: "Hisobot yuborildi",
     reportSubmittedMessage: "Hisobotingiz \"{{org}}\" ga avtomatik yo'naltirildi. Holatini \"Mening hisobotlarim\" bo'limidan kuzatishingiz mumkin.",
     voteRecordedToast: "Ovoz berildi — rahmat! ✓",
