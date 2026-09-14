@@ -3,24 +3,34 @@ import { useTranslation } from "react-i18next";
 import { MapContainer, TileLayer, Marker, Polyline, Circle, Popup } from "react-leaflet";
 import L from "leaflet";
 import { MoreHorizontal, ThumbsUp, Flame, X, ChevronLeft, LocateFixed, Loader2, Building2, HandHeart, Trash2, Languages } from "lucide-react";
-import { CATEGORIES, STATUS, DONE_STATUSES, HOT_VOTES, UZBEKISTAN_CENTER, fmtDate } from "../constants";
+import { CATEGORIES, STATUS, DONE_STATUSES, HOT_VOTES, UZBEKISTAN_CENTER, fmtDate, isHot } from "../constants";
 import { S } from "../styles";
 import { claimReport, toggleVote, deleteReport } from "../lib/api/reports";
 import { translateText } from "../lib/api/ai";
 
-// Hisobot bayrog'i — kommunal xizmat xodimlari yerga qadaydigan rangli
-// belgi-bayroqchalardan ilhomlangan, har bir turkumning o'z rangida.
+// Xaritadagi belgi — "gavhar" shaklidagi zamonaviy pin: yaltiroq nur, oq halqa
+// va markazda rang. Dolzarb (ko'p ovoz yoki shoshilinch) hisobotlar tagidan
+// nur yoyilib, sekin "nafas oladi".
 export function pinIcon(color, hot = false) {
+  const pulse = hot
+    ? `<span style="position:absolute;left:50%;top:100%;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;background:${color};opacity:0.35;animation:pinHalo 1.6s ease-out infinite;"></span>`
+    : "";
   return L.divIcon({
     className: "oc-map-pin",
     html: `
-      <span style="position:relative;display:block;width:22px;height:32px;">
-        <span style="position:absolute;left:6px;bottom:0;width:10px;height:4px;border-radius:50%;background:rgba(15,10,5,0.28);filter:blur(0.5px);"></span>
-        <span style="position:absolute;left:10px;top:8px;width:2px;height:22px;background:#3D2E1A;border-radius:1px;"></span>
-        <span style="position:absolute;left:11px;top:5px;width:0;height:0;border-top:7px solid transparent;border-bottom:7px solid transparent;border-left:14px solid ${color};filter:drop-shadow(0 2px 2px rgba(15,10,5,0.4));transform-origin:0% 50%;${hot ? "animation:flagPulse 1.3s ease-in-out infinite;" : ""}"></span>
+      <span style="position:relative;display:block;width:28px;height:36px;">
+        ${pulse}
+        <span style="position:absolute;inset:0;filter:drop-shadow(0 3px 3px rgba(15,10,5,0.35));${hot ? "animation:flagPulse 1.3s ease-in-out infinite;transform-origin:50% 100%;" : ""}">
+          <svg width="28" height="36" viewBox="0 0 28 36" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14 0C6.3 0 0 6.3 0 14c0 10.5 14 22 14 22s14-11.5 14-22C28 6.3 21.7 0 14 0z" fill="${color}"/>
+            <ellipse cx="8.7" cy="8" rx="3.2" ry="2.2" fill="rgba(255,255,255,0.45)"/>
+            <circle cx="14" cy="14" r="6.5" fill="#fff"/>
+            <circle cx="14" cy="14" r="3.4" fill="${color}"/>
+          </svg>
+        </span>
       </span>`,
-    iconSize: [22, 32],
-    iconAnchor: [11, 32],
+    iconSize: [28, 36],
+    iconAnchor: [14, 36],
   });
 }
 
@@ -168,7 +178,7 @@ export function ReportCard({ report, onClick, profile, onVote }) {
   const cat = CATEGORIES.find((c) => c.id === report.category) || CATEGORIES[CATEGORIES.length - 1];
   const st = STATUS[report.status];
   const Icon = cat.icon;
-  const hot = report.votes.length >= HOT_VOTES && !DONE_STATUSES.includes(report.status);
+  const hot = isHot(report);
   const voted = !!profile && report.votes.includes(profile.id);
   return (
     <div style={S.reportCard} className="oc-card" onClick={onClick}>
@@ -277,7 +287,7 @@ export function CityMap({ reports, title, compact = false, center, profile, myOr
           />
           {filtered.map((r) => {
             const st = STATUS[r.status];
-            const hot = r.votes.length >= HOT_VOTES && !DONE_STATUSES.includes(r.status);
+            const hot = isHot(r);
             return (
               <Marker key={r.id} position={[r.coords.lat, r.coords.lng]} icon={pinIcon(hot ? "#B2402A" : st.color, hot)}
                 eventHandlers={{ click: () => setOpenId(r.id) }} />

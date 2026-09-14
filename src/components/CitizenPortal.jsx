@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import {
   CATEGORIES, STATUS, DONE_STATUSES, ORG_TYPES, REGION_NAMES, districtsOf,
-  REOPEN_VOTES_REQUIRED, HOT_VOTES, fmtDate,
+  REOPEN_VOTES_REQUIRED, HOT_VOTES, fmtDate, isHot,
 } from "../constants";
 import { S } from "../styles";
 import { SideNav, StatCard, EmptyState, ReportCard, CityMap, ReportDetail, PartnerFlyer, SuccessBurst } from "./shared";
@@ -237,7 +237,7 @@ function VotingBoard({ reports, profile, onVote }) {
           const cat = CATEGORIES.find((c) => c.id === r.category);
           const Icon = cat?.icon || MoreHorizontal;
           const voted = r.votes.includes(profile.id);
-          const hot = r.votes.length >= HOT_VOTES;
+          const hot = isHot(r);
           return (
             <div key={r.id} style={S.votingRow}>
               <Icon size={18} color={cat?.color || "#1C8B80"} />

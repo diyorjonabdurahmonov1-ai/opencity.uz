@@ -11,7 +11,8 @@ export function GlobalStyle() {
         50% { box-shadow: 0 0 0 8px rgba(178,64,42,0); background:#FBEAE6; }
       }
       .pin-hot { animation: hotpulse 1.4s ease-in-out infinite; }
-      @keyframes flagPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+      @keyframes flagPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+      @keyframes pinHalo { 0% { transform: scale(0.3); opacity: 0.45; } 100% { transform: scale(2.2); opacity: 0; } }
       input:focus, select:focus, textarea:focus { outline: 2px solid #1C8B80; outline-offset: 1px; }
       button:focus-visible { outline: 2px solid #1C8B80; outline-offset: 2px; }
       button, input, select, textarea, a { transition: box-shadow .15s ease, transform .12s ease, filter .15s ease, background-color .15s ease, border-color .15s ease; }
@@ -87,7 +88,7 @@ export function GlobalStyle() {
         .oc-signin-bg::before, .oc-float, .oc-glow, .oc-signin-card-in { animation: none; }
       }
       @media (prefers-reduced-motion: reduce) {
-        .oc-map-pin * { animation: none !important; }
+        .oc-map-pin *, .oc-map-pin { animation: none !important; }
       }
 
       /* ---- muvaffaqiyat lahzasi: hisobot yuborilgach / muammo hal qilingach ---- */

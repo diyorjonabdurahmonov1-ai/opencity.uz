@@ -42,7 +42,7 @@ export default function App() {
   const [notifications, setNotifications] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [portal, setPortal] = useState("citizen");
-  const [view, setView] = useState("home");
+  const [view, setView] = useState("map");
   const [toast, setToast] = useState(null);
   const [booting, setBooting] = useState(true);
 

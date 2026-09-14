@@ -8,7 +8,7 @@ import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
   PieChart, Pie, Cell,
 } from "recharts";
-import { CATEGORIES, STATUS, PRIORITY, DONE_STATUSES, HOT_VOTES, fmtDate } from "../constants";
+import { CATEGORIES, STATUS, PRIORITY, DONE_STATUSES, HOT_VOTES, fmtDate, isHot } from "../constants";
 import { S } from "../styles";
 import { SideNav, StatCard, EmptyState, ReportCard, ReportDetail } from "./shared";
 import { setPriority, reassignToOrg, deleteReport, updateReportDetails } from "../lib/api/reports";
@@ -74,7 +74,7 @@ function AdminOverview({ reports, applications, orgs }) {
   const byCategory = CATEGORIES.map((c) => ({ name: t(`category.${c.id}`).split(" ")[0], value: reports.filter((r) => r.category === c.id).length, color: c.color }));
   const byStatus = Object.entries(STATUS).map(([k, v]) => ({ name: t(`status.${k}`), value: reports.filter((r) => r.status === k).length, color: v.color }));
   const resolved = reports.filter((r) => DONE_STATUSES.includes(r.status)).length;
-  const hot = reports.filter((r) => r.votes.length >= HOT_VOTES && !DONE_STATUSES.includes(r.status)).length;
+  const hot = reports.filter(isHot).length;
 
   const byRegion = Object.entries(
     reports.reduce((acc, r) => { if (r.region) acc[r.region] = (acc[r.region] || 0) + 1; return acc; }, {})

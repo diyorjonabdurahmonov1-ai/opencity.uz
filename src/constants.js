@@ -59,6 +59,12 @@ export const HOT_VOTES = 3;
 export const RESOLUTION_PHOTOS_REQUIRED = 3;
 export const REOPEN_VOTES_REQUIRED = 5;
 
+// Hisobot "dolzarb" hisoblanadi: yetarlicha ovoz to'plagan bo'lsa YOKI admin uni
+// shoshilinch deb belgilagan bo'lsa — va hali hal qilinmagan bo'lsa.
+export function isHot(report) {
+  return (report.votes.length >= HOT_VOTES || report.priority === "urgent") && !DONE_STATUSES.includes(report.status);
+}
+
 export const now = () => new Date().toISOString();
 
 const DATE_LOCALE = { uz: "uz-UZ", ru: "ru-RU", en: "en-US" };
