@@ -1,14 +1,22 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { MessageCircle, X, Send, Loader2, Sparkles } from "lucide-react";
+import { X, Send, Loader2, Sparkles } from "lucide-react";
 import { S } from "../styles";
 import { askAssistant } from "../lib/api/ai";
 
 const FAB = {
-  position: "fixed", bottom: 20, right: 20, zIndex: 60, width: 52, height: 52, borderRadius: "50%",
-  border: "none", background: "linear-gradient(135deg, #173A66 0%, #1C8B80 100%)", color: "#fff",
-  display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
-  boxShadow: "0 6px 20px rgba(23,58,102,0.4)",
+  position: "fixed", bottom: 20, right: 20, zIndex: 60, display: "flex", alignItems: "center", gap: 9,
+  border: "none", borderRadius: 30, padding: "6px 16px 6px 6px",
+  background: "linear-gradient(135deg, #173A66 0%, #1C8B80 100%)", color: "#fff",
+  cursor: "pointer", boxShadow: "0 6px 20px rgba(23,58,102,0.4)", fontSize: 13.5, fontWeight: 700,
+};
+const FAB_AVATAR = {
+  position: "relative", width: 38, height: 38, borderRadius: "50%", flexShrink: 0,
+  background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", overflow: "visible",
+};
+const FAB_BADGE = {
+  position: "absolute", bottom: -3, right: -3, width: 16, height: 16, borderRadius: "50%",
+  background: "#B6903F", display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid #fff",
 };
 const PANEL = {
   position: "fixed", bottom: 84, right: 20, zIndex: 60, width: 320, maxWidth: "calc(100vw - 32px)",
@@ -85,7 +93,11 @@ export function AssistantChat() {
         </div>
       )}
       <button style={FAB} onClick={() => setOpen((o) => !o)} title={t("assistant.openLabel")}>
-        {open ? <X size={22} /> : <MessageCircle size={22} />}
+        <span style={FAB_AVATAR}>
+          {open ? <X size={18} color="#173A66" /> : <img src="/icon-192.png" alt="" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} />}
+          {!open && <span style={FAB_BADGE}><Sparkles size={9} color="#fff" /></span>}
+        </span>
+        {t("assistant.fabLabel")}
       </button>
     </>
   );

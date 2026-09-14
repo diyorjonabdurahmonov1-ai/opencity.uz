@@ -485,7 +485,8 @@ export default {
   },
 
   assistant: {
-    title: "Помощник OpenCity",
+    fabLabel: "OpenCity AI",
+    title: "OpenCity AI помощник",
     welcome: "Привет! Спросите что-нибудь о том, как пользоваться приложением.",
     placeholder: "Напишите вопрос...",
     thinking: "Готовлю ответ...",
