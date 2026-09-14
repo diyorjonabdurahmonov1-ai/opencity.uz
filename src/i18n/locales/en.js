@@ -180,6 +180,7 @@ export default {
       myReports: "My reports",
       voting: "Voting",
       announcements: "Announcements",
+      leaderboard: "Leaderboard",
       completed: "Completed work",
       notifications: "Notifications",
       profile: "Profile",
@@ -198,6 +199,14 @@ export default {
       statResolved: "Resolved",
       statHot: "Hot issues",
       statOrgs: "Partner organizations",
+    },
+    leaderboard: {
+      eyebrow: "Leaderboard",
+      subtitle: "The fastest and most active government departments and organizations — who resolved the most issues, and who did it quickest.",
+      empty: "Not enough data for a leaderboard yet.",
+      avgDays: "avg {{days}} days",
+      kindGovernment: "Government department",
+      kindPrivate: "Private organization",
     },
     home: {
       greeting: "Hi, {{name}}",

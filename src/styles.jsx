@@ -405,4 +405,17 @@ export const S = {
     background: "linear-gradient(120deg, rgba(182,144,63,0.16), rgba(23,58,102,0.10))",
     border: "1px solid rgba(182,144,63,0.35)", boxShadow: "0 16px 40px rgba(15,42,67,0.14)",
   },
+
+  leaderboardList: { display: "flex", flexDirection: "column", gap: 10, marginTop: 8 },
+  leaderboardRow: {
+    display: "flex", alignItems: "center", gap: 14, ...GLASS,
+    border: "1px solid #E4EAEE", boxShadow: "0 1px 3px rgba(15,42,67,0.05)", borderRadius: 14, padding: "12px 16px",
+  },
+  leaderboardRank: {
+    width: 36, height: 36, borderRadius: "50%", flexShrink: 0, fontFamily: MONO, fontWeight: 700, fontSize: 15,
+    display: "flex", alignItems: "center", justifyContent: "center",
+  },
+  leaderboardBarTrack: { height: 6, borderRadius: 4, background: "#EEF3F5", marginTop: 8, overflow: "hidden" },
+  leaderboardBarFill: { height: "100%", borderRadius: 4, background: "linear-gradient(90deg, #B6903F, #1C8B80)", transition: "width .5s ease" },
+  leaderboardCount: { fontFamily: MONO, fontWeight: 700, fontSize: 22, color: "#14213A", flexShrink: 0, fontVariantNumeric: "tabular-nums" },
 };

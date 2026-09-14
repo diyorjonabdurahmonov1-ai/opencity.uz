@@ -180,6 +180,7 @@ export default {
       myReports: "Мои обращения",
       voting: "Голосование",
       announcements: "Объявления",
+      leaderboard: "Рейтинг",
       completed: "Завершённые работы",
       notifications: "Уведомления",
       profile: "Профиль",
@@ -198,6 +199,14 @@ export default {
       statResolved: "Решено",
       statHot: "Актуальные",
       statOrgs: "Партнёрские организации",
+    },
+    leaderboard: {
+      eyebrow: "Рейтинг",
+      subtitle: "Самые быстрые и активные государственные отделы и организации — кто решил больше проблем и справился быстрее.",
+      empty: "Пока недостаточно данных для рейтинга.",
+      avgDays: "в среднем {{days}} дн.",
+      kindGovernment: "Государственный отдел",
+      kindPrivate: "Частная организация",
     },
     home: {
       greeting: "Здравствуйте, {{name}}",

@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import {
   Home, Map as MapIcon, ListChecks, ThumbsUp, CheckCircle2, Bell, User, Plus,
   Building2, ChevronRight, FileWarning, RotateCcw, Clock, XCircle, ArrowRight,
-  MoreHorizontal, Flame, X, ChevronLeft, Megaphone, Milestone, CircleDot,
+  MoreHorizontal, Flame, X, ChevronLeft, Megaphone, Milestone, CircleDot, Trophy,
 } from "lucide-react";
 import {
   CATEGORIES, STATUS, DONE_STATUSES, ORG_TYPES, REGION_NAMES, districtsOf,
@@ -48,6 +48,7 @@ export function CitizenPortal({
     { id: "my-reports", label: t("citizen.nav.myReports"), icon: ListChecks },
     { id: "voting", label: t("citizen.nav.voting"), icon: ThumbsUp },
     { id: "announcements", label: t("citizen.nav.announcements"), icon: Megaphone },
+    { id: "leaderboard", label: t("citizen.nav.leaderboard"), icon: Trophy },
     { id: "completed", label: t("citizen.nav.completed"), icon: CheckCircle2 },
     { id: "notifications", label: t("citizen.nav.notifications"), icon: Bell },
     { id: "profile", label: t("citizen.nav.profile"), icon: User },
@@ -106,6 +107,7 @@ export function CitizenPortal({
           <AnnouncementsList announcements={announcements}
             onSelect={(a) => { setFocusAnnouncement(a); setView("map"); }} />
         )}
+        {view === "leaderboard" && <Leaderboard reports={reports} />}
         {view === "my-reports" && (
           <MyReports myReports={myReports} onNew={() => setView("report")}
             onDelete={async (id) => {
@@ -173,6 +175,69 @@ function CityMapHero({ reports, orgs }) {
         <StatCard label={t("citizen.map.statHot")} value={hot} accent="#B2402A" />
         <StatCard label={t("citizen.map.statOrgs")} value={orgs.length} accent="#B6903F" />
       </div>
+    </div>
+  );
+}
+
+const RANK_COLORS = ["#B6903F", "#8A97A2", "#A85A3E"];
+
+function computeLeaderboard(reports) {
+  const byOrg = {};
+  for (const r of reports) {
+    if (!r.assignedOrgId) continue;
+    if (!byOrg[r.assignedOrgId]) {
+      byOrg[r.assignedOrgId] = { id: r.assignedOrgId, name: r.assignedDeptName, kind: r.assignedOrgKind, resolved: 0, days: [] };
+    }
+    const o = byOrg[r.assignedOrgId];
+    if (DONE_STATUSES.includes(r.status)) {
+      o.resolved += 1;
+      const submitted = r.timeline.find((ev) => ev.status === "submitted");
+      const done = r.timeline.find((ev) => ev.status === "resolved");
+      if (submitted && done) {
+        const days = (new Date(done.at) - new Date(submitted.at)) / (1000 * 60 * 60 * 24);
+        if (days >= 0) o.days.push(days);
+      }
+    }
+  }
+  return Object.values(byOrg)
+    .map((o) => ({ ...o, avgDays: o.days.length ? o.days.reduce((a, b) => a + b, 0) / o.days.length : null }))
+    .filter((o) => o.resolved > 0)
+    .sort((a, b) => b.resolved - a.resolved || (a.avgDays ?? 999) - (b.avgDays ?? 999))
+    .slice(0, 12);
+}
+
+function Leaderboard({ reports }) {
+  const { t } = useTranslation();
+  const rows = computeLeaderboard(reports);
+  const maxResolved = rows[0]?.resolved || 1;
+
+  return (
+    <div>
+      <div style={S.mapHeroEyebrow}><Trophy size={13} color="#B6903F" /> {t("citizen.leaderboard.eyebrow")}</div>
+      <h1 style={S.mapHeroTitle}>{t("citizen.nav.leaderboard")}</h1>
+      <p style={S.mapHeroSub}>{t("citizen.leaderboard.subtitle")}</p>
+      {rows.length === 0 ? (
+        <EmptyState icon={Trophy} text={t("citizen.leaderboard.empty")} />
+      ) : (
+        <div style={S.leaderboardList}>
+          {rows.map((o, i) => (
+            <div key={o.id} style={S.leaderboardRow} className="oc-card">
+              <div style={{ ...S.leaderboardRank, background: (RANK_COLORS[i] || "#5B6772") + "1a", color: RANK_COLORS[i] || "#5B6772" }}>{i + 1}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={S.reportCardTitle}>{o.name}</div>
+                <div style={S.reportCardMeta}>
+                  {o.kind === "government" ? t("citizen.leaderboard.kindGovernment") : t("citizen.leaderboard.kindPrivate")}
+                  {o.avgDays != null && <> · {t("citizen.leaderboard.avgDays", { days: o.avgDays.toFixed(1) })}</>}
+                </div>
+                <div style={S.leaderboardBarTrack}>
+                  <div style={{ ...S.leaderboardBarFill, width: `${Math.max(6, (o.resolved / maxResolved) * 100)}%` }} />
+                </div>
+              </div>
+              <div style={S.leaderboardCount}>{o.resolved}</div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

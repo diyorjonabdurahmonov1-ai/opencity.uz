@@ -180,6 +180,7 @@ export default {
       myReports: "Mening hisobotlarim",
       voting: "Ovoz berish",
       announcements: "E'lonlar",
+      leaderboard: "Reyting",
       completed: "Tugatilgan ishlar",
       notifications: "Bildirishnomalar",
       profile: "Profil",
@@ -198,6 +199,14 @@ export default {
       statResolved: "Hal qilingan",
       statHot: "Dolzarb",
       statOrgs: "Hamkor tashkilotlar",
+    },
+    leaderboard: {
+      eyebrow: "Reyting",
+      subtitle: "Eng tez va faol davlat bo'limlari va tashkilotlar — kim ko'proq muammoni hal qildi, kim tezroq ulgurdi.",
+      empty: "Hozircha reyting uchun yetarli ma'lumot yo'q.",
+      avgDays: "o'rtacha {{days}} kun",
+      kindGovernment: "Davlat bo'limi",
+      kindPrivate: "Xususiy tashkilot",
     },
     home: {
       greeting: "Salom, {{name}}",
