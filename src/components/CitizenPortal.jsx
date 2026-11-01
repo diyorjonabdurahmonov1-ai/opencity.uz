@@ -12,6 +12,7 @@ import {
 import { S } from "../styles";
 import { SideNav, StatCard, EmptyState, ReportCard, CityMap, ReportDetail, PartnerFlyer, SuccessBurst } from "./shared";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { Rosette } from "./ornaments";
 import { ReportWizard } from "./ReportWizard";
 import { toggleVote, addVoteIfMissing, reopenVote, deleteReport } from "../lib/api/reports";
 import { fetchMyApplication, submitApplication } from "../lib/api/applications";
@@ -41,6 +42,14 @@ export function CitizenPortal({
   };
 
   const myReports = reports.filter((r) => r.createdBy === profile.id);
+
+  // Supabase xatosi (tarmoq, RLS va h.k.) jim yutilib ketmasin — foydalanuvchiga toast ko'rsatamiz.
+  const safe = (fn) => async (...args) => {
+    try { return await fn(...args); } catch (e) {
+      console.error(e);
+      showToast(e?.message ? `${t("common.error")} (${e.message})` : t("common.error"));
+    }
+  };
 
   const nav = [
     { id: "home", label: t("citizen.nav.home"), icon: Home },
@@ -73,20 +82,24 @@ export function CitizenPortal({
         {view === "report" && (
           <ReportWizard
             profile={profile} reports={reports}
-            onVoteInstead={async (id) => {
+            onVoteInstead={safe(async (id) => {
               await addVoteIfMissing(id, profile.id);
               await refreshReports();
               showToast(t("citizen.voteRecordedToast"));
               setView("voting");
-            }}
+            })}
             onDone={async (report) => {
-              await refreshReports();
-              await createNotification(profile.id, {
-                title: t("citizen.reportSubmittedTitle"),
-                message: t("citizen.reportSubmittedMessage", { org: report.assignedDeptName }),
-                type: "success",
-              });
-              await refreshNotifications();
+              try {
+                await refreshReports();
+                await createNotification(profile.id, {
+                  title: t("citizen.reportSubmittedTitle"),
+                  message: t("citizen.reportSubmittedMessage", { org: report.assignedDeptName }),
+                  type: "success",
+                });
+                await refreshNotifications();
+              } catch (e) {
+                console.error(e);
+              }
               showToast(t("citizen.reportSubmittedToast"));
               setCelebrate(true);
               setView("my-reports");
@@ -97,7 +110,7 @@ export function CitizenPortal({
         {view === "map" && (
           <div>
             <CityMapHero reports={reports} orgs={orgs} />
-            <div style={S.mapFrame}>
+            <div style={S.mapFrame} className="oc-map-frame">
               <CityMap reports={reports} title={null} center={announcementCenter(focusAnnouncement)}
                 profile={profile} myOrg={myOrg} refreshReports={refreshReports} showToast={showToast} announcements={announcements} />
             </div>
@@ -110,33 +123,33 @@ export function CitizenPortal({
         {view === "leaderboard" && <Leaderboard reports={reports} />}
         {view === "my-reports" && (
           <MyReports myReports={myReports} onNew={() => setView("report")}
-            onDelete={async (id) => {
+            onDelete={safe(async (id) => {
               await deleteReport(id);
               await refreshReports();
               showToast(t("citizen.reportDeletedToast"));
-            }} />
+            })} />
         )}
         {view === "voting" && (
           <VotingBoard reports={reports} profile={profile}
-            onVote={async (id, alreadyVoted) => {
+            onVote={safe(async (id, alreadyVoted) => {
               await toggleVote(id, profile.id, alreadyVoted);
               await refreshReports();
-            }} />
+            })} />
         )}
         {view === "completed" && (
           <CompletedWorks reports={reports} profile={profile}
-            onReopenVote={async (report) => {
+            onReopenVote={safe(async (report) => {
               const count = await reopenVote(report, profile.id, t);
               await refreshReports();
               showToast(count >= REOPEN_VOTES_REQUIRED ? t("citizen.completed.reopenedToast") : t("citizen.completed.voteRecordedToast", { count, required: REOPEN_VOTES_REQUIRED }));
-            }} />
+            })} />
         )}
         {view === "notifications" && (
           <NotificationsView notifications={notifications}
-            onReadAll={async () => {
+            onReadAll={safe(async () => {
               await markAllNotificationsRead(profile.id);
               await refreshNotifications();
-            }}
+            })}
             onReadOne={markOneNotificationRead} />
         )}
         {view === "profile" && (
@@ -144,12 +157,12 @@ export function CitizenPortal({
         )}
         {view === "apply-org" && (
           <OrgApplicationForm profile={profile}
-            onSubmit={async (form) => {
+            onSubmit={safe(async (form) => {
               const app = await submitApplication(profile.id, form);
               setMyApplication(app);
               showToast(t("citizen.applicationSubmittedToast"));
               setView("profile");
-            }}
+            })}
             onCancel={() => setView("profile")} />
         )}
       </div>
@@ -166,6 +179,7 @@ function CityMapHero({ reports, orgs }) {
 
   return (
     <div style={S.mapHero} className="oc-map-hero">
+      <div style={S.mapHeroRosette} className="oc-map-hero-rosette"><Rosette size="100%" color="#C9A24A" opacity={0.45} className="oc-rosette-spin" /></div>
       <div style={S.mapHeroEyebrow}><span className="oc-live-dot" style={S.livePulseDot} /> {t("citizen.map.live")}</div>
       <h1 style={S.mapHeroTitle}>{t("citizen.nav.map")}</h1>
       <p style={S.mapHeroSub}>{t("citizen.map.subtitle")}</p>
@@ -288,7 +302,7 @@ function CitizenHome({ profile, myOrg, orgs, myReports, reports, refreshReports,
         </div>
       )}
 
-      <h3 style={S.sectionTitle}>{t("citizen.home.recentReports")}</h3>
+      <h3 style={S.sectionTitle} className="oc-section-title">{t("citizen.home.recentReports")}</h3>
       {myReports.length === 0 ? (
         <EmptyState icon={FileWarning} text={t("citizen.home.noReportsYet")} />
       ) : (
@@ -460,9 +474,9 @@ function ProfileView({ profile, myApplication, myOrg, onApply }) {
           <div style={S.profileRole}>{profile.detected_district ? t("citizen.profile.detectedRegion", { district: profile.detected_district, region: profile.detected_region }) : t("citizen.profile.undetected")}</div>
         </div>
       </div>
-      <h3 style={S.sectionTitle}>{t("citizen.profile.languageTitle")}</h3>
+      <h3 style={S.sectionTitle} className="oc-section-title">{t("citizen.profile.languageTitle")}</h3>
       <LanguageSwitcher profile={profile} />
-      <h3 style={S.sectionTitle}>{t("citizen.profile.orgRightsTitle")}</h3>
+      <h3 style={S.sectionTitle} className="oc-section-title">{t("citizen.profile.orgRightsTitle")}</h3>
       {myOrg ? (
         <div style={S.infoBanner}><CheckCircle2 size={18} color="#2E9A5C" /> {t("citizen.profile.memberBanner", { org: myOrg.name })}</div>
       ) : myApplication ? (

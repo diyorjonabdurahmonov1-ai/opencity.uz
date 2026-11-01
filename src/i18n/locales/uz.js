@@ -14,6 +14,7 @@ export default {
     yes: "Ha",
     no: "Yo'q",
     unknown: "noma'lum",
+    error: "Xatolik yuz berdi. Qaytadan urinib ko'ring.",
   },
 
   language: {

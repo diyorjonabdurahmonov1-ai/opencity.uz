@@ -9,7 +9,7 @@ const LANGS = [
   { code: "en", short: "EN" },
 ];
 
-export function LanguageSwitcher({ profile, compact = false }) {
+export function LanguageSwitcher({ profile, compact = false, dark = false }) {
   const { i18n, t } = useTranslation();
 
   const select = async (code) => {
@@ -21,12 +21,14 @@ export function LanguageSwitcher({ profile, compact = false }) {
   };
 
   return (
-    <div style={S.portalSwitch} title={compact ? t("citizen.profile.languageTitle") : undefined}>
+    <div style={dark ? S.portalSwitchDark : S.portalSwitch} title={compact ? t("citizen.profile.languageTitle") : undefined}>
       {LANGS.map((l) => (
         <button
           key={l.code}
           onClick={() => select(l.code)}
-          style={{ ...S.portalTab, ...(i18n.language === l.code ? S.portalTabActive : {}) }}
+          style={dark
+            ? { ...S.portalTab, ...S.portalTabDark, ...(i18n.language === l.code ? S.portalTabActiveDark : {}) }
+            : { ...S.portalTab, ...(i18n.language === l.code ? S.portalTabActive : {}) }}
         >
           {l.short}
         </button>

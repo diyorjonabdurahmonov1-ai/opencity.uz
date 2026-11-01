@@ -14,6 +14,7 @@ export default {
     yes: "Yes",
     no: "No",
     unknown: "unknown",
+    error: "Something went wrong. Please try again.",
   },
 
   language: {

@@ -4,7 +4,7 @@ import { S } from "../styles";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
 function PortalTab({ active, onClick, icon, label }) {
-  return (<button onClick={onClick} style={{ ...S.portalTab, ...(active ? S.portalTabActive : {}) }}>{icon}<span>{label}</span></button>);
+  return (<button onClick={onClick} title={label} className={active ? "oc-portal-tab is-active" : "oc-portal-tab"} style={{ ...S.portalTab, ...S.portalTabDark, ...(active ? S.portalTabActiveDark : {}) }}>{icon}<span className="oc-tab-label">{label}</span></button>);
 }
 
 export function TopBar({ profile, portal, setPortal, setView, notifCount, onSignOut }) {
@@ -13,9 +13,9 @@ export function TopBar({ profile, portal, setPortal, setView, notifCount, onSign
     <div style={S.topbar} className="oc-topbar">
       <div style={S.topbarLeft} onClick={() => { setPortal("citizen"); setView("home"); }}>
         <img src="/brand-mark.png" alt="OpenCity" style={S.brandMarkSm} />
-        <span style={S.topbarBrand}>OpenCity</span>
+        <span style={S.topbarBrand} className="oc-topbar-brand">OpenCity</span>
       </div>
-      <div style={S.portalSwitch}>
+      <div style={S.portalSwitchDark}>
         <PortalTab active={portal === "citizen"} onClick={() => setPortal("citizen")} icon={<User size={14} />} label={t("topbar.tabCitizen")} />
         {profile.role !== "citizen" && (
           <PortalTab active={portal === "organization"} onClick={() => setPortal("organization")} icon={<Building2 size={14} />} label={t("topbar.tabOrg")} />
@@ -25,8 +25,8 @@ export function TopBar({ profile, portal, setPortal, setView, notifCount, onSign
         )}
       </div>
       <div style={S.topbarRight}>
-        <LanguageSwitcher profile={profile} compact />
-        <button style={S.iconBtn} onClick={() => { setPortal("citizen"); setView("notifications"); }}>
+        <span className="oc-top-lang"><LanguageSwitcher profile={profile} compact dark /></span>
+        <button style={S.topIconBtn} onClick={() => { setPortal("citizen"); setView("notifications"); }}>
           <Bell size={17} />
           {notifCount > 0 && <span style={S.badge}>{notifCount}</span>}
         </button>
@@ -34,7 +34,7 @@ export function TopBar({ profile, portal, setPortal, setView, notifCount, onSign
           <div style={S.avatar}>{profile.name.slice(0, 1).toUpperCase()}</div>
           <span style={S.avatarName} className="oc-avatar-name">{profile.name}</span>
         </div>
-        <button style={S.iconBtn} onClick={onSignOut} title={t("topbar.signOut")}><LogOut size={16} /></button>
+        <button style={S.topIconBtn} onClick={onSignOut} title={t("topbar.signOut")}><LogOut size={16} /></button>
       </div>
     </div>
   );
