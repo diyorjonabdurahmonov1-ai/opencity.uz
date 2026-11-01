@@ -71,7 +71,7 @@ export function AdminPortal({ reports, refreshReports, orgs, refreshOrgs, showTo
 
 function AdminOverview({ reports, applications, orgs }) {
   const { t } = useTranslation();
-  const byCategory = CATEGORIES.map((c) => ({ name: t(`category.${c.id}`).split(" ")[0], value: reports.filter((r) => r.category === c.id).length, color: c.color }));
+  const byCategory = CATEGORIES.map((c) => ({ name: t(`category.${c.id}`), value: reports.filter((r) => r.category === c.id).length, color: c.color }));
   const byStatus = Object.entries(STATUS).map(([k, v]) => ({ name: t(`status.${k}`), value: reports.filter((r) => r.status === k).length, color: v.color }));
   const resolved = reports.filter((r) => DONE_STATUSES.includes(r.status)).length;
   const hot = reports.filter(isHot).length;
@@ -110,12 +110,13 @@ function AdminOverview({ reports, applications, orgs }) {
       </div>
       {reports.length > 0 ? (
         <>
-          <h3 style={S.sectionTitle}>{t("admin.overview.byCategory")}</h3>
+          <h3 style={S.sectionTitle} className="oc-section-title">{t("admin.overview.byCategory")}</h3>
           <div style={S.chartBox}>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={byCategory}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E2E8ED" />
-                <XAxis dataKey="name" tick={{ fontSize: 11 }} interval={0} angle={-20} textAnchor="end" height={50} />
+                <XAxis dataKey="name" tick={{ fontSize: 11 }} interval={0} angle={-20} textAnchor="end" height={56}
+                  tickFormatter={(v) => (v.length > 12 ? `${v.slice(0, 11)}…` : v)} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
                 <Tooltip />
                 <Bar dataKey="value" radius={[4, 4, 0, 0]}>
@@ -124,7 +125,7 @@ function AdminOverview({ reports, applications, orgs }) {
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <h3 style={S.sectionTitle}>{t("admin.overview.byRegion")}</h3>
+          <h3 style={S.sectionTitle} className="oc-section-title">{t("admin.overview.byRegion")}</h3>
           <div style={S.chartBox}>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={byRegion}>
@@ -136,7 +137,7 @@ function AdminOverview({ reports, applications, orgs }) {
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <h3 style={S.sectionTitle}>{t("admin.overview.byStatus")}</h3>
+          <h3 style={S.sectionTitle} className="oc-section-title">{t("admin.overview.byStatus")}</h3>
           <div style={S.chartBox}>
             <ResponsiveContainer width="100%" height={220}>
               <PieChart>
@@ -149,7 +150,7 @@ function AdminOverview({ reports, applications, orgs }) {
           </div>
           {orgLeaderboard.length > 0 && (
             <>
-              <h3 style={S.sectionTitle}>{t("admin.overview.topOrgs")}</h3>
+              <h3 style={S.sectionTitle} className="oc-section-title">{t("admin.overview.topOrgs")}</h3>
               <div style={S.votingList}>
                 {orgLeaderboard.map((o, i) => (
                   <div key={o.name} style={S.votingRow}>

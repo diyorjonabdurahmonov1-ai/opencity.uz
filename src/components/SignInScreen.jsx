@@ -1,7 +1,8 @@
-import { Camera, ThumbsUp, Building2 } from "lucide-react";
+import { useState } from "react";
+import { Camera, ThumbsUp, Building2, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { S } from "../styles";
-import { LanguageSwitcher } from "./LanguageSwitcher";
+import { NightScene } from "./NightScene";
 
 function GoogleG() {
   return (
@@ -16,38 +17,42 @@ function GoogleG() {
 
 export function SignInScreen({ onSignIn }) {
   const { t } = useTranslation();
+  const [busy, setBusy] = useState(false);
+  // Ikki marta bosilsa ikkita (anonim) hisob ochilmasligi uchun so'rov davomida tugma bloklanadi.
+  const handleClick = async () => {
+    if (busy) return;
+    setBusy(true);
+    try { await onSignIn(); } finally { setBusy(false); }
+  };
   return (
-    <div style={S.signinWrap} className="oc-signin-bg">
-      <div className="oc-dotgrid" />
-      <div style={S.signinCard} className="oc-signin-card-in">
-        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 6 }}>
-          <LanguageSwitcher />
+    <NightScene>
+      <div style={S.signinCard} className="oc-signin-card-in oc-arch">
+        <div style={S.signinArchCrown}>
+          <img src="/icon-192.png" alt="OpenCity" style={S.signinLogo} className="oc-float" />
         </div>
-        <div style={S.brandRow}>
-          <img src="/icon-192.png" alt="OpenCity" style={{ ...S.brandMark, width: 56, height: 56, borderRadius: 16 }} className="oc-float" />
-          <div style={S.brandName}>OpenCity</div>
-        </div>
-        <h1 style={S.h1}>{t("signIn.heading")}</h1>
-        <p style={S.lead}>{t("signIn.lead")}</p>
-        <button style={S.googleBtn} onClick={onSignIn} className="oc-glow">
-          <GoogleG /> {t("signIn.googleButton")}
+        <div style={S.brandNameCenter}>OpenCity</div>
+        <div style={S.signinDivider}><span style={S.signinDividerLine} /><span style={S.signinDividerStar}>✦</span><span style={S.signinDividerLine} /></div>
+        <h1 style={{ ...S.h1, textAlign: "center" }}>{t("signIn.heading")}</h1>
+        <p style={{ ...S.lead, textAlign: "center" }}>{t("signIn.lead")}</p>
+        <button style={S.googleBtn} onClick={handleClick} disabled={busy} className="oc-glow">
+          {busy ? <Loader2 className="spin" size={18} style={{ marginRight: 10 }} /> : <GoogleG />} {t("signIn.googleButton")}
         </button>
-        <p style={S.fine}>{t("signIn.gpsNote")}</p>
+        <p style={{ ...S.fine, textAlign: "center" }}>{t("signIn.gpsNote")}</p>
         <div style={S.signinFeatureRow}>
           <div style={S.signinFeature}>
-            <div style={S.signinFeatureIcon}><Camera size={17} color="#1C8B80" /></div>
+            <div style={{ ...S.signinFeatureIcon, color: "#1C8B80" }} className="oc-tile-icon"><Camera size={18} /></div>
             {t("signIn.feature1")}
           </div>
           <div style={S.signinFeature}>
-            <div style={S.signinFeatureIcon}><ThumbsUp size={17} color="#B6903F" /></div>
+            <div style={{ ...S.signinFeatureIcon, color: "#A8812F" }} className="oc-tile-icon"><ThumbsUp size={18} /></div>
             {t("signIn.feature2")}
           </div>
           <div style={S.signinFeature}>
-            <div style={S.signinFeatureIcon}><Building2 size={17} color="#2E9A5C" /></div>
+            <div style={{ ...S.signinFeatureIcon, color: "#2E9A5C" }} className="oc-tile-icon"><Building2 size={18} /></div>
             {t("signIn.feature3")}
           </div>
         </div>
       </div>
-    </div>
+    </NightScene>
   );
 }

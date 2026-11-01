@@ -14,6 +14,7 @@ export default {
     yes: "Да",
     no: "Нет",
     unknown: "неизвестно",
+    error: "Произошла ошибка. Попробуйте ещё раз.",
   },
 
   language: {

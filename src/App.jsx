@@ -35,6 +35,9 @@ export default function App() {
   const { t } = useTranslation();
   const [inAppBrowser] = useState(() => detectInAppBrowser());
   const { user, loading: authLoading, signInWithGoogle, signOut } = useAuth();
+  // Supabase har token yangilanishida (~1 soatda) yangi `user` obyektini beradi — effektlar
+  // obyektga emas, id'ga bog'lanadi, aks holda ilova har soatda qaytadan yuklanib, ochiq sahifa yo'qoladi.
+  const userId = user?.id ?? null;
   const [profile, setProfile] = useState(null);
   const [reports, setReports] = useState([]);
   const [orgs, setOrgs] = useState([]);
@@ -52,16 +55,16 @@ export default function App() {
   const refreshOrgs = useCallback(async () => setOrgs(await fetchOrganizations()), []);
   const refreshAnnouncements = useCallback(async () => setAnnouncements(await fetchAnnouncements()), []);
   const refreshNotifications = useCallback(async () => {
-    if (!user) return;
-    setNotifications(await fetchNotifications(user.id));
-  }, [user]);
+    if (!userId) return;
+    setNotifications(await fetchNotifications(userId));
+  }, [userId]);
   const markOneNotificationRead = useCallback(async (id) => {
     setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
     try { await markNotificationRead(id); } catch { /* keyingi refreshda tuzatiladi */ }
   }, []);
 
   useEffect(() => {
-    if (!user) { setProfile(null); setBooting(false); return; }
+    if (!userId) { setProfile(null); setBooting(false); return; }
     let cancelled = false;
     setBooting(true);
     (async () => {
@@ -69,10 +72,10 @@ export default function App() {
         // Har birini alohida .catch bilan o'raymiz — biror yangi jadval/migratsiya hali
         // qo'llanilmagan bo'lsa ham, butun ilova cheksiz "yuklanmoqda"da qolib ketmasin.
         const [p, rpts, orgList, notifs, announces] = await Promise.all([
-          fetchMyProfileWithRetry(user.id),
+          fetchMyProfileWithRetry(userId),
           fetchReports().catch(() => []),
           fetchOrganizations().catch(() => []),
-          fetchNotifications(user.id).catch(() => []),
+          fetchNotifications(userId).catch(() => []),
           fetchAnnouncements().catch(() => []),
         ]);
         if (cancelled) return;
@@ -83,19 +86,25 @@ export default function App() {
         setMyOrg(await fetchOrgById(p.org_id).catch(() => null));
         setNotifications(notifs);
         setAnnouncements(announces);
+      } catch (e) {
+        // Sessiya bor, lekin profil o'qilmadi (masalan, foydalanuvchi bazadan o'chirilgan) —
+        // eskirgan sessiyani tozalaymiz, shunda kirish ekrani qayta ishlaydi va qotib qolmaydi.
+        console.error("Profilni yuklab bo'lmadi:", e);
+        if (!cancelled) await signOut().catch(() => {});
       } finally {
         if (!cancelled) setBooting(false);
       }
     })();
     return () => { cancelled = true; };
-  }, [user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
 
   useEffect(() => {
-    if (!user) return;
-    const unsubscribeReports = subscribeToReports(() => refreshReports());
-    const unsubscribeNotifs = subscribeToNotifications(user.id, (n) => setNotifications((prev) => [n, ...prev]));
+    if (!userId) return;
+    const unsubscribeReports = subscribeToReports(() => refreshReports().catch(() => {}));
+    const unsubscribeNotifs = subscribeToNotifications(userId, (n) => setNotifications((prev) => [n, ...prev]));
     return () => { unsubscribeReports(); unsubscribeNotifs(); };
-  }, [user, refreshReports]);
+  }, [userId, refreshReports]);
 
   // Fuqaroning tumanini brauzer GPS'i orqali aniqlash — profilga bir marta yoziladi.
   useEffect(() => {
@@ -104,11 +113,15 @@ export default function App() {
       async (pos) => {
         const { latitude, longitude } = pos.coords;
         const loc = nearestLocation(latitude, longitude);
-        const updated = await updateMyProfile(profile.id, {
-          detected_region: loc?.region || null, detected_district: loc?.district || null,
-          home_lat: latitude, home_lng: longitude,
-        });
-        setProfile(updated);
+        try {
+          const updated = await updateMyProfile(profile.id, {
+            detected_region: loc?.region || null, detected_district: loc?.district || null,
+            home_lat: latitude, home_lng: longitude,
+          });
+          setProfile(updated);
+        } catch (e) {
+          console.error(e);
+        }
       },
       (err) => {
         const msg = err.code === 1 ? t("app.geo.permissionDenied") : t("app.geo.unavailable");
@@ -119,13 +132,27 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.id]);
 
+  // Tugma bosilganda ishlaydigan async amallar (status o'zgartirish, tayinlash, o'chirish va h.k.)
+  // xato bersa, ular jim yutilib ketmasin — umumiy ushlagich foydalanuvchiga toast ko'rsatadi.
+  useEffect(() => {
+    const onRejection = (event) => {
+      const err = event.reason;
+      console.error(err);
+      const msg = err?.message;
+      setToast(msg ? `${t("common.error")} (${msg})` : t("common.error"));
+      setTimeout(() => setToast(null), 4500);
+    };
+    window.addEventListener("unhandledrejection", onRejection);
+    return () => window.removeEventListener("unhandledrejection", onRejection);
+  }, [t]);
+
   const handleSignOut = async () => {
     await signOut();
     setPortal("citizen");
     setView("home");
   };
 
-  if (authLoading || (user && booting)) {
+  if (authLoading || (user && (booting || !profile))) {
     return (
       <div style={S.page} className="oc-aurora">
         <GlobalStyle />
@@ -170,7 +197,7 @@ export default function App() {
         )}
       </div>
       </div>
-      {toast && <div style={S.toast}>{toast}</div>}
+      {toast && <div style={S.toast} className="oc-toast">{toast}</div>}
       <AssistantChat />
     </div>
   );

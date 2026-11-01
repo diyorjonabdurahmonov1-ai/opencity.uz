@@ -50,8 +50,10 @@ export function OrganizationPortal({ profile, myOrg, reports, refreshReports, an
       const [url, flag] = await Promise.all([uploadPhoto(profile.id, blob), verifyPhoto(blob)]);
       setProofUrls((p) => [...p, url]);
       setProofFlags((p) => [...p, flag]);
-    } catch {
-      // e'tiborsiz qoldiramiz — foydalanuvchi qayta urinib ko'rishi mumkin
+    } catch (err) {
+      // foydalanuvchi qayta urinib ko'rishi mumkin — lekin nima bo'lganini bilsin
+      console.error(err);
+      showToast(err?.message ? `${t("common.error")} (${err.message})` : t("common.error"));
     }
     setUploading(false);
   };
@@ -158,7 +160,7 @@ export function OrganizationPortal({ profile, myOrg, reports, refreshReports, an
             <StatCard label={t("org.statInProgress")} value={assigned.filter((r) => r.status === "in_progress").length} accent="#1C8B80" />
             <StatCard label={t("org.statResolved")} value={assigned.filter((r) => r.status === "resolved" || r.status === "closed").length} accent="#2E9A5C" />
           </div>
-          <h3 style={S.sectionTitle}>{t("org.assignedReportsTitle")}</h3>
+          <h3 style={S.sectionTitle} className="oc-section-title">{t("org.assignedReportsTitle")}</h3>
           {assigned.length === 0 ? <EmptyState icon={ClipboardList} text={t("org.assignedEmpty")} /> : (
             <div style={S.reportGrid}>{assigned.map((r) => <ReportCard key={r.id} report={r} onClick={() => setOpenId(r.id)} />)}</div>
           )}
@@ -192,7 +194,7 @@ function AnnouncementsSection({ profile, myOrg, announcements, refreshAnnounceme
     <div>
       <AnnouncementForm profile={profile} myOrg={myOrg}
         onCreated={async () => { await refreshAnnouncements(); showToast(t("org.toasts.announcementCreated")); }} />
-      <h3 style={S.sectionTitle}>{t("org.announcementsSection.yourAnnouncements")}</h3>
+      <h3 style={S.sectionTitle} className="oc-section-title">{t("org.announcementsSection.yourAnnouncements")}</h3>
       {mine.length === 0 ? <EmptyState icon={Megaphone} text={t("org.announcementsSection.empty")} /> : (
         <div style={S.appList}>
           {mine.map((a) => (

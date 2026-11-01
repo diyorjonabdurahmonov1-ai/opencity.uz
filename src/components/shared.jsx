@@ -62,7 +62,7 @@ export function SideNav({ items, active, onChange }) {
         const Icon = it.icon;
         const isActive = active === it.id || (active === "report" && it.id === "home") || (active === "apply-org" && it.id === "profile");
         return (
-          <button key={it.id} onClick={() => onChange(it.id)} className="oc-sidenav-item"
+          <button key={it.id} onClick={() => onChange(it.id)} className={isActive ? "oc-sidenav-item oc-nav-active" : "oc-sidenav-item"}
             style={{ ...S.sidenavItem, ...(isActive ? S.sidenavItemActive : {}) }}>
             <Icon size={17} /><span className="oc-sidenav-label">{it.label}</span>
           </button>
@@ -166,7 +166,7 @@ function useCountUp(value, duration = 650) {
 
 export function StatCard({ label, value, accent }) {
   const display = useCountUp(value);
-  return (<div style={S.statCard} className="oc-card"><div style={{ ...S.statValue, color: accent || "#16202B" }}>{display}</div><div style={S.statLabel}>{label}</div></div>);
+  return (<div style={{ ...S.statCard, "--accent": accent || "#C9A24A" }} className="oc-card oc-stat-tile"><div style={{ ...S.statValue, color: accent || "#16202B" }}>{display}</div><div style={S.statLabel}>{label}</div></div>);
 }
 
 export function EmptyState({ icon: Icon, text }) {
@@ -236,11 +236,18 @@ export function CityMap({ reports, title, compact = false, center, profile, myOr
   const filtered = base.filter((r) => (catFilter === "all" || r.category === catFilter) && r.coords?.lat != null && r.coords?.lng != null);
   const open = reports.find((r) => r.id === openId);
 
-  const handleVote = async (reportId, alreadyVoted) => {
+  const safe = (fn) => async (...args) => {
+    try { return await fn(...args); } catch (e) {
+      console.error(e);
+      showToast?.(e?.message ? `${t("common.error")} (${e.message})` : t("common.error"));
+    }
+  };
+
+  const handleVote = safe(async (reportId, alreadyVoted) => {
     if (!profile) return;
     await toggleVote(reportId, profile.id, alreadyVoted);
     await refreshReports?.();
-  };
+  });
 
   const geoErrorMessage = (err) => {
     if (err.code === 1) return t("shared.geo.permissionDenied");
@@ -354,21 +361,21 @@ export function CityMap({ reports, title, compact = false, center, profile, myOr
               report={detailReport}
               onBack={() => setDetailId(null)}
               canClaim={canClaim}
-              onClaim={async () => {
+              onClaim={safe(async () => {
                 await claimReport(detailReport.id, myOrg.id, myOrg.name, t);
                 await refreshReports?.();
                 showToast?.(t("shared.reportDetail.claimedToast", { title: detailReport.title }));
                 setDetailId(null);
-              }}
+              })}
               profile={profile}
               onVote={profile ? handleVote : undefined}
-              onDelete={profile && detailReport?.createdBy === profile.id ? async (id) => {
+              onDelete={profile && detailReport?.createdBy === profile.id ? safe(async (id) => {
                 await deleteReport(id);
                 await refreshReports?.();
                 showToast?.(t("shared.reportDetail.deletedToast"));
                 setDetailId(null);
                 setOpenId(null);
-              } : undefined}
+              }) : undefined}
             />
           </Modal>
         );
@@ -411,7 +418,7 @@ export function Timeline({ events }) {
       {events.map((ev, i) => {
         const st = STATUS[ev.status];
         return (
-          <div key={ev.id} style={S.timelineRow}>
+          <div key={ev.id || `${ev.status}-${ev.at}-${i}`} style={S.timelineRow}>
             <div style={S.timelineDotWrap}>
               <div style={{ ...S.timelineDot, background: st?.color || "#7A8A99" }} />
               {i < events.length - 1 && <div style={S.timelineLine} />}
@@ -495,11 +502,11 @@ export function ReportDetail({ report, onBack, canClaim = false, onClaim, profil
       )}
       {report.resolutionPhotos?.length > 0 && (
         <>
-          <h3 style={S.sectionTitle}>{t("shared.reportDetail.resolutionPhotos")}</h3>
+          <h3 style={S.sectionTitle} className="oc-section-title">{t("shared.reportDetail.resolutionPhotos")}</h3>
           <div style={S.proofRow}>{report.resolutionPhotos.map((p, i) => <img key={i} src={p} style={S.proofImg} alt="" onClick={() => setLightbox(p)} />)}</div>
         </>
       )}
-      <h3 style={S.sectionTitle}>{t("shared.reportDetail.statusHistory")}</h3>
+      <h3 style={S.sectionTitle} className="oc-section-title">{t("shared.reportDetail.statusHistory")}</h3>
       <Timeline events={report.timeline} />
       {lightbox && (
         <div style={S.lightboxBackdrop} onClick={() => setLightbox(null)}>

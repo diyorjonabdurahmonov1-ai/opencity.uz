@@ -68,8 +68,17 @@ export function isHot(report) {
 export const now = () => new Date().toISOString();
 
 const DATE_LOCALE = { uz: "uz-UZ", ru: "ru-RU", en: "en-US" };
+// Brauzerlarning ICU ma'lumotlarida o'zbekcha qisqa oy nomlari yo'q (Chrome "2026 M11 01"
+// deb chiqaradi), shuning uchun o'zbek tili uchun sanani qo'lda formatlaymiz.
+const UZ_MONTHS = ["yan", "fev", "mar", "apr", "may", "iyn", "iyl", "avg", "sen", "okt", "noy", "dek"];
 export function fmtDate(iso, lang = "uz") {
-  return new Date(iso).toLocaleString(DATE_LOCALE[lang] || "uz-UZ", {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  if (!DATE_LOCALE[lang] || lang === "uz") {
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${pad(d.getDate())} ${UZ_MONTHS[d.getMonth()]} ${d.getFullYear()}, ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+  return d.toLocaleString(DATE_LOCALE[lang], {
     day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit",
   });
 }

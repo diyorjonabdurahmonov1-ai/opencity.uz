@@ -188,15 +188,24 @@ export function ReportWizard({ profile, reports, onDone, onCancel, onVoteInstead
   const submit = async () => {
     setSubmitting(true);
     setError("");
+    let report;
     try {
       const photoUrls = [];
       for (const blob of photoBlobs) photoUrls.push(await uploadPhoto(profile.id, blob));
-      const report = await createReport(profile, {
+      report = await createReport(profile, {
         category, title: title.trim(), description: description.trim(), photoUrls, region, district, address, coords,
       }, t);
-      onDone(report);
     } catch (e) {
       setError(e.message || t("wizard.errorGeneric"));
+      setSubmitting(false);
+      return;
+    }
+    // Hisobot allaqachon yaratildi — keyingi qadamlar (ro'yxatni yangilash, bildirishnoma) xato
+    // bersa ham, foydalanuvchiga "xato" ko'rsatmaymiz, aks holda u qayta yuborib dublikat yaratadi.
+    try {
+      await onDone(report);
+    } catch (e) {
+      console.error(e);
     } finally {
       setSubmitting(false);
     }

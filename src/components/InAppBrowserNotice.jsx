@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { ExternalLink, Copy, Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { S } from "../styles";
-import { LanguageSwitcher } from "./LanguageSwitcher";
+import { NightScene } from "./NightScene";
 
 // Instagram, Facebook, TikTok va h.k. ilova ichidagi brauzerlarni aniqlaydi.
 // Google shu turdagi "in-app" brauzerlardan OAuth orqali kirishni xavfsizlik
@@ -57,16 +57,12 @@ export function InAppBrowserNotice({ source }) {
   };
 
   return (
-    <div style={S.signinWrap} className="oc-signin-bg">
-      <div className="oc-dotgrid" />
-      <div style={S.signinCard} className="oc-signin-card-in">
-        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 6 }}>
-          <LanguageSwitcher />
+    <NightScene>
+      <div style={S.signinCard} className="oc-signin-card-in oc-arch">
+        <div style={S.signinArchCrown}>
+          <img src="/icon-192.png" alt="OpenCity" style={S.signinLogo} />
         </div>
-        <div style={S.brandRow}>
-          <img src="/icon-192.png" alt="OpenCity" style={{ ...S.brandMark, width: 56, height: 56, borderRadius: 16 }} />
-          <div style={S.brandName}>OpenCity</div>
-        </div>
+        <div style={{ ...S.brandNameCenter, marginBottom: 18 }}>OpenCity</div>
         <h1 style={{ ...S.h1, fontSize: 24 }}>{t("inAppBrowser.heading")}</h1>
         <p style={S.lead}>{t("inAppBrowser.explain", { app: t(`inAppBrowser.apps.${source}`) })}</p>
         <ol style={{ ...S.lead, margin: "0 0 20px", paddingLeft: 20 }}>
@@ -92,6 +88,6 @@ export function InAppBrowserNotice({ source }) {
           {t("inAppBrowser.hint")}
         </p>
       </div>
-    </div>
+    </NightScene>
   );
 }
