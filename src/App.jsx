@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { changeLanguage } from "./i18n";
-import { useAuth } from "./hooks/useAuth";
+import { useAuth, TEMP_SKIP_GOOGLE_AUTH } from "./hooks/useAuth";
 import { fetchMyProfile, updateMyProfile } from "./lib/api/profiles";
 import { fetchReports, subscribeToReports } from "./lib/api/reports";
 import { fetchOrganizations, fetchOrgById } from "./lib/api/organizations";
@@ -138,7 +138,7 @@ export default function App() {
       </div>
     );
   }
-  if ((!user || !profile) && inAppBrowser) {
+  if ((!user || !profile) && inAppBrowser && !TEMP_SKIP_GOOGLE_AUTH) {
     return (<div style={S.page} className="oc-aurora"><GlobalStyle /><InAppBrowserNotice source={inAppBrowser} /></div>);
   }
   if (!user || !profile) {
